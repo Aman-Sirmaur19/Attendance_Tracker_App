@@ -1,6 +1,6 @@
 class Attendance {
   final String id;
-  DateTime time;
+  String time;
   late final String subject;
   int present;
   int absent;
@@ -14,4 +14,22 @@ class Attendance {
     this.absent,
     this.requirement,
   );
+
+  factory Attendance.fromJson(Map<String, dynamic> json) => Attendance(
+        json['id'],
+        json['time'],
+        json['subject'],
+        json['present'],
+        json['absent'],
+        json['requirement'],
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'time': time,
+        'subject': subject,
+        'present': present,
+        'absent': absent,
+        'requirement': requirement,
+      };
 }

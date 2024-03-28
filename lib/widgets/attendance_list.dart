@@ -8,8 +8,11 @@ import '../widgets/chart_bar.dart';
 class AttendanceList extends StatefulWidget {
   final List<Attendance> attendances;
   final Function deleteAttendance;
+  final Function editAttendance;
 
-  const AttendanceList(this.attendances, this.deleteAttendance, {super.key});
+  const AttendanceList(
+      this.attendances, this.deleteAttendance, this.editAttendance,
+      {super.key});
 
   @override
   State<AttendanceList> createState() => _AttendanceListState();
@@ -52,10 +55,10 @@ class _AttendanceListState extends State<AttendanceList> {
             itemCount: widget.attendances.length,
             itemBuilder: (ctx, index) {
               final isExpanded = _expandedIndex == index;
-              final String date =
-                  DateFormat.yMMMd().format(widget.attendances[index].time);
-              final String time =
-                  DateFormat('hh:mm a').format(widget.attendances[index].time);
+              final DateTime dateTime =
+                  DateTime.parse(widget.attendances[index].time);
+              final String date = DateFormat.yMMMd().format(dateTime);
+              final String time = DateFormat('hh:mm a').format(dateTime);
 
               ///----------------------------------------------------------------------------
               final total = widget.attendances[index].present +
@@ -102,12 +105,12 @@ class _AttendanceListState extends State<AttendanceList> {
                   },
                   onDismissed: (direction) {
                     setState(() {
-                      widget.attendances.removeAt(index);
+                      widget.deleteAttendance(
+                          widget.attendances[index].id);
                       if (_expandedIndex == index) {
-                        _expandedIndex =
-                            -1; // Reset expanded index if the expanded item is deleted
+                        _expandedIndex = -1;
                       } else if (_expandedIndex > index) {
-                        _expandedIndex--; // Adjust expanded index if an item above the expanded item is deleted
+                        _expandedIndex--;
                       }
                     });
                   },
@@ -223,9 +226,16 @@ class _AttendanceListState extends State<AttendanceList> {
                                                 widget.attendances[index]
                                                     .present--;
                                                 widget.attendances[index].time =
-                                                    DateTime.now();
+                                                    DateTime.now().toString();
                                               }
                                             });
+                                            widget.editAttendance(
+                                              widget.attendances[index].id,
+                                              widget.attendances[index].present,
+                                              widget.attendances[index].absent,
+                                              widget.attendances[index]
+                                                  .requirement,
+                                            );
                                           },
                                           icon: const Icon(Icons.remove_circle,
                                               color: Colors.green)),
@@ -239,8 +249,15 @@ class _AttendanceListState extends State<AttendanceList> {
                                               widget
                                                   .attendances[index].present++;
                                               widget.attendances[index].time =
-                                                  DateTime.now();
+                                                  DateTime.now().toString();
                                             });
+                                            widget.editAttendance(
+                                              widget.attendances[index].id,
+                                              widget.attendances[index].present,
+                                              widget.attendances[index].absent,
+                                              widget.attendances[index]
+                                                  .requirement,
+                                            );
                                           },
                                           icon: const Icon(Icons.add_circle,
                                               color: Colors.green))
@@ -263,9 +280,16 @@ class _AttendanceListState extends State<AttendanceList> {
                                                 widget.attendances[index]
                                                     .absent--;
                                                 widget.attendances[index].time =
-                                                    DateTime.now();
+                                                    DateTime.now().toString();
                                               }
                                             });
+                                            widget.editAttendance(
+                                              widget.attendances[index].id,
+                                              widget.attendances[index].present,
+                                              widget.attendances[index].absent,
+                                              widget.attendances[index]
+                                                  .requirement,
+                                            );
                                           },
                                           icon: const Icon(Icons.remove_circle,
                                               color: Colors.green)),
@@ -279,8 +303,15 @@ class _AttendanceListState extends State<AttendanceList> {
                                               widget
                                                   .attendances[index].absent++;
                                               widget.attendances[index].time =
-                                                  DateTime.now();
+                                                  DateTime.now().toString();
                                             });
+                                            widget.editAttendance(
+                                              widget.attendances[index].id,
+                                              widget.attendances[index].present,
+                                              widget.attendances[index].absent,
+                                              widget.attendances[index]
+                                                  .requirement,
+                                            );
                                           },
                                           icon: const Icon(Icons.add_circle,
                                               color: Colors.green))
@@ -303,9 +334,16 @@ class _AttendanceListState extends State<AttendanceList> {
                                                 widget.attendances[index]
                                                     .requirement -= 5;
                                                 widget.attendances[index].time =
-                                                    DateTime.now();
+                                                    DateTime.now().toString();
                                               }
                                             });
+                                            widget.editAttendance(
+                                              widget.attendances[index].id,
+                                              widget.attendances[index].present,
+                                              widget.attendances[index].absent,
+                                              widget.attendances[index]
+                                                  .requirement,
+                                            );
                                           },
                                           icon: const Icon(Icons.remove_circle,
                                               color: Colors.green)),
@@ -322,9 +360,16 @@ class _AttendanceListState extends State<AttendanceList> {
                                                 widget.attendances[index]
                                                     .requirement += 5;
                                                 widget.attendances[index].time =
-                                                    DateTime.now();
+                                                    DateTime.now().toString();
                                               }
                                             });
+                                            widget.editAttendance(
+                                              widget.attendances[index].id,
+                                              widget.attendances[index].present,
+                                              widget.attendances[index].absent,
+                                              widget.attendances[index]
+                                                  .requirement,
+                                            );
                                           },
                                           icon: const Icon(Icons.add_circle,
                                               color: Colors.green))

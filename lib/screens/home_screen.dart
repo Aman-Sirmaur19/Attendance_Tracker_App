@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/attendance.dart';
 import '../widgets/attendance_list.dart';
@@ -12,7 +15,29 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Attendance> _userAttendances = [];
+  late SharedPreferences prefs;
+  List<Attendance> _userAttendances = [];
+
+  getSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+    readData();
+  }
+
+  void saveData() {
+    List<String> attendanceListString =
+    _userAttendances.map((attendance) => jsonEncode(attendance.toJson())).toList();
+    prefs.setStringList('myData', attendanceListString);
+  }
+
+  void readData() {
+    List<String>? attendanceListString = prefs.getStringList('myData');
+    if (attendanceListString != null) {
+      _userAttendances = attendanceListString
+          .map((attendance) => Attendance.fromJson(json.decode(attendance)))
+          .toList();
+    }
+    setState(() {});
+  }
 
   void _addNewAttendance(
     String subject,
@@ -22,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     final newAttendance = Attendance(
       DateTime.now().toString(),
-      DateTime.now(),
+      DateTime.now().toString(),
       subject,
       present,
       absent,
@@ -32,6 +57,24 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _userAttendances.add(newAttendance);
     });
+    saveData();
+  }
+
+  void _editAttendance(
+      String id,
+      int present,
+      int absent,
+      int requirement,
+      ) {
+    final index = _userAttendances.indexWhere((attendance) => attendance.id == id);
+    if (index != -1) {
+      setState(() {
+        _userAttendances[index].present = present;
+        _userAttendances[index].absent = absent;
+        _userAttendances[index].requirement = requirement;
+      });
+      saveData();
+    }
   }
 
   void _startAddNewAttendance(BuildContext ctx) {
@@ -46,6 +89,13 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _userAttendances.removeWhere((attendance) => attendance.id == id);
     });
+    saveData();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getSharedPreferences();
   }
 
   @override
@@ -64,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
         tooltip: 'Add subject',
         child: const Icon(Icons.add),
       ),
-      body: AttendanceList(_userAttendances, _deleteAttendance),
+      body: AttendanceList(_userAttendances, _deleteAttendance, _editAttendance),
     );
   }
 }
