@@ -1,0 +1,70 @@
+import 'package:flutter/material.dart';
+
+import './home_screen.dart';
+import './routine_screen.dart';
+
+class TabScreen extends StatefulWidget {
+  const TabScreen({super.key});
+
+  @override
+  State<TabScreen> createState() => _TabScreenState();
+}
+
+class _TabScreenState extends State<TabScreen> {
+  late List<Map<String, dynamic>> _pages;
+  int _selectedPageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      {
+        'page': const HomeScreen(),
+        'title': 'Attendance Tracker',
+      },
+      {
+        'page': const RoutineScreen(),
+        'title': 'Routine',
+      }
+    ];
+  }
+
+  void _selectPage(int index) {
+    setState(() {
+      _selectedPageIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: Text(
+          _pages[_selectedPageIndex]['title'],
+          style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: _pages[_selectedPageIndex]['page'],
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: _selectPage,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Theme.of(context).colorScheme.secondary,
+        currentIndex: _selectedPageIndex,
+        // type: BottomNavigationBarType.shifting,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.stacked_bar_chart_rounded),
+            label: 'Routine',
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -60,18 +60,17 @@ class _AttendanceListState extends State<AttendanceList> {
               final String date = DateFormat.yMMMd().format(dateTime);
               final String time = DateFormat('hh:mm a').format(dateTime);
 
-              ///----------------------------------------------------------------------------
+              ///---------------------------------------------------------------
               final total = widget.attendances[index].present +
                   widget.attendances[index].absent;
               double required =
                   (total * widget.attendances[index].requirement) -
                       widget.attendances[index].present * 100;
               required /= (100 - widget.attendances[index].requirement);
-              final percentage = (widget.attendances[index].present * 100) /
-                  (widget.attendances[index].present +
-                      widget.attendances[index].absent);
+              final percentage =
+                  (widget.attendances[index].present * 100) / (total);
 
-              ///----------------------------------------------------------------------------
+              ///---------------------------------------------------------------
               return Padding(
                 padding: EdgeInsets.symmetric(
                     horizontal: mq.width * .03, vertical: mq.height * .005),
@@ -105,8 +104,7 @@ class _AttendanceListState extends State<AttendanceList> {
                   },
                   onDismissed: (direction) {
                     setState(() {
-                      widget.deleteAttendance(
-                          widget.attendances[index].id);
+                      widget.deleteAttendance(widget.attendances[index].id);
                       if (_expandedIndex == index) {
                         _expandedIndex = -1;
                       } else if (_expandedIndex > index) {
@@ -115,7 +113,10 @@ class _AttendanceListState extends State<AttendanceList> {
                     });
                   },
                   background: Container(
-                    color: Theme.of(context).colorScheme.error,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                     padding: const EdgeInsets.only(right: 20),
                     alignment: Alignment.centerRight,
                     margin: const EdgeInsets.symmetric(
@@ -169,12 +170,17 @@ class _AttendanceListState extends State<AttendanceList> {
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.red)),
+                                        Text(
+                                            'Req.: ${widget.attendances[index].requirement} %',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.green)),
                                       ],
                                     ),
                                     Padding(
                                       padding: EdgeInsets.only(
                                           top: mq.height * .005),
-                                      child: Text('Last updated: $time $date',
+                                      child: Text('Last updated: $time\n$date',
                                           style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.grey)),
@@ -197,19 +203,6 @@ class _AttendanceListState extends State<AttendanceList> {
                                       ),
                                   ],
                                 ),
-                              ),
-                              trailing: IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  widget.deleteAttendance(
-                                      widget.attendances[index].id);
-                                  if (_expandedIndex == index) {
-                                    _expandedIndex = -1;
-                                  } else if (_expandedIndex > index) {
-                                    _expandedIndex--;
-                                  }
-                                },
                               ),
                             ),
                             if (isExpanded)
