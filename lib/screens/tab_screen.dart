@@ -49,18 +49,17 @@ class _TabScreenState extends State<TabScreen> {
       body: _pages[_selectedPageIndex]['page'],
       bottomNavigationBar: BottomNavigationBar(
         onTap: _selectPage,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Theme.of(context).colorScheme.secondary,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.black.withOpacity(.5),
         currentIndex: _selectedPageIndex,
-        // type: BottomNavigationBarType.shifting,
+        type: BottomNavigationBarType.shifting,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.stacked_bar_chart_rounded),
+            label: 'Attendance',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.stacked_bar_chart_rounded),
+            icon: Icon(Icons.calendar_month_rounded),
             label: 'Routine',
           ),
         ],

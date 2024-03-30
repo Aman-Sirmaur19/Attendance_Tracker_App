@@ -62,7 +62,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
             SmoothPageIndicator(
               controller: _pageController,
               count: daysOfWeek.length,
-              effect: const WormEffect(),
+              effect: const WormEffect(activeDotColor: Colors.blue),
             ),
           ],
         ));
