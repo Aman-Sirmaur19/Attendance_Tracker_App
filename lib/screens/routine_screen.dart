@@ -43,10 +43,21 @@ class _RoutineScreenState extends State<RoutineScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _addSubject(_pageController.page!.toInt()),
-          tooltip: 'Add subject',
-          child: const Icon(Icons.add),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: const Text(
+            'Routine',
+            style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+          ),
+          actions: [
+            IconButton(
+              onPressed: () => _addSubject(_pageController.page!.toInt()),
+              tooltip: 'Add routine',
+              icon: const Icon(Icons.add),
+            )
+          ],
         ),
         body: Column(
           children: [
@@ -71,54 +82,82 @@ class _RoutineScreenState extends State<RoutineScreen> {
   Widget buildDayPage(int dayIndex) {
     return Padding(
       padding: EdgeInsets.all(mq.width * .03),
-      child: Column(
-        children: [
-          Text(
-            daysOfWeek[dayIndex],
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: subjects[dayIndex].length,
-            itemBuilder: (context, subjectIndex) {
-              String subjectInfo = subjects[dayIndex][subjectIndex];
-              List<String> infoParts = subjectInfo.split(' - ');
-              String subjectName = infoParts[0];
-              String timeInfo = infoParts[
-                  1]; // Assuming time info is formatted as 'Starting Time to Ending Time'
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Text(
+              daysOfWeek[dayIndex],
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            subjects[dayIndex].isEmpty
+                ? Center(
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(top: mq.height * .04),
+                          child: Text(
+                            'No routine added yet!',
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black.withOpacity(.67),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: mq.height * .04),
+                        SizedBox(
+                          height: mq.height * 0.4,
+                          child: Image.asset(
+                            'assets/images/waiting.png',
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: subjects[dayIndex].length,
+                    itemBuilder: (context, subjectIndex) {
+                      String subjectInfo = subjects[dayIndex][subjectIndex];
+                      List<String> infoParts = subjectInfo.split(' - ');
+                      String subjectName = infoParts[0];
+                      String timeInfo = infoParts[
+                          1]; // Assuming time info is formatted as 'Starting Time to Ending Time'
 
-              return Card(
-                child: ListTile(
-                  title: Text(
-                    subjectName,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    timeInfo,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      setState(() {
-                        subjects[dayIndex].removeAt(subjectIndex);
-                        saveSubjects(dayIndex);
-                      });
+                      return Card(
+                        child: ListTile(
+                          title: Text(
+                            subjectName,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text(
+                            timeInfo,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                subjects[dayIndex].removeAt(subjectIndex);
+                                saveSubjects(dayIndex);
+                              });
+                            },
+                          ),
+                        ),
+                      );
                     },
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

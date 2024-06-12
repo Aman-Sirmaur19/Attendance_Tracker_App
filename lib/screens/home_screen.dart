@@ -26,10 +26,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _startAddNewAttendance(context),
-        tooltip: 'Add subject',
-        child: const Icon(Icons.add),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text(
+          'Attendance Tracker',
+          style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => _startAddNewAttendance(context),
+            tooltip: 'Add subject',
+            icon: const Icon(Icons.add),
+          )
+        ],
       ),
       body:
           AttendanceList(_userAttendances, _deleteAttendance, _editAttendance),

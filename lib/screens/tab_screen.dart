@@ -20,11 +20,11 @@ class _TabScreenState extends State<TabScreen> {
     _pages = [
       {
         'page': const HomeScreen(),
-        'title': 'Attendance Tracker',
+        // 'title': 'Attendance Tracker',
       },
       {
         'page': const RoutineScreen(),
-        'title': 'Routine',
+        // 'title': 'Routine',
       }
     ];
   }
@@ -38,14 +38,6 @@ class _TabScreenState extends State<TabScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: Text(
-          _pages[_selectedPageIndex]['title'],
-          style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-        ),
-      ),
       body: _pages[_selectedPageIndex]['page'],
       bottomNavigationBar: BottomNavigationBar(
         onTap: _selectPage,
