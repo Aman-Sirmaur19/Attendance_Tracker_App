@@ -276,9 +276,9 @@ class _AttendanceListState extends State<AttendanceList> {
                                           Padding(
                                             padding: EdgeInsets.only(
                                                 top: mq.height * .005),
-                                            child: Text(required == 1
-                                                ? 'Attend ${(required).toInt()} class.'
-                                                : 'Attend ${(required).toInt()} classes in a row.'),
+                                            child: Text(required > 1
+                                                ? 'Attend ${required.ceil()} classes in a row.'
+                                                : 'Attend 1 class.'),
                                           ),
                                       ],
                                     ),
