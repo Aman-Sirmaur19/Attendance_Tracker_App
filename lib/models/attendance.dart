@@ -1,7 +1,7 @@
 class Attendance {
   final String id;
   String time;
-  late final String subject;
+  String subject;
   int present;
   int absent;
   int requirement;

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../main.dart';
-
 class NewAttendance extends StatefulWidget {
   final Function addAttendance;
 
@@ -17,17 +15,11 @@ class _NewAttendanceState extends State<NewAttendance> {
   int missed = 0;
   int required = 75;
 
-  void _submitData() {
-    final enteredSubject = _subjectController.text;
-    if (enteredSubject.isEmpty) return;
-    widget.addAttendance(enteredSubject, attended, missed, required);
-    Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: TextField(
+        style: const TextStyle(fontWeight: FontWeight.bold),
         decoration: const InputDecoration(
             hintText: 'Eg. Physics',
             hintStyle: TextStyle(
@@ -43,103 +35,43 @@ class _NewAttendanceState extends State<NewAttendance> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                children: [
-                  Row(children: [
-                    IconButton(
-                        onPressed: () {
-                          setState(() {
-                            if (attended != 0) {
-                              attended--;
-                            }
-                          });
-                        },
-                        icon: const Icon(Icons.remove_circle,
-                            color: Colors.green)),
-                    Text('$attended',
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    IconButton(
-                        onPressed: () {
-                          setState(() {
-                            attended++;
-                          });
-                        },
-                        icon: const Icon(Icons.add_circle, color: Colors.green))
-                  ]),
-                  const Text('Attended',
-                      style: TextStyle(
-                          letterSpacing: 1, fontWeight: FontWeight.bold))
-                ],
-              ),
-              Column(
-                children: [
-                  Row(children: [
-                    IconButton(
-                        onPressed: () {
-                          setState(() {
-                            if (missed != 0) {
-                              missed--;
-                            }
-                          });
-                        },
-                        icon: const Icon(Icons.remove_circle,
-                            color: Colors.green)),
-                    Text('$missed',
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    IconButton(
-                        onPressed: () {
-                          setState(() {
-                            missed++;
-                          });
-                        },
-                        icon: const Icon(Icons.add_circle, color: Colors.green))
-                  ]),
-                  const Text('Missed',
-                      style: TextStyle(
-                          letterSpacing: 1, fontWeight: FontWeight.bold)),
-                ],
-              ),
+              customButton('Attended', '$attended', () {
+                setState(() {
+                  if (attended != 0) {
+                    attended--;
+                  }
+                });
+              }, () {
+                setState(() {
+                  attended++;
+                });
+              }),
+              customButton('Missed', '$missed', () {
+                setState(() {
+                  if (missed != 0) {
+                    missed--;
+                  }
+                });
+              }, () {
+                setState(() {
+                  missed++;
+                });
+              }),
             ],
           ),
-          Padding(
-            padding: EdgeInsets.only(top: mq.height * .03),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
-                  children: [
-                    Row(children: [
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              if (required != 0) {
-                                required -= 5;
-                              }
-                            });
-                          },
-                          icon: const Icon(Icons.remove_circle,
-                              color: Colors.green)),
-                      Text('$required %',
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              if (required < 100) {
-                                required += 5;
-                              }
-                            });
-                          },
-                          icon:
-                              const Icon(Icons.add_circle, color: Colors.green))
-                    ]),
-                    const Text('Required',
-                        style: TextStyle(
-                            letterSpacing: 1, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          customButton('Required', '$required %', () {
+            setState(() {
+              if (required != 0) {
+                required -= 5;
+              }
+            });
+          }, () {
+            setState(() {
+              if (required < 100) {
+                required += 5;
+              }
+            });
+          }),
         ],
       ),
       actions: [
@@ -156,5 +88,35 @@ class _NewAttendanceState extends State<NewAttendance> {
         ])
       ],
     );
+  }
+
+  Widget customButton(String name, String num, void Function()? onRemove,
+      void Function()? onAdd) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+                onPressed: onRemove,
+                icon: const Icon(Icons.remove_circle, color: Colors.green)),
+            Text(num, style: const TextStyle(fontWeight: FontWeight.bold)),
+            IconButton(
+                onPressed: onAdd,
+                icon: const Icon(Icons.add_circle, color: Colors.green)),
+          ],
+        ),
+        Text(name,
+            style:
+                const TextStyle(letterSpacing: 1, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  void _submitData() {
+    final enteredSubject = _subjectController.text;
+    if (enteredSubject.isEmpty) return;
+    widget.addAttendance(enteredSubject, attended, missed, required);
+    Navigator.of(context).pop();
   }
 }

@@ -42,8 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
-      body:
-          AttendanceList(_userAttendances, _deleteAttendance, _editAttendance),
+      body: AttendanceList(
+        _userAttendances,
+        _deleteAttendance,
+        _editAttendance,
+        _editSubjectName,
+      ),
     );
   }
 
@@ -91,6 +95,17 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (ctx) {
           return NewAttendance(_addNewAttendance);
         });
+  }
+
+  void _editSubjectName(String id, String name) {
+    final index =
+        _userAttendances.indexWhere((attendance) => attendance.id == id);
+    if (index != -1) {
+      setState(() {
+        _userAttendances[index].subject = name;
+      });
+      saveData();
+    }
   }
 
   void _editAttendance(
