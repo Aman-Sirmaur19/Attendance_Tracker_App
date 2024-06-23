@@ -64,6 +64,7 @@ class _AttendanceListState extends State<AttendanceList> {
         : GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 itemCount: widget.attendances.length,
                 itemBuilder: (ctx, index) {
                   final isExpanded = _expandedIndex == index;
@@ -276,9 +277,13 @@ class _AttendanceListState extends State<AttendanceList> {
                                           Padding(
                                             padding: EdgeInsets.only(
                                                 top: mq.height * .005),
-                                            child: Text(required > 1
-                                                ? 'Attend ${required.ceil()} classes in a row.'
-                                                : 'Attend 1 class.'),
+                                            child: Text(required <= 1
+                                                ? 'Attend 1 class.'
+                                                : widget.attendances[index]
+                                                            .requirement ==
+                                                        100
+                                                    ? 'Attend $required classes in a row.'
+                                                    : 'Attend ${required.ceil()} classes in a row.'),
                                           ),
                                       ],
                                     ),
