@@ -271,7 +271,16 @@ class _AttendanceListState extends State<AttendanceList> {
                                           Padding(
                                             padding: EdgeInsets.only(
                                                 top: mq.height * .005),
-                                            child: ChartBar(percentage / 100),
+                                            child: TweenAnimationBuilder(
+                                              tween: Tween<double>(
+                                                  begin: 0,
+                                                  end: percentage / 100),
+                                              duration:
+                                                  const Duration(seconds: 1),
+                                              builder: (context, double value,
+                                                      child) =>
+                                                  ChartBar(value),
+                                            ),
                                           ),
                                         if (required > 0)
                                           Padding(
@@ -300,103 +309,106 @@ class _AttendanceListState extends State<AttendanceList> {
   }
 
   Widget expandedContent(int index) {
-    return Row(children: [
-      customButton(
-        index,
-        'Attended',
-        '${widget.attendances[index].present}',
-        () {
-          setState(() {
-            if (widget.attendances[index].present != 0) {
-              widget.attendances[index].present--;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        customButton(
+          index,
+          'Attended',
+          '${widget.attendances[index].present}',
+          () {
+            setState(() {
+              if (widget.attendances[index].present != 0) {
+                widget.attendances[index].present--;
+                widget.attendances[index].time = DateTime.now().toString();
+              }
+            });
+            widget.editAttendance(
+              widget.attendances[index].id,
+              widget.attendances[index].present,
+              widget.attendances[index].absent,
+              widget.attendances[index].requirement,
+            );
+          },
+          () {
+            setState(() {
+              widget.attendances[index].present++;
               widget.attendances[index].time = DateTime.now().toString();
-            }
-          });
-          widget.editAttendance(
-            widget.attendances[index].id,
-            widget.attendances[index].present,
-            widget.attendances[index].absent,
-            widget.attendances[index].requirement,
-          );
-        },
-        () {
-          setState(() {
-            widget.attendances[index].present++;
-            widget.attendances[index].time = DateTime.now().toString();
-          });
-          widget.editAttendance(
-            widget.attendances[index].id,
-            widget.attendances[index].present,
-            widget.attendances[index].absent,
-            widget.attendances[index].requirement,
-          );
-        },
-      ),
-      customButton(
-        index,
-        'Missed',
-        '${widget.attendances[index].absent}',
-        () {
-          setState(() {
-            if (widget.attendances[index].absent != 0) {
-              widget.attendances[index].absent--;
+            });
+            widget.editAttendance(
+              widget.attendances[index].id,
+              widget.attendances[index].present,
+              widget.attendances[index].absent,
+              widget.attendances[index].requirement,
+            );
+          },
+        ),
+        customButton(
+          index,
+          'Missed',
+          '${widget.attendances[index].absent}',
+          () {
+            setState(() {
+              if (widget.attendances[index].absent != 0) {
+                widget.attendances[index].absent--;
+                widget.attendances[index].time = DateTime.now().toString();
+              }
+            });
+            widget.editAttendance(
+              widget.attendances[index].id,
+              widget.attendances[index].present,
+              widget.attendances[index].absent,
+              widget.attendances[index].requirement,
+            );
+          },
+          () {
+            setState(() {
+              widget.attendances[index].absent++;
               widget.attendances[index].time = DateTime.now().toString();
-            }
-          });
-          widget.editAttendance(
-            widget.attendances[index].id,
-            widget.attendances[index].present,
-            widget.attendances[index].absent,
-            widget.attendances[index].requirement,
-          );
-        },
-        () {
-          setState(() {
-            widget.attendances[index].absent++;
-            widget.attendances[index].time = DateTime.now().toString();
-          });
-          widget.editAttendance(
-            widget.attendances[index].id,
-            widget.attendances[index].present,
-            widget.attendances[index].absent,
-            widget.attendances[index].requirement,
-          );
-        },
-      ),
-      customButton(
-        index,
-        'Required',
-        '${widget.attendances[index].requirement}%',
-        () {
-          setState(() {
-            if (widget.attendances[index].requirement != 0) {
-              widget.attendances[index].requirement -= 5;
-              widget.attendances[index].time = DateTime.now().toString();
-            }
-          });
-          widget.editAttendance(
-            widget.attendances[index].id,
-            widget.attendances[index].present,
-            widget.attendances[index].absent,
-            widget.attendances[index].requirement,
-          );
-        },
-        () {
-          setState(() {
-            if (widget.attendances[index].requirement < 100) {
-              widget.attendances[index].requirement += 5;
-              widget.attendances[index].time = DateTime.now().toString();
-            }
-          });
-          widget.editAttendance(
-            widget.attendances[index].id,
-            widget.attendances[index].present,
-            widget.attendances[index].absent,
-            widget.attendances[index].requirement,
-          );
-        },
-      ),
-    ]);
+            });
+            widget.editAttendance(
+              widget.attendances[index].id,
+              widget.attendances[index].present,
+              widget.attendances[index].absent,
+              widget.attendances[index].requirement,
+            );
+          },
+        ),
+        customButton(
+          index,
+          'Required',
+          '${widget.attendances[index].requirement}%',
+          () {
+            setState(() {
+              if (widget.attendances[index].requirement != 0) {
+                widget.attendances[index].requirement -= 5;
+                widget.attendances[index].time = DateTime.now().toString();
+              }
+            });
+            widget.editAttendance(
+              widget.attendances[index].id,
+              widget.attendances[index].present,
+              widget.attendances[index].absent,
+              widget.attendances[index].requirement,
+            );
+          },
+          () {
+            setState(() {
+              if (widget.attendances[index].requirement < 100) {
+                widget.attendances[index].requirement += 5;
+                widget.attendances[index].time = DateTime.now().toString();
+              }
+            });
+            widget.editAttendance(
+              widget.attendances[index].id,
+              widget.attendances[index].present,
+              widget.attendances[index].absent,
+              widget.attendances[index].requirement,
+            );
+          },
+        ),
+      ],
+    );
   }
 
   Widget customButton(int index, String name, String num,

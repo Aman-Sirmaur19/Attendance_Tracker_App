@@ -36,6 +36,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
+            onPressed: () => _showInfoAlertDialog(context),
+            tooltip: 'Info',
+            icon: const Icon(Icons.info_outline_rounded),
+          ),
+          IconButton(
             onPressed: () => _startAddNewAttendance(context),
             tooltip: 'Add subject',
             icon: const Icon(Icons.add),
@@ -49,6 +54,15 @@ class _HomeScreenState extends State<HomeScreen> {
         _editSubjectName,
       ),
     );
+  }
+
+  void _showInfoAlertDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) => const AlertDialog(
+              title: Text('NOTE'),
+              content: Text('Swipe the cards to delete!'),
+            ));
   }
 
   void saveData() {
