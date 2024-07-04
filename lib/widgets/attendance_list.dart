@@ -275,8 +275,8 @@ class _AttendanceListState extends State<AttendanceList> {
                                               tween: Tween<double>(
                                                   begin: 0,
                                                   end: percentage / 100),
-                                              duration:
-                                                  const Duration(seconds: 1),
+                                              duration: const Duration(
+                                                  milliseconds: 500),
                                               builder: (context, double value,
                                                       child) =>
                                                   ChartBar(value),
