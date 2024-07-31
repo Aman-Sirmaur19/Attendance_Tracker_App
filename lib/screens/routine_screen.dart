@@ -1,9 +1,20 @@
+import 'dart:typed_data';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
 import '../main.dart';
 import '../widgets/main_drawer.dart';
+
+enum Routine {
+  photo,
+  weekdays,
+}
 
 class RoutineScreen extends StatefulWidget {
   const RoutineScreen({super.key});
@@ -14,6 +25,33 @@ class RoutineScreen extends StatefulWidget {
 
 class _RoutineScreenState extends State<RoutineScreen>
     with SingleTickerProviderStateMixin {
+  Routine _routine = Routine.photo;
+  final ImagePicker _picker = ImagePicker();
+  Uint8List? _imageBytes;
+  final Box _routineBox = Hive.box('routineImageBox');
+
+  Future<void> _loadImage() async {
+    final imageBytes = _routineBox.get('routineImage') as Uint8List?;
+    setState(() {
+      _imageBytes = imageBytes;
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
+      _saveImage(bytes);
+    }
+  }
+
+  Future<void> _saveImage(Uint8List bytes) async {
+    await _routineBox.put('routineImage', bytes);
+    setState(() {
+      _imageBytes = bytes;
+    });
+  }
+
   final PageController _pageController =
       PageController(initialPage: DateTime.now().weekday - 1);
   List<String> daysOfWeek = [
@@ -35,6 +73,7 @@ class _RoutineScreenState extends State<RoutineScreen>
     super.initState();
     animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _loadImage();
     loadSubjects();
   }
 
@@ -90,44 +129,80 @@ class _RoutineScreenState extends State<RoutineScreen>
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            tooltip: 'Switch',
-            icon: const Icon(Icons.photo),
+            onPressed: () {
+              setState(() {
+                if (_routine == Routine.photo) {
+                  _routine = Routine.weekdays;
+                } else {
+                  _routine = Routine.photo;
+                }
+              });
+            },
+            tooltip: _routine == Routine.photo
+                ? 'Switch to WeekDay mode'
+                : 'Switch to Picture mode',
+            icon: Icon(_routine == Routine.photo
+                ? CupertinoIcons.calendar_today
+                : CupertinoIcons.photo),
           ),
-          IconButton(
-            onPressed: () => _addSubject(_pageController.page!.toInt()),
-            tooltip: 'Add routine',
-            icon: const Icon(Icons.add),
-          ),
+          if (_routine == Routine.weekdays)
+            IconButton(
+              onPressed: () => _addSubject(_pageController.page!.toInt()),
+              tooltip: 'Add routine',
+              icon: const Icon(Icons.add),
+            ),
         ],
       ),
       slider: const MainDrawer(),
-      child: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: daysOfWeek.length,
-              itemBuilder: (context, index) {
-                return buildDayPage(index);
-              },
+      child: _routine == Routine.photo
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _imageBytes == null
+                    ? const Icon(CupertinoIcons.calendar_today, size: 250)
+                    : SizedBox(
+                        height: mq.height * .5,
+                        child: PhotoView(
+                          imageProvider: MemoryImage(_imageBytes!),
+                          minScale: PhotoViewComputedScale.contained,
+                          maxScale: PhotoViewComputedScale.covered * 2,
+                        )),
+                if (_imageBytes != null) const SizedBox(height: 8),
+                ElevatedButton.icon(
+                    onPressed: _pickImage,
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blue),
+                    icon: const Icon(CupertinoIcons.photo),
+                    label: const Text('Add Routine Image')),
+              ],
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: daysOfWeek.length,
+                    itemBuilder: (context, index) {
+                      return buildDayPage(index);
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: SmoothPageIndicator(
+                    controller: _pageController,
+                    count: daysOfWeek.length,
+                    effect: const WormEffect(
+                      activeDotColor: Colors.blue,
+                      spacing: 5,
+                      dotWidth: 7,
+                      dotHeight: 7,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: SmoothPageIndicator(
-              controller: _pageController,
-              count: daysOfWeek.length,
-              effect: const WormEffect(
-                activeDotColor: Colors.blue,
-                spacing: 5,
-                dotWidth: 7,
-                dotHeight: 7,
-              ),
-            ),
-          ),
-        ],
-      ),
     ));
   }
 

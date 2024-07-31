@@ -18,6 +18,7 @@ Future<void> main() async {
 
   // Init Hive DB before runApp()
   await Hive.initFlutter();
+  await Hive.openBox('routineImageBox');
 
   // Register Hive Adapter
   Hive.registerAdapter<Task>(TaskAdapter());
