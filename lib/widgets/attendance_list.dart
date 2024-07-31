@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 
 import '../main.dart';
 import '../models/attendance.dart';
@@ -34,33 +35,27 @@ class _AttendanceListState extends State<AttendanceList> {
   @override
   Widget build(BuildContext context) {
     return widget.attendances.isEmpty
-        ? LayoutBuilder(builder: (ctx, constraints) {
-            return Center(
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(top: mq.height * .05),
-                    child: Text(
-                      'No subjects added yet!',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black.withOpacity(.67),
-                      ),
+        ? Center(
+            child: Stack(
+              children: <Widget>[
+                const Positioned(
+                  top: 50,
+                  left: 0,
+                  right: 0,
+                  child: Text(
+                    'No subjects added yet!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
                   ),
-                  SizedBox(height: mq.height * .05),
-                  SizedBox(
-                    height: constraints.maxHeight * 0.6,
-                    child: Image.asset(
-                      'assets/images/waiting.png',
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                ],
-              ),
-            );
-          })
+                ),
+                Lottie.asset('assets/lottie/books.json'),
+              ],
+            ),
+          )
         : GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: ListView.builder(
@@ -87,8 +82,7 @@ class _AttendanceListState extends State<AttendanceList> {
 
                   ///---------------------------------------------------------------
                   return Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: mq.width * .03, vertical: mq.height * .005),
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Dismissible(
                       key: ValueKey(widget.attendances[index].id),
                       direction: DismissDirection.endToStart,

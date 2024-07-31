@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'my_tasks_screen.dart';
 import './home_screen.dart';
 import './routine_screen.dart';
 
@@ -24,6 +25,10 @@ class _TabScreenState extends State<TabScreen> {
       },
       {
         'page': const RoutineScreen(),
+        // 'title': 'Routine',
+      },
+      {
+        'page': const MyTasksScreen(),
         // 'title': 'Routine',
       }
     ];
@@ -53,6 +58,10 @@ class _TabScreenState extends State<TabScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month_rounded),
             label: 'Routine',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.edit_note_rounded),
+            label: 'To-Do',
           ),
         ],
       ),

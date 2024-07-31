@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
 import '../main.dart';
 import '../models/attendance.dart';
 import '../widgets/attendance_list.dart';
+import '../widgets/main_drawer.dart';
 import '../widgets/new_attendance.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,44 +16,76 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   List<Attendance> _userAttendances = [];
+  late AnimationController animationController;
+  bool isDrawerOpen = false;
+  GlobalKey<SliderDrawerState> drawerKey = GlobalKey<SliderDrawerState>();
 
   @override
   void initState() {
     super.initState();
+    animationController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
     readData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    animationController.dispose();
+  }
+
+  void onDrawerToggle() {
+    setState(() {
+      isDrawerOpen = !isDrawerOpen;
+      if (isDrawerOpen) {
+        animationController.forward();
+        drawerKey.currentState!.openSlider();
+      } else {
+        animationController.reverse();
+        drawerKey.currentState!.closeSlider();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text(
-          'Attendance Tracker',
-          style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _showInfoAlertDialog(context),
-            tooltip: 'Info',
-            icon: const Icon(Icons.info_outline_rounded),
+      body: SliderDrawer(
+        key: drawerKey,
+        isDraggable: false,
+        animationDuration: 1000,
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: onDrawerToggle,
+            icon: AnimatedIcon(
+              icon: AnimatedIcons.menu_close,
+              progress: animationController,
+            ),
           ),
-          IconButton(
-            onPressed: () => _startAddNewAttendance(context),
-            tooltip: 'Add subject',
-            icon: const Icon(Icons.add),
-          )
-        ],
-      ),
-      body: AttendanceList(
-        _userAttendances,
-        _deleteAttendance,
-        _editAttendance,
-        _editSubjectName,
+          centerTitle: true,
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: const Text(
+            'Attendance Tracker',
+            style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+          ),
+          actions: [
+            IconButton(
+              onPressed: () => _startAddNewAttendance(context),
+              tooltip: 'Add subject',
+              icon: const Icon(Icons.add),
+            )
+          ],
+        ),
+        slider: const MainDrawer(),
+        child: AttendanceList(
+          _userAttendances,
+          _deleteAttendance,
+          _editAttendance,
+          _editSubjectName,
+        ),
       ),
     );
   }

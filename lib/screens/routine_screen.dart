@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
 import '../main.dart';
+import '../widgets/main_drawer.dart';
 
 class RoutineScreen extends StatefulWidget {
   const RoutineScreen({super.key});
@@ -10,7 +12,8 @@ class RoutineScreen extends StatefulWidget {
   State<RoutineScreen> createState() => _RoutineScreenState();
 }
 
-class _RoutineScreenState extends State<RoutineScreen> {
+class _RoutineScreenState extends State<RoutineScreen>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController =
       PageController(initialPage: DateTime.now().weekday - 1);
   List<String> daysOfWeek = [
@@ -23,11 +26,35 @@ class _RoutineScreenState extends State<RoutineScreen> {
     'Sunday'
   ];
   List<List<String>> subjects = List.generate(7, (_) => []);
+  late AnimationController animationController;
+  bool isDrawerOpen = false;
+  GlobalKey<SliderDrawerState> drawerKey = GlobalKey<SliderDrawerState>();
 
   @override
   void initState() {
     super.initState();
+    animationController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
     loadSubjects();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    animationController.dispose();
+  }
+
+  void onDrawerToggle() {
+    setState(() {
+      isDrawerOpen = !isDrawerOpen;
+      if (isDrawerOpen) {
+        animationController.forward();
+        drawerKey.currentState!.openSlider();
+      } else {
+        animationController.reverse();
+        drawerKey.currentState!.closeSlider();
+      }
+    });
   }
 
   void loadSubjects() {
@@ -43,40 +70,65 @@ class _RoutineScreenState extends State<RoutineScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text(
-            'Routine',
-            style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+        body: SliderDrawer(
+      key: drawerKey,
+      isDraggable: false,
+      animationDuration: 1000,
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: onDrawerToggle,
+          icon: AnimatedIcon(
+            icon: AnimatedIcons.menu_close,
+            progress: animationController,
           ),
-          actions: [
-            IconButton(
-              onPressed: () => _addSubject(_pageController.page!.toInt()),
-              tooltip: 'Add routine',
-              icon: const Icon(Icons.add),
-            )
-          ],
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: daysOfWeek.length,
-                itemBuilder: (context, index) {
-                  return buildDayPage(index);
-                },
-              ),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text(
+          'Routine',
+          style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            tooltip: 'Switch',
+            icon: const Icon(Icons.photo),
+          ),
+          IconButton(
+            onPressed: () => _addSubject(_pageController.page!.toInt()),
+            tooltip: 'Add routine',
+            icon: const Icon(Icons.add),
+          ),
+        ],
+      ),
+      slider: const MainDrawer(),
+      child: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: daysOfWeek.length,
+              itemBuilder: (context, index) {
+                return buildDayPage(index);
+              },
             ),
-            SmoothPageIndicator(
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: SmoothPageIndicator(
               controller: _pageController,
               count: daysOfWeek.length,
-              effect: const WormEffect(activeDotColor: Colors.blue),
+              effect: const WormEffect(
+                activeDotColor: Colors.blue,
+                spacing: 5,
+                dotWidth: 7,
+                dotHeight: 7,
+              ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    ));
   }
 
   Widget buildDayPage(int dayIndex) {
