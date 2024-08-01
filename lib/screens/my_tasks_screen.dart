@@ -1,4 +1,3 @@
-import 'package:attendance_tracker/models/task.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -6,6 +5,7 @@ import 'package:lottie/lottie.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
 import '../main.dart';
+import '../models/task.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/main_drawer.dart';
 import '../widgets/task_widget.dart';
