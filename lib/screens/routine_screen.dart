@@ -29,6 +29,37 @@ class _RoutineScreenState extends State<RoutineScreen>
   final ImagePicker _picker = ImagePicker();
   Uint8List? _imageBytes;
   final Box _routineBox = Hive.box('routineImageBox');
+  final PageController _pageController =
+      PageController(initialPage: DateTime.now().weekday - 1);
+  List<String> daysOfWeek = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+  ];
+  List<List<String>> subjects = List.generate(7, (_) => []);
+  late AnimationController animationController;
+  bool isDrawerOpen = false;
+  GlobalKey<SliderDrawerState> drawerKey = GlobalKey<SliderDrawerState>();
+
+  void saveRoutineScreenState() {
+    bool isPhoto = _routine == Routine.photo;
+    prefs.setBool('PhotoOrWeekday', isPhoto);
+  }
+
+  void readRoutineScreenState() {
+    bool? isPhoto = prefs.getBool('PhotoOrWeekday') ?? true;
+    if (isPhoto) {
+      setState(() {
+        _routine = Routine.photo;
+      });
+    } else {
+      _routine = Routine.weekdays;
+    }
+  }
 
   Future<void> _loadImage() async {
     final imageBytes = _routineBox.get('routineImage') as Uint8List?;
@@ -52,29 +83,14 @@ class _RoutineScreenState extends State<RoutineScreen>
     });
   }
 
-  final PageController _pageController =
-      PageController(initialPage: DateTime.now().weekday - 1);
-  List<String> daysOfWeek = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
-  ];
-  List<List<String>> subjects = List.generate(7, (_) => []);
-  late AnimationController animationController;
-  bool isDrawerOpen = false;
-  GlobalKey<SliderDrawerState> drawerKey = GlobalKey<SliderDrawerState>();
-
   @override
   void initState() {
     super.initState();
-    animationController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    readRoutineScreenState();
     _loadImage();
     loadSubjects();
+    animationController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
   }
 
   @override
@@ -106,6 +122,17 @@ class _RoutineScreenState extends State<RoutineScreen>
     setState(() {});
   }
 
+  void onPressedSwitchButton() {
+    setState(() {
+      if (_routine == Routine.photo) {
+        _routine = Routine.weekdays;
+      } else {
+        _routine = Routine.photo;
+      }
+    });
+    saveRoutineScreenState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,15 +156,7 @@ class _RoutineScreenState extends State<RoutineScreen>
         ),
         actions: [
           IconButton(
-            onPressed: () {
-              setState(() {
-                if (_routine == Routine.photo) {
-                  _routine = Routine.weekdays;
-                } else {
-                  _routine = Routine.photo;
-                }
-              });
-            },
+            onPressed: onPressedSwitchButton,
             tooltip: _routine == Routine.photo
                 ? 'Switch to WeekDay mode'
                 : 'Switch to Picture mode',
@@ -175,6 +194,12 @@ class _RoutineScreenState extends State<RoutineScreen>
                         backgroundColor: Colors.blue),
                     icon: const Icon(CupertinoIcons.photo),
                     label: const Text('Add Routine Image')),
+                TextButton.icon(
+                    onPressed: onPressedSwitchButton,
+                    icon: const Icon(CupertinoIcons.arrow_swap),
+                    label: Text(_routine == Routine.photo
+                        ? 'Switch to WeekDay'
+                        : 'Switch to Picture')),
               ],
             )
           : Column(
@@ -212,24 +237,27 @@ class _RoutineScreenState extends State<RoutineScreen>
       child: SingleChildScrollView(
         child: Column(
           children: [
+            TextButton.icon(
+                onPressed: onPressedSwitchButton,
+                icon: const Icon(CupertinoIcons.arrow_swap),
+                label: Text(_routine == Routine.photo
+                    ? 'Switch to WeekDay'
+                    : 'Switch to Picture')),
             Text(
               daysOfWeek[dayIndex],
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
             subjects[dayIndex].isEmpty
                 ? Center(
                     child: Column(
                       children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(top: mq.height * .04),
-                          child: Text(
-                            'No routine added yet!',
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black.withOpacity(.67),
-                            ),
+                        const SizedBox(height: 15),
+                        Text(
+                          'No routine added yet!',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black.withOpacity(.67),
                           ),
                         ),
                         SizedBox(height: mq.height * .04),
