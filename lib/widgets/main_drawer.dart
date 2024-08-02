@@ -77,18 +77,21 @@ class _MainDrawerState extends State<MainDrawer> {
                       ),
                     )),
           ),
-          buildListTile(
-            'Settings',
-            CupertinoIcons.settings,
-            () {
-              // Navigator.push(context,
-              //     MaterialPageRoute(builder: (_) => const LeaderboardScreen()));
-            },
-          ),
+          // buildListTile(
+          //   'Settings',
+          //   CupertinoIcons.settings,
+          //   () {},
+          // ),
           buildListTile(
             'More Apps!',
             CupertinoIcons.app_badge,
-            () {},
+            () async {
+              const url =
+                  'https://play.google.com/store/apps/dev?id=7117649359031194302';
+              setState(() {
+                _launchInBrowser(Uri.parse(url));
+              });
+            },
           ),
           const Spacer(),
           Padding(

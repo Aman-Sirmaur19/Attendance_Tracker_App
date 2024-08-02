@@ -89,8 +89,8 @@ class _RoutineScreenState extends State<RoutineScreen>
     readRoutineScreenState();
     _loadImage();
     loadSubjects();
-    animationController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 800));
   }
 
   @override
@@ -139,7 +139,7 @@ class _RoutineScreenState extends State<RoutineScreen>
         body: SliderDrawer(
       key: drawerKey,
       isDraggable: false,
-      animationDuration: 1000,
+      animationDuration: 800,
       appBar: AppBar(
         leading: IconButton(
           onPressed: onDrawerToggle,

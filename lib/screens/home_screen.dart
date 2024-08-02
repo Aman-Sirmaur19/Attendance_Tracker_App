@@ -26,8 +26,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    animationController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 800));
     readData();
   }
 
@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen>
       body: SliderDrawer(
         key: drawerKey,
         isDraggable: false,
-        animationDuration: 1000,
+        animationDuration: 800,
         appBar: AppBar(
           leading: IconButton(
             onPressed: onDrawerToggle,
