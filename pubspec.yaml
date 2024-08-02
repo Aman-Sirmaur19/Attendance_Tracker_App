@@ -47,6 +47,7 @@ dependencies:
   url_launcher: ^6.3.0
   image_picker: ^1.0.8
   photo_view: ^0.15.0
+  in_app_update: ^4.2.3
 
 dev_dependencies:
   flutter_test:

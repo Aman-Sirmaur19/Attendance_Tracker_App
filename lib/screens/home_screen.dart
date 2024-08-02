@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
 import '../main.dart';
@@ -23,9 +25,32 @@ class _HomeScreenState extends State<HomeScreen>
   bool isDrawerOpen = false;
   GlobalKey<SliderDrawerState> drawerKey = GlobalKey<SliderDrawerState>();
 
+  Future<void> checkForUpdate() async {
+    log('Checking for Update!');
+    await InAppUpdate.checkForUpdate().then((info) {
+      setState(() {
+        if (info.updateAvailability == UpdateAvailability.updateAvailable) {
+          log('Update available!');
+          update();
+        }
+      });
+    }).catchError((error) {
+      log(error.toString());
+    });
+  }
+
+  void update() async {
+    log('Updating');
+    await InAppUpdate.startFlexibleUpdate();
+    InAppUpdate.completeFlexibleUpdate().then((_) {}).catchError((error) {
+      log(error.toString());
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    checkForUpdate();
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 800));
     readData();
