@@ -1,4 +1,4 @@
-package com.example.attendance_tracker
+package com.sirmaur.attendance_tracker
 
 import io.flutter.embedding.android.FlutterActivity
 
