@@ -48,6 +48,7 @@ dependencies:
   image_picker: ^1.0.8
   photo_view: ^0.15.0
   in_app_update: ^4.2.3
+  google_mobile_ads: ^5.1.0
 
 dev_dependencies:
   flutter_test:

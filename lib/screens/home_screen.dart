@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:in_app_update/in_app_update.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
 import '../main.dart';
@@ -20,6 +21,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
+  bool isBannerLoaded = false;
+  late BannerAd bannerAd;
   List<Attendance> _userAttendances = [];
   late AnimationController animationController;
   bool isDrawerOpen = false;
@@ -47,10 +50,32 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
+  initializeBannerAd() async {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: 'ca-app-pub-9389901804535827/6598107759',
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            isBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          isBannerLoaded = false;
+          log(error.message);
+        },
+      ),
+      request: const AdRequest(),
+    );
+    bannerAd.load();
+  }
+
   @override
   void initState() {
     super.initState();
     checkForUpdate();
+    initializeBannerAd();
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 800));
     readData();
@@ -78,6 +103,9 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: isBannerLoaded
+          ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+          : const SizedBox(),
       body: SliderDrawer(
         key: drawerKey,
         isDraggable: false,

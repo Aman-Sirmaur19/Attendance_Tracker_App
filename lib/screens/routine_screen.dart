@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
@@ -25,6 +27,8 @@ class RoutineScreen extends StatefulWidget {
 
 class _RoutineScreenState extends State<RoutineScreen>
     with SingleTickerProviderStateMixin {
+  bool isBannerLoaded = false;
+  late BannerAd bannerAd;
   Routine _routine = Routine.photo;
   final ImagePicker _picker = ImagePicker();
   Uint8List? _imageBytes;
@@ -83,9 +87,31 @@ class _RoutineScreenState extends State<RoutineScreen>
     });
   }
 
+  initializeBannerAd() async {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: 'ca-app-pub-9389901804535827/6598107759',
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            isBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          isBannerLoaded = false;
+          log(error.message);
+        },
+      ),
+      request: const AdRequest(),
+    );
+    bannerAd.load();
+  }
+
   @override
   void initState() {
     super.initState();
+    initializeBannerAd();
     readRoutineScreenState();
     _loadImage();
     loadSubjects();
@@ -136,99 +162,102 @@ class _RoutineScreenState extends State<RoutineScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        bottomNavigationBar: isBannerLoaded
+            ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+            : const SizedBox(),
         body: SliderDrawer(
-      key: drawerKey,
-      isDraggable: false,
-      animationDuration: 800,
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: onDrawerToggle,
-          icon: AnimatedIcon(
-            icon: AnimatedIcons.menu_close,
-            progress: animationController,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text(
-          'Routine',
-          style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            onPressed: onPressedSwitchButton,
-            tooltip: _routine == Routine.photo
-                ? 'Switch to WeekDay mode'
-                : 'Switch to Picture mode',
-            icon: Icon(_routine == Routine.photo
-                ? CupertinoIcons.calendar_today
-                : CupertinoIcons.photo),
-          ),
-          if (_routine == Routine.weekdays)
-            IconButton(
-              onPressed: () => _addSubject(_pageController.page!.toInt()),
-              tooltip: 'Add routine',
-              icon: const Icon(Icons.add),
+          key: drawerKey,
+          isDraggable: false,
+          animationDuration: 800,
+          appBar: AppBar(
+            leading: IconButton(
+              onPressed: onDrawerToggle,
+              icon: AnimatedIcon(
+                icon: AnimatedIcons.menu_close,
+                progress: animationController,
+              ),
             ),
-        ],
-      ),
-      slider: const MainDrawer(),
-      child: _routine == Routine.photo
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _imageBytes == null
-                    ? const Icon(CupertinoIcons.calendar_today, size: 250)
-                    : SizedBox(
-                        height: mq.height * .5,
-                        child: PhotoView(
-                          imageProvider: MemoryImage(_imageBytes!),
-                          minScale: PhotoViewComputedScale.contained,
-                          maxScale: PhotoViewComputedScale.covered * 2,
-                        )),
-                if (_imageBytes != null) const SizedBox(height: 8),
-                ElevatedButton.icon(
-                    onPressed: _pickImage,
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue),
-                    icon: const Icon(CupertinoIcons.photo),
-                    label: const Text('Add Routine Image')),
-                TextButton.icon(
-                    onPressed: onPressedSwitchButton,
-                    icon: const Icon(CupertinoIcons.arrow_swap),
-                    label: Text(_routine == Routine.photo
-                        ? 'Switch to WeekDay'
-                        : 'Switch to Picture')),
-              ],
-            )
-          : Column(
-              children: [
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: daysOfWeek.length,
-                    itemBuilder: (context, index) {
-                      return buildDayPage(index);
-                    },
-                  ),
+            centerTitle: true,
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: const Text(
+              'Routine',
+              style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+            ),
+            actions: [
+              IconButton(
+                onPressed: onPressedSwitchButton,
+                tooltip: _routine == Routine.photo
+                    ? 'Switch to WeekDay mode'
+                    : 'Switch to Picture mode',
+                icon: Icon(_routine == Routine.photo
+                    ? CupertinoIcons.calendar_today
+                    : CupertinoIcons.photo),
+              ),
+              if (_routine == Routine.weekdays)
+                IconButton(
+                  onPressed: () => _addSubject(_pageController.page!.toInt()),
+                  tooltip: 'Add routine',
+                  icon: const Icon(Icons.add),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: SmoothPageIndicator(
-                    controller: _pageController,
-                    count: daysOfWeek.length,
-                    effect: const WormEffect(
-                      activeDotColor: Colors.blue,
-                      spacing: 5,
-                      dotWidth: 7,
-                      dotHeight: 7,
+            ],
+          ),
+          slider: const MainDrawer(),
+          child: _routine == Routine.photo
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _imageBytes == null
+                        ? const Icon(CupertinoIcons.calendar_today, size: 250)
+                        : SizedBox(
+                            height: mq.height * .5,
+                            child: PhotoView(
+                              imageProvider: MemoryImage(_imageBytes!),
+                              minScale: PhotoViewComputedScale.contained,
+                              maxScale: PhotoViewComputedScale.covered * 2,
+                            )),
+                    if (_imageBytes != null) const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                        onPressed: _pickImage,
+                        style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.blue),
+                        icon: const Icon(CupertinoIcons.photo),
+                        label: const Text('Add Routine Image')),
+                    TextButton.icon(
+                        onPressed: onPressedSwitchButton,
+                        icon: const Icon(CupertinoIcons.arrow_swap),
+                        label: Text(_routine == Routine.photo
+                            ? 'Switch to WeekDay'
+                            : 'Switch to Picture')),
+                  ],
+                )
+              : Column(
+                  children: [
+                    Expanded(
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: daysOfWeek.length,
+                        itemBuilder: (context, index) {
+                          return buildDayPage(index);
+                        },
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: SmoothPageIndicator(
+                        controller: _pageController,
+                        count: daysOfWeek.length,
+                        effect: const WormEffect(
+                          activeDotColor: Colors.blue,
+                          spacing: 5,
+                          dotWidth: 7,
+                          dotHeight: 7,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-    ));
+        ));
   }
 
   Widget buildDayPage(int dayIndex) {

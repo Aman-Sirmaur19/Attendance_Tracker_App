@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 
 import '../main.dart';
@@ -18,6 +19,8 @@ class AddTaskScreen extends StatefulWidget {
 }
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
+  bool isBannerLoaded = false;
+  late BannerAd bannerAd;
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   String? time;
@@ -26,6 +29,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   void initState() {
     super.initState();
+    initializeBannerAd();
     if (widget.task != null) {
       titleController.text = widget.task!.title;
       descriptionController.text = widget.task!.subTitle;
@@ -39,6 +43,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
     titleController.dispose();
     descriptionController.dispose();
+  }
+
+  initializeBannerAd() async {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: 'ca-app-pub-9389901804535827/6598107759',
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            isBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          isBannerLoaded = false;
+          log(error.message);
+        },
+      ),
+      request: const AdRequest(),
+    );
+    bannerAd.load();
   }
 
   // if any task already exist return true, else false
@@ -106,6 +131,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
           ),
         ),
+        bottomNavigationBar: isBannerLoaded
+            ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+            : const SizedBox(),
         body: Padding(
           padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
           child: ListView(

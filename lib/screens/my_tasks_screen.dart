@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:lottie/lottie.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
 import '../main.dart';
@@ -20,6 +23,8 @@ class MyTasksScreen extends StatefulWidget {
 
 class _MyTasksScreenState extends State<MyTasksScreen>
     with SingleTickerProviderStateMixin {
+  bool isBannerLoaded = false;
+  late BannerAd bannerAd;
   late AnimationController animationController;
   bool isDrawerOpen = false;
   GlobalKey<SliderDrawerState> drawerKey = GlobalKey<SliderDrawerState>();
@@ -27,6 +32,7 @@ class _MyTasksScreenState extends State<MyTasksScreen>
   @override
   void initState() {
     super.initState();
+    initializeBannerAd();
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 800));
   }
@@ -35,6 +41,27 @@ class _MyTasksScreenState extends State<MyTasksScreen>
   void dispose() {
     super.dispose();
     animationController.dispose();
+  }
+
+  initializeBannerAd() async {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: 'ca-app-pub-9389901804535827/6598107759',
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            isBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          isBannerLoaded = false;
+          log(error.message);
+        },
+      ),
+      request: const AdRequest(),
+    );
+    bannerAd.load();
   }
 
   void onDrawerToggle() {
@@ -62,6 +89,9 @@ class _MyTasksScreenState extends State<MyTasksScreen>
 
           return Scaffold(
             backgroundColor: Colors.white,
+            bottomNavigationBar: isBannerLoaded
+                ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+                : const SizedBox(),
             body: SliderDrawer(
               key: drawerKey,
               isDraggable: false,

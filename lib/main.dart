@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:attendance_tracker/data/hive_data_store.dart';
 
@@ -9,6 +10,10 @@ import 'models/task.dart';
 
 late Size mq;
 late SharedPreferences prefs;
+
+_initializeMobileAds() async {
+  await MobileAds.instance.initialize();
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +40,7 @@ Future<void> main() async {
   //   }
   // });
 
+  _initializeMobileAds();
   runApp(BaseWidget(child: const MyApp()));
 }
 
