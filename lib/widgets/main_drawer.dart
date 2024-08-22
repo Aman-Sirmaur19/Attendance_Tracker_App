@@ -87,7 +87,7 @@ class _MainDrawerState extends State<MainDrawer> {
             CupertinoIcons.app_badge,
             () async {
               const url =
-                  'https://play.google.com/store/apps/dev?id=7117649359031194302';
+                  'https://play.google.com/store/apps/developer?id=SIRMAUR';
               setState(() {
                 _launchInBrowser(Uri.parse(url));
               });
