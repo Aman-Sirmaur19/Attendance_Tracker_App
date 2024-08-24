@@ -77,6 +77,9 @@ class _AttendanceListState extends State<AttendanceList> {
                       (total * widget.attendances[index].requirement) -
                           widget.attendances[index].present * 100;
                   required /= (100 - widget.attendances[index].requirement);
+                  double miss = (100.0 * widget.attendances[index].present) -
+                      (widget.attendances[index].requirement * (total));
+                  miss /= widget.attendances[index].requirement;
                   final percentage =
                       (widget.attendances[index].present * 100) / (total);
 
@@ -280,13 +283,45 @@ class _AttendanceListState extends State<AttendanceList> {
                                           Padding(
                                             padding: EdgeInsets.only(
                                                 top: mq.height * .005),
-                                            child: Text(required <= 1
-                                                ? 'Attend 1 class.'
-                                                : widget.attendances[index]
-                                                            .requirement ==
-                                                        100
-                                                    ? 'Attend $required classes in a row.'
-                                                    : 'Attend ${required.ceil()} classes in a row.'),
+                                            child: Text(
+                                              required <= 1
+                                                  ? 'Attend 1 class.'
+                                                  : widget.attendances[index]
+                                                              .requirement ==
+                                                          100
+                                                      ? 'Attend $required classes in a row.'
+                                                      : 'Attend ${required.ceil()} classes in a row.',
+                                              style: const TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          )
+                                        else if (miss >= 1)
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                top: mq.height * .005),
+                                            child: Text(
+                                              miss >= 2
+                                                  ? 'Can miss ${miss.floor()} classes in a row.'
+                                                  : 'Can miss 1 class.',
+                                              style: const TextStyle(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          )
+                                        else
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                top: mq.height * .005),
+                                            child: const Text(
+                                              "Can't miss any class",
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           ),
                                       ],
                                     ),
