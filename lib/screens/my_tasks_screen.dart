@@ -108,8 +108,11 @@ class _MyTasksScreenState extends State<MyTasksScreen>
                 backgroundColor: Theme.of(context).colorScheme.inversePrimary,
                 title: const Text(
                   'My Tasks',
-                  style:
-                      TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    letterSpacing: 2,
+                    fontSize: 21,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 actions: [
                   IconButton(

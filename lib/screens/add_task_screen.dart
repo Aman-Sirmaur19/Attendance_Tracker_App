@@ -127,8 +127,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text(
             isTaskAlreadyExist() ? 'Update Task' : 'Add Task',
-            style:
-                const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              letterSpacing: 2,
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         bottomNavigationBar: isBannerLoaded

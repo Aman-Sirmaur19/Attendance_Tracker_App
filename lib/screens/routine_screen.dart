@@ -181,7 +181,11 @@ class _RoutineScreenState extends State<RoutineScreen>
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             title: const Text(
               'Routine',
-              style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                letterSpacing: 2,
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             actions: [
               IconButton(
