@@ -154,12 +154,14 @@ class _AttendanceListState extends State<AttendanceList> {
                             child: Column(
                               children: [
                                 ListTile(
-                                  leading: CircleAvatar(
-                                    radius: mq.width * .08,
-                                    child: FittedBox(
-                                        child: Text(
-                                            '${percentage.toStringAsFixed(0)}%')),
-                                  ),
+                                  leading: total == 0
+                                      ? Image.asset('assets/images/owl.png')
+                                      : CircleAvatar(
+                                          radius: mq.width * .08,
+                                          child: FittedBox(
+                                              child: Text(
+                                                  '${percentage.toStringAsFixed(0)}%')),
+                                        ),
                                   title: SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
