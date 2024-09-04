@@ -106,6 +106,12 @@ class _HomeScreenState extends State<HomeScreen>
       bottomNavigationBar: isBannerLoaded
           ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
           : const SizedBox(),
+      floatingActionButton: isFloatingActionButton
+          ? FloatingActionButton(
+              onPressed: () => _startAddNewAttendance(context),
+              tooltip: 'Add subject',
+              child: const Icon(Icons.add))
+          : null,
       body: SliderDrawer(
         key: drawerKey,
         isDraggable: false,
@@ -129,11 +135,12 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
           actions: [
-            IconButton(
-              onPressed: () => _startAddNewAttendance(context),
-              tooltip: 'Add subject',
-              icon: const Icon(Icons.add),
-            )
+            if (!isFloatingActionButton)
+              IconButton(
+                onPressed: () => _startAddNewAttendance(context),
+                tooltip: 'Add subject',
+                icon: const Icon(Icons.add),
+              )
           ],
         ),
         slider: const MainDrawer(),

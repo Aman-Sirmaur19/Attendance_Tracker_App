@@ -92,6 +92,15 @@ class _MyTasksScreenState extends State<MyTasksScreen>
             bottomNavigationBar: isBannerLoaded
                 ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
                 : const SizedBox(),
+            floatingActionButton: isFloatingActionButton
+                ? FloatingActionButton(
+                    onPressed: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (_) => const AddTaskScreen(task: null))),
+                    tooltip: 'Add tasks',
+                    child: const Icon(Icons.add))
+                : null,
             body: SliderDrawer(
               key: drawerKey,
               isDraggable: false,
@@ -115,14 +124,15 @@ class _MyTasksScreenState extends State<MyTasksScreen>
                   ),
                 ),
                 actions: [
-                  IconButton(
-                    onPressed: () => Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (_) => const AddTaskScreen(task: null))),
-                    icon: const Icon(Icons.add),
-                    tooltip: 'Add tasks',
-                  )
+                  if (!isFloatingActionButton)
+                    IconButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (_) => const AddTaskScreen(task: null))),
+                      tooltip: 'Add tasks',
+                      icon: const Icon(Icons.add),
+                    )
                 ],
               ),
               slider: const MainDrawer(),
@@ -155,6 +165,33 @@ class _MyTasksScreenState extends State<MyTasksScreen>
                           return Dismissible(
                               key: Key(task.id),
                               direction: DismissDirection.endToStart,
+                              confirmDismiss: (direction) {
+                                return showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Are you sure?'),
+                                    content: const Text(
+                                        'Do you want to delete this?'),
+                                    actions: <Widget>[
+                                      Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            TextButton(
+                                                child: const Text('Yes'),
+                                                onPressed: () {
+                                                  Navigator.of(ctx).pop(true);
+                                                }),
+                                            TextButton(
+                                                child: const Text('No'),
+                                                onPressed: () {
+                                                  Navigator.of(ctx).pop(false);
+                                                }),
+                                          ])
+                                    ],
+                                  ),
+                                );
+                              },
                               onDismissed: (_) {
                                 base.dataStore.deleteTask(task: task);
                                 Dialogs.showSnackBar(

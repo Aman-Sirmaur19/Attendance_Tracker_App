@@ -165,6 +165,13 @@ class _RoutineScreenState extends State<RoutineScreen>
         bottomNavigationBar: isBannerLoaded
             ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
             : const SizedBox(),
+        floatingActionButton:
+            (_routine == Routine.weekdays && isFloatingActionButton)
+                ? FloatingActionButton(
+                    onPressed: () => _addSubject(_pageController.page!.toInt()),
+                    tooltip: 'Add routine',
+                    child: const Icon(Icons.add))
+                : null,
         body: SliderDrawer(
           key: drawerKey,
           isDraggable: false,
@@ -197,7 +204,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                     ? CupertinoIcons.calendar_today
                     : CupertinoIcons.photo),
               ),
-              if (_routine == Routine.weekdays)
+              if (_routine == Routine.weekdays && !isFloatingActionButton)
                 IconButton(
                   onPressed: () => _addSubject(_pageController.page!.toInt()),
                   tooltip: 'Add routine',
