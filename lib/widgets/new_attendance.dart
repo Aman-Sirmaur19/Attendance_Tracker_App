@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'dialogs.dart';
+
 class NewAttendance extends StatefulWidget {
   final Function addAttendance;
 
@@ -117,6 +119,7 @@ class _NewAttendanceState extends State<NewAttendance> {
     final enteredSubject = _subjectController.text;
     if (enteredSubject.isEmpty) return;
     widget.addAttendance(enteredSubject, attended, missed, required);
+    Dialogs.showSnackBar(context, 'Subject added successfully!');
     Navigator.of(context).pop();
   }
 }

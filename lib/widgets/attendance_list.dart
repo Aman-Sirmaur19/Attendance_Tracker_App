@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 import '../main.dart';
 import '../models/attendance.dart';
 import '../widgets/chart_bar.dart';
+import 'dialogs.dart';
 
 class AttendanceList extends StatefulWidget {
   final List<Attendance> attendances;
@@ -123,6 +124,8 @@ class _AttendanceListState extends State<AttendanceList> {
                           } else if (_expandedIndex > index) {
                             _expandedIndex--;
                           }
+                          Dialogs.showSnackBar(
+                              context, 'Subject deleted successfully!');
                         });
                       },
                       background: Container(
@@ -157,10 +160,10 @@ class _AttendanceListState extends State<AttendanceList> {
                                   leading: total == 0
                                       ? Image.asset('assets/images/owl.png')
                                       : CircleAvatar(
-                                          radius: mq.width * .08,
+                                          radius: mq.width * .07,
                                           child: FittedBox(
                                               child: Text(
-                                                  '${percentage.toStringAsFixed(0)}%')),
+                                                  '${percentage.floor().toStringAsFixed(0)}%')),
                                         ),
                                   title: SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
@@ -287,12 +290,12 @@ class _AttendanceListState extends State<AttendanceList> {
                                                 top: mq.height * .005),
                                             child: Text(
                                               required <= 1
-                                                  ? 'Attend 1 class.'
+                                                  ? 'Attend 1 class'
                                                   : widget.attendances[index]
                                                               .requirement ==
                                                           100
-                                                      ? 'Attend $required classes in a row.'
-                                                      : 'Attend ${required.ceil()} classes in a row.',
+                                                      ? "Can't miss any class"
+                                                      : 'Attend ${required.ceil()} classes in a row',
                                               style: const TextStyle(
                                                 color: Colors.red,
                                                 fontWeight: FontWeight.bold,
@@ -305,8 +308,8 @@ class _AttendanceListState extends State<AttendanceList> {
                                                 top: mq.height * .005),
                                             child: Text(
                                               miss >= 2
-                                                  ? 'Can miss ${miss.floor()} classes in a row.'
-                                                  : 'Can miss 1 class.',
+                                                  ? 'Can miss ${miss.floor()} classes in a row'
+                                                  : 'Can miss 1 class',
                                               style: const TextStyle(
                                                 color: Colors.green,
                                                 fontWeight: FontWeight.bold,
