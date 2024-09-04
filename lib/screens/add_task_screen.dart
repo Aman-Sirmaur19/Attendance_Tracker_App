@@ -120,6 +120,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
+            tooltip: 'Back',
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
             onPressed: () => Navigator.pop(context),
           ),
