@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../main.dart';
+import '../screens/settings_screen.dart';
 
 class MainDrawer extends StatefulWidget {
   const MainDrawer({super.key});
@@ -77,11 +78,12 @@ class _MainDrawerState extends State<MainDrawer> {
                       ),
                     )),
           ),
-          // buildListTile(
-          //   'Settings',
-          //   CupertinoIcons.settings,
-          //   () {},
-          // ),
+          buildListTile(
+            'Settings',
+            CupertinoIcons.settings,
+            () => Navigator.push(context,
+                CupertinoPageRoute(builder: (_) => const SettingsScreen())),
+          ),
           buildListTile(
             'More Apps!',
             CupertinoIcons.app_badge,
@@ -108,7 +110,7 @@ class _MainDrawerState extends State<MainDrawer> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(mq.width * .15),
                             child: Image.asset(
-                              'assets/images/Aman Kumar.heic',
+                              'assets/images/avatar.png',
                               width: mq.width * .3,
                             ),
                           ),

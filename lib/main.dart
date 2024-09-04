@@ -9,6 +9,7 @@ import 'data/hive_data_store.dart';
 import 'models/task.dart';
 
 late Size mq;
+bool isFloatingActionButton = prefs.getBool('FloatingActionButton') ?? false;
 late SharedPreferences prefs;
 
 _initializeMobileAds() async {
