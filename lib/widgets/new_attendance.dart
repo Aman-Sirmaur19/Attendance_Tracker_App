@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../main.dart';
+import '../models/attendance.dart';
 import 'dialogs.dart';
 
 class NewAttendance extends StatefulWidget {
-  final Function addAttendance;
+  final Attendance? attendance;
 
-  const NewAttendance(this.addAttendance, {super.key});
+  const NewAttendance({super.key, required this.attendance});
 
   @override
   State<NewAttendance> createState() => _NewAttendanceState();
@@ -16,6 +18,12 @@ class _NewAttendanceState extends State<NewAttendance> {
   int attended = 0;
   int missed = 0;
   int required = 75;
+
+  @override
+  void dispose() {
+    super.dispose();
+    _subjectController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +37,7 @@ class _NewAttendanceState extends State<NewAttendance> {
               fontWeight: FontWeight.bold,
             )),
         controller: _subjectController,
-        onSubmitted: (_) => _submitData(),
+        onSubmitted: (_) => createAttendance(),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -84,7 +92,7 @@ class _NewAttendanceState extends State<NewAttendance> {
                       fontWeight: FontWeight.bold, color: Colors.red)),
               onPressed: () => Navigator.of(context).pop()),
           ElevatedButton(
-              onPressed: _submitData,
+              onPressed: createAttendance,
               child: const Text('Add',
                   style: TextStyle(fontWeight: FontWeight.bold))),
         ])
@@ -115,11 +123,22 @@ class _NewAttendanceState extends State<NewAttendance> {
     );
   }
 
-  void _submitData() {
-    final enteredSubject = _subjectController.text;
-    if (enteredSubject.isEmpty) return;
-    widget.addAttendance(enteredSubject, attended, missed, required);
-    Dialogs.showSnackBar(context, 'Subject added successfully!');
-    Navigator.of(context).pop();
+  // Main function for creating attendance
+  dynamic createAttendance() {
+    if (_subjectController.text.trim().isNotEmpty) {
+      var attendance = Attendance.create(
+        subject: _subjectController.text.trim(),
+        present: attended,
+        absent: missed,
+        requirement: required,
+        createdAt: DateTime.now().toString(),
+      );
+      // We are adding this new attendance to Hive DB using inherited widget
+      BaseWidget.of(context).dataStore.addAttendance(attendance: attendance);
+      Dialogs.showSnackBar(context, 'Attendance created successfully!');
+      Navigator.pop(context);
+    } else {
+      Dialogs.showErrorSnackBar(context, 'Enter subject');
+    }
   }
 }

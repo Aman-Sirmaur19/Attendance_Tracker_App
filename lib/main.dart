@@ -6,11 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import './screens/tab_screen.dart';
 import 'data/hive_data_store.dart';
+import 'models/attendance.dart';
 import 'models/task.dart';
 import 'screens/settings_screen.dart';
 
 late Size mq;
-bool isFloatingActionButton = prefs.getBool('FloatingActionButton') ?? false;
+late bool isFloatingActionButton;
 late SharedPreferences prefs;
 
 _initializeMobileAds() async {
@@ -22,28 +23,22 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   prefs = await SharedPreferences.getInstance();
+  isFloatingActionButton = prefs.getBool('FloatingActionButton') ?? false;
 
   // Init Hive DB before runApp()
   await Hive.initFlutter();
-  await Hive.openBox('routineImageBox');
 
   // Register Hive Adapter
+  Hive.registerAdapter<Attendance>(AttendanceAdapter());
   Hive.registerAdapter<Task>(TaskAdapter());
+
+  // Open all the boxes
+  await Hive.openBox<Attendance>(HiveDataStore.attendanceBoxName);
+  await Hive.openBox('routineImageBox');
+  await Hive.openBox<Task>(HiveDataStore.taskBoxName);
 
   // Calls theme settings
   await SettingsScreen.loadSettings();
-
-  // Open a Box
-  Box box = await Hive.openBox<Task>(HiveDataStore.boxName);
-
-  // Automatically delete task from previous day if not done
-  // box.values.forEach((task) {
-  //   if (task.createdAtTime.day != DateTime.now().day) {
-  //     task.delete();
-  //   } else {
-  //     // Do nothing
-  //   }
-  // });
 
   _initializeMobileAds();
   runApp(BaseWidget(child: const MyApp()));
