@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../screens/settings_screen.dart';
+
 class ChartBar extends StatelessWidget {
   final double fraction;
 
@@ -17,7 +19,7 @@ class ChartBar extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey, width: 1.0),
-                  color: Colors.red[400],
+                  color: SettingsScreen.selectedColorPair['absent'],
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -27,7 +29,7 @@ class ChartBar extends StatelessWidget {
                   widthFactor: fraction,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.blue,
+                      color: SettingsScreen.selectedColorPair['present'],
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),

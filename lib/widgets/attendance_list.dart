@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 
 import '../main.dart';
 import '../models/attendance.dart';
+import '../screens/settings_screen.dart';
 import '../widgets/chart_bar.dart';
 import 'dialogs.dart';
 
@@ -240,28 +241,53 @@ class _AttendanceListState extends State<AttendanceList> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(
-                                                'Attended: ${widget.attendances[index].present}',
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.blue)),
-                                            Text(
-                                                'Missed: ${widget.attendances[index].absent}',
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.red)),
-                                            Text(
-                                                'Req.: ${widget.attendances[index].requirement} %',
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.green)),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white60,
+                                                  borderRadius:
+                                                      BorderRadius.circular(5)),
+                                              child: Text(
+                                                  'Attended: ${widget.attendances[index].present}',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: SettingsScreen
+                                                              .selectedColorPair[
+                                                          'present'])),
+                                            ),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white60,
+                                                  borderRadius:
+                                                      BorderRadius.circular(5)),
+                                              child: Text(
+                                                  'Missed: ${widget.attendances[index].absent}',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: SettingsScreen
+                                                              .selectedColorPair[
+                                                          'absent'])),
+                                            ),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white60,
+                                                  borderRadius:
+                                                      BorderRadius.circular(5)),
+                                              child: Text(
+                                                  'Req.: ${widget.attendances[index].requirement} %',
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.blueGrey)),
+                                            ),
                                           ],
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(
                                               top: mq.height * .005),
                                           child: Text(
-                                              'Last updated: $time\n$date',
+                                              'Last updated: $time, $date',
                                               style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.grey)),

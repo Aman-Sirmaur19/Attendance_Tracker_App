@@ -158,6 +158,7 @@ class _MyTasksScreenState extends State<MyTasksScreen>
                           horizontal: mq.width * .03,
                           vertical: mq.height * .005),
                       child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
                         itemCount: tasks.length,
                         itemBuilder: (context, index) {
                           var task = tasks[index];
