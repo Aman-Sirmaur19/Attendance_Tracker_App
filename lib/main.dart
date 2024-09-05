@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import './screens/tab_screen.dart';
 import 'data/hive_data_store.dart';
 import 'models/task.dart';
+import 'screens/settings_screen.dart';
 
 late Size mq;
 bool isFloatingActionButton = prefs.getBool('FloatingActionButton') ?? false;
@@ -28,6 +29,9 @@ Future<void> main() async {
 
   // Register Hive Adapter
   Hive.registerAdapter<Task>(TaskAdapter());
+
+  // Calls theme settings
+  await SettingsScreen.loadSettings();
 
   // Open a Box
   Box box = await Hive.openBox<Task>(HiveDataStore.boxName);

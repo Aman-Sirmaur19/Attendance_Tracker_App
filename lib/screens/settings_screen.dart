@@ -1,28 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../main.dart';
 
 class SettingsScreen extends StatefulWidget {
+  static Map<String, Color> selectedColorPair = {
+    'present': Colors.blue,
+    'absent': Colors.red[400]!,
+  };
+
   const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
+
+  static Future<void> loadSettings() async {
+    final presentColorHex = prefs.getString('presentColor') ?? '#ff2196f3';
+    final absentColorHex = prefs.getString('absentColor') ?? '#ffef5350';
+
+    selectedColorPair = {
+      'present': Color(int.parse(presentColorHex.replaceFirst('#', '0xFF'))),
+      'absent': Color(int.parse(absentColorHex.replaceFirst('#', '0xFF'))),
+    };
+  }
+
+  static Future<void> _saveSettings(Map<String, Color> colorPair) async {
+    final presentColorHex =
+        colorPair['present']!.value.toRadixString(16).padLeft(8, '0');
+    final absentColorHex =
+        colorPair['absent']!.value.toRadixString(16).padLeft(8, '0');
+
+    await prefs.setString('presentColor', '#$presentColorHex');
+    await prefs.setString('absentColor', '#$absentColorHex');
+  }
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  Map<String, Color>? selectedColorPair;
+  bool isBannerLoaded = false;
+  late BannerAd bannerAd;
   bool _isDropdownOpen = false;
+
   List<Map<String, Color>> categories = [
     {'present': Colors.blue, 'absent': Colors.red[400]!},
-    {'present': Colors.blue, 'absent': Colors.amber},
+    {'present': Colors.purple, 'absent': Colors.amber},
     {'present': Colors.green, 'absent': Colors.red[400]!},
-    {'present': Colors.green, 'absent': Colors.amber},
+    {'present': Colors.blue, 'absent': Colors.amber},
+    {'present': Colors.purple, 'absent': Colors.red[400]!},
   ];
 
   @override
   void initState() {
     super.initState();
-    selectedColorPair = categories[0];
+    initializeBannerAd();
+  }
+
+  initializeBannerAd() async {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: 'ca-app-pub-9389901804535827/6598107759',
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            isBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          isBannerLoaded = false;
+        },
+      ),
+      request: const AdRequest(),
+    );
+    bannerAd.load();
   }
 
   @override
@@ -45,6 +94,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: isBannerLoaded
+          ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+          : const SizedBox(),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 5),
         children: [
@@ -110,14 +162,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           width: 30,
                           height: 30,
                           decoration: BoxDecoration(
-                              color: selectedColorPair!['present'],
+                              color:
+                                  SettingsScreen.selectedColorPair['present'],
                               borderRadius: BorderRadius.circular(15))),
                       const SizedBox(width: 5),
                       Container(
                           width: 30,
                           height: 30,
                           decoration: BoxDecoration(
-                              color: selectedColorPair!['absent'],
+                              color: SettingsScreen.selectedColorPair['absent'],
                               borderRadius: BorderRadius.circular(15))),
                       Icon(
                         _isDropdownOpen
@@ -136,9 +189,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedColorPair = value;
+                  SettingsScreen.selectedColorPair = value;
                   _isDropdownOpen = false;
                 });
+                SettingsScreen._saveSettings(value);
               },
               child: Container(
                 padding:
@@ -156,20 +210,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ],
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      color: value['present'],
-                      width: 30,
-                      height: 30,
-                    ),
-                    const SizedBox(width: 5),
-                    Container(
-                      color: value['absent'],
-                      width: 30,
-                      height: 30,
-                    ),
-                  ],
+                child: SizedBox(
+                  width: mq.width,
+                  height: mq.width * .05,
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey, width: 1.0),
+                          color: value['absent'],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: FractionallySizedBox(
+                          widthFactor: .75,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: value['present'],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
