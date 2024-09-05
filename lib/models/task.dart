@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 
 part 'task.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 1)
 class Task extends HiveObject {
   final String id;
   String title;
