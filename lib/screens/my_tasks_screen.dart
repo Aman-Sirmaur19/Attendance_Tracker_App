@@ -98,7 +98,7 @@ class _MyTasksScreenState extends State<MyTasksScreen>
                         context,
                         CupertinoPageRoute(
                             builder: (_) => const AddTaskScreen(task: null))),
-                    tooltip: 'Add tasks',
+                    tooltip: 'Add task',
                     child: const Icon(Icons.add))
                 : null,
             body: SliderDrawer(
@@ -130,7 +130,7 @@ class _MyTasksScreenState extends State<MyTasksScreen>
                           context,
                           CupertinoPageRoute(
                               builder: (_) => const AddTaskScreen(task: null))),
-                      tooltip: 'Add tasks',
+                      tooltip: 'Add task',
                       icon: const Icon(Icons.add),
                     )
                 ],
