@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../main.dart';
+import '../widgets/dialogs.dart';
 
 class SettingsScreen extends StatefulWidget {
   static Map<String, Color> selectedColorPair = {
@@ -97,6 +98,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       bottomNavigationBar: isBannerLoaded
           ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
           : const SizedBox(),
+      floatingActionButton: isFloatingActionButton
+          ? FloatingActionButton(
+              onPressed: () => Dialogs.showSnackBar(
+                  context, 'Already enabled in all pages!'),
+              tooltip: 'Floating button!',
+              child: const Icon(Icons.add))
+          : null,
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 5),
         children: [

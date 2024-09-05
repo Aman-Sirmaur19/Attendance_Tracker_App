@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'my_tasks_screen.dart';
-import './home_screen.dart';
+import './attendance_screen.dart';
 import './routine_screen.dart';
 
 class TabScreen extends StatefulWidget {
@@ -20,7 +20,7 @@ class _TabScreenState extends State<TabScreen> {
     super.initState();
     _pages = [
       {
-        'page': const HomeScreen(),
+        'page': const AttendanceScreen(),
         // 'title': 'Attendance Tracker',
       },
       {
