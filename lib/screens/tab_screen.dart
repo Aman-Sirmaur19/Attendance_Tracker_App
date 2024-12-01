@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'my_tasks_screen.dart';
-import './attendance_screen.dart';
-import './routine_screen.dart';
+import 'task/my_tasks_screen.dart';
+import 'attendance/attendance_screen.dart';
+import 'routine/routine_screen.dart';
 
 class TabScreen extends StatefulWidget {
   const TabScreen({super.key});
@@ -56,11 +57,11 @@ class _TabScreenState extends State<TabScreen> {
             label: 'Attendance',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month_rounded),
+            icon: Icon(CupertinoIcons.calendar_today),
             label: 'Routine',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.edit_note_rounded),
+            icon: Icon(CupertinoIcons.list_bullet_indent),
             label: 'To-Do',
           ),
         ],

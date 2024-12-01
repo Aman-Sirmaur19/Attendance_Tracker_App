@@ -23,7 +23,7 @@ class _MainDrawerState extends State<MainDrawer> {
         Colors.blue.shade400,
       ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(top: mq.height * .05),
@@ -111,7 +111,7 @@ class _MainDrawerState extends State<MainDrawer> {
                           borderRadius: BorderRadius.circular(mq.width * .15),
                           child: Image.asset(
                             'assets/images/avatar.png',
-                            width: mq.width * .3,
+                            width: 110,
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -154,7 +154,7 @@ class _MainDrawerState extends State<MainDrawer> {
                       children: [
                         InkWell(
                           child: Image.asset('assets/images/linkedin.png',
-                              width: mq.width * .07),
+                              width: 30),
                           onTap: () async {
                             const url =
                                 'https://www.linkedin.com/in/aman-kumar-257613257/';
@@ -163,7 +163,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         ),
                         InkWell(
                           child: Image.asset('assets/images/github.png',
-                              width: mq.width * .07),
+                              width: 30),
                           onTap: () async {
                             const url = 'https://github.com/Aman-Sirmaur19';
                             _launchInBrowser(context, Uri.parse(url));
@@ -171,7 +171,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         ),
                         InkWell(
                           child: Image.asset('assets/images/instagram.png',
-                              width: mq.width * .07),
+                              width: 30),
                           onTap: () async {
                             const url =
                                 'https://www.instagram.com/aman_sirmaur19/';
@@ -180,7 +180,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         ),
                         InkWell(
                           child: Image.asset('assets/images/twitter.png',
-                              width: mq.width * .07),
+                              width: 30),
                           onTap: () async {
                             const url =
                                 'https://x.com/AmanSirmaur?t=2QWiqzkaEgpBFNmLI38sbA&s=09';
@@ -189,7 +189,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         ),
                         InkWell(
                           child: Image.asset('assets/images/youtube.png',
-                              width: mq.width * .07),
+                              width: 30),
                           onTap: () async {
                             const url = 'https://www.youtube.com/@AmanSirmaur';
                             _launchInBrowser(context, Uri.parse(url));
@@ -212,6 +212,7 @@ class _MainDrawerState extends State<MainDrawer> {
           Padding(
             padding: EdgeInsets.only(bottom: mq.height * .02),
             child: const Text('MADE WITH ❤️ IN 🇮🇳',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

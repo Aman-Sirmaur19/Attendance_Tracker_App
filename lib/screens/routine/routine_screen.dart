@@ -10,8 +10,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
-import '../main.dart';
-import '../widgets/main_drawer.dart';
+import '../../main.dart';
+import '../../widgets/main_drawer.dart';
 
 enum Routine {
   photo,

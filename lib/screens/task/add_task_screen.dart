@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 
-import '../main.dart';
-import '../models/task.dart';
-import '../widgets/dialogs.dart';
+import '../../main.dart';
+import '../../models/task.dart';
+import '../../widgets/dialogs.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key, required this.task});

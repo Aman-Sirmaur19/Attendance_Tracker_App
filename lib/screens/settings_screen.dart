@@ -43,9 +43,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   List<Map<String, Color>> categories = [
     {'present': Colors.blue, 'absent': Colors.red[400]!},
-    {'present': Colors.purple, 'absent': Colors.amber},
+    {'present': Colors.purple, 'absent': Colors.amber.shade600},
     {'present': Colors.green, 'absent': Colors.red[400]!},
-    {'present': Colors.blue, 'absent': Colors.amber},
+    {'present': Colors.blue, 'absent': Colors.amber.shade600},
     {'present': Colors.purple, 'absent': Colors.red[400]!},
   ];
 

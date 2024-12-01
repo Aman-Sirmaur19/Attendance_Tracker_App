@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:in_app_update/in_app_update.dart';
@@ -8,13 +9,13 @@ import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
-import '../main.dart';
-import '../models/attendance.dart';
-import '../widgets/chart_bar.dart';
-import '../widgets/dialogs.dart';
-import '../widgets/main_drawer.dart';
-import '../widgets/new_attendance.dart';
-import 'settings_screen.dart';
+import '../../main.dart';
+import '../../models/attendance.dart';
+import '../../widgets/chart_bar.dart';
+import '../../widgets/dialogs.dart';
+import '../../widgets/main_drawer.dart';
+import '../settings_screen.dart';
+import 'add_attendance_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
@@ -31,7 +32,6 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   bool isDrawerOpen = false;
   GlobalKey<SliderDrawerState> drawerKey = GlobalKey<SliderDrawerState>();
   int _expandedIndex = -1;
-  int _editIndex = -1;
 
   final _subjectController = TextEditingController();
 
@@ -122,7 +122,11 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                 : const SizedBox(),
             floatingActionButton: isFloatingActionButton
                 ? FloatingActionButton(
-                    onPressed: () => _startAddNewAttendance(context),
+                    onPressed: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (_) =>
+                                const AddAttendanceScreen(attendance: null))),
                     tooltip: 'Add subject',
                     child: const Icon(Icons.add))
                 : null,
@@ -151,7 +155,11 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                 actions: [
                   if (!isFloatingActionButton)
                     IconButton(
-                      onPressed: () => _startAddNewAttendance(context),
+                      onPressed: () => Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (_) =>
+                                  const AddAttendanceScreen(attendance: null))),
                       tooltip: 'Add subject',
                       icon: const Icon(Icons.add),
                     )
@@ -194,8 +202,6 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                 DateFormat.yMMMd().format(dateTime);
                             final String time =
                                 DateFormat('hh:mm a').format(dateTime);
-
-                            final isEdit = _editIndex == index;
 
                             ///---------------------------------------------------------------
                             final total = attendances[index].present +
@@ -296,76 +302,36 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                         child: Text(
                                                             '${percentage.floor().toStringAsFixed(0)}%')),
                                                   ),
-                                            title: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: Row(
-                                                children: [
-                                                  isEdit
-                                                      ? SizedBox(
-                                                          width: mq.width * .4,
-                                                          child: TextField(
-                                                            style: const TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                            autofocus: true,
-                                                            controller:
-                                                                _subjectController,
-                                                          ),
-                                                        )
-                                                      : Text(
-                                                          attendances[index]
-                                                              .subject,
-                                                          style: const TextStyle(
-                                                              letterSpacing: 1,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                  isEdit
-                                                      ? IconButton(
-                                                          onPressed: () {
-                                                            setState(() {
-                                                              if (_subjectController
-                                                                      .text
-                                                                      .isNotEmpty &&
-                                                                  _subjectController
-                                                                          .text
-                                                                          .trim() !=
+                                            title: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                      attendances[index]
+                                                          .subject,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                          letterSpacing: 1,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                ),
+                                                IconButton(
+                                                  onPressed: () => Navigator.push(
+                                                      context,
+                                                      CupertinoPageRoute(
+                                                          builder: (_) =>
+                                                              AddAttendanceScreen(
+                                                                  attendance:
                                                                       attendances[
-                                                                              index]
-                                                                          .subject) {
-                                                                attendances[index]
-                                                                        .subject =
-                                                                    _subjectController
-                                                                        .text
-                                                                        .trim();
-                                                              }
-                                                              attendances[index]
-                                                                  .save();
-                                                              _editIndex = isEdit
-                                                                  ? -1
-                                                                  : index; // Toggle expanded state
-                                                            });
-                                                          },
-                                                          icon: const Icon(
-                                                              Icons.save))
-                                                      : IconButton(
-                                                          onPressed: () {
-                                                            setState(() {
-                                                              _subjectController
-                                                                      .text =
-                                                                  attendances[
-                                                                          index]
-                                                                      .subject;
-                                                              _editIndex = isEdit
-                                                                  ? -1
-                                                                  : index; // Toggle expanded state
-                                                            });
-                                                          },
-                                                          icon: const Icon(
-                                                              Icons.edit))
-                                                ],
-                                              ),
+                                                                          index]))),
+                                                  tooltip: 'Edit',
+                                                  icon: Icon(
+                                                    CupertinoIcons
+                                                        .pencil_outline,
+                                                    color: Colors.blue.shade600,
+                                                  ),
+                                                )
+                                              ],
                                             ),
                                             subtitle: Padding(
                                               padding: EdgeInsets.only(
@@ -585,7 +551,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                 ),
                                                 customButton(
                                                   'Required',
-                                                  '${attendances[index].requirement}%',
+                                                  '${attendances[index].requirement} %',
                                                   () {
                                                     setState(() {
                                                       if (attendances[index]
@@ -631,14 +597,6 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         });
   }
 
-  void _startAddNewAttendance(BuildContext ctx) {
-    showDialog(
-        context: ctx,
-        builder: (ctx) {
-          return const NewAttendance(attendance: null);
-        });
-  }
-
   Widget customButton(String name, String num, void Function()? onRemove,
       void Function()? onAdd) {
     return Column(
@@ -647,11 +605,15 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           children: [
             IconButton(
                 onPressed: onRemove,
-                icon: const Icon(Icons.remove_circle, color: Colors.green)),
+                tooltip: 'Remove',
+                icon: const Icon(Icons.remove_circle_rounded,
+                    color: Colors.green)),
             Text(num, style: const TextStyle(fontWeight: FontWeight.bold)),
             IconButton(
                 onPressed: onAdd,
-                icon: const Icon(Icons.add_circle, color: Colors.green)),
+                tooltip: 'Add',
+                icon:
+                    const Icon(Icons.add_circle_rounded, color: Colors.green)),
           ],
         ),
         Text(

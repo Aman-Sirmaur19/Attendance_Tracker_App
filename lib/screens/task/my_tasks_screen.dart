@@ -7,11 +7,11 @@ import 'package:lottie/lottie.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
-import '../main.dart';
-import '../models/task.dart';
-import '../widgets/dialogs.dart';
-import '../widgets/main_drawer.dart';
-import '../widgets/task_widget.dart';
+import '../../main.dart';
+import '../../models/task.dart';
+import '../../widgets/dialogs.dart';
+import '../../widgets/main_drawer.dart';
+import '../../widgets/task_widget.dart';
 import 'add_task_screen.dart';
 
 class MyTasksScreen extends StatefulWidget {

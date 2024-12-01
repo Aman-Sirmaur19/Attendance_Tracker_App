@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/task.dart';
-import '../screens/add_task_screen.dart';
+import '../screens/task/add_task_screen.dart';
 
 class TaskWidget extends StatefulWidget {
   const TaskWidget({
@@ -41,6 +41,7 @@ class _TaskWidgetState extends State<TaskWidget> {
           style: TextStyle(
               color: widget.task.isCompleted ? Colors.blue : null,
               fontSize: 15,
+              letterSpacing: 1,
               fontWeight: FontWeight.bold,
               decoration:
                   widget.task.isCompleted ? TextDecoration.lineThrough : null),
