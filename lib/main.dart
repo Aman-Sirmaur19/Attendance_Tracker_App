@@ -3,12 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest.dart' as tzz;
+import 'package:timezone/timezone.dart' as tz;
 
 import './screens/tab_screen.dart';
 import 'data/hive_data_store.dart';
 import 'models/attendance.dart';
 import 'models/task.dart';
 import 'screens/settings_screen.dart';
+import 'services/notification_service.dart';
 
 late Size mq;
 late bool isFloatingActionButton;
@@ -22,6 +25,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  tzz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
+  await NotificationService.init();
   prefs = await SharedPreferences.getInstance();
   isFloatingActionButton = prefs.getBool('FloatingActionButton') ?? false;
 

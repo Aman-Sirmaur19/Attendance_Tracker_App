@@ -49,6 +49,8 @@ dependencies:
   photo_view: ^0.15.0
   in_app_update: ^4.2.3
   google_mobile_ads: ^5.1.0
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
 
 dev_dependencies:
   flutter_test:

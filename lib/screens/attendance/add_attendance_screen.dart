@@ -6,6 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../main.dart';
 import '../../models/attendance.dart';
+import '../../services/notification_service.dart';
 import '../../widgets/dialogs.dart';
 
 class AddAttendanceScreen extends StatefulWidget {
@@ -24,16 +25,27 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   int attended = 0;
   int missed = 0;
   int required = 75;
+  late Map<String, String?> schedules;
 
   @override
   void initState() {
     super.initState();
     initializeBannerAd();
+    schedules = {
+      'Monday': null,
+      'Tuesday': null,
+      'Wednesday': null,
+      'Thursday': null,
+      'Friday': null,
+      'Saturday': null,
+      'Sunday': null,
+    };
     if (widget.attendance != null) {
       subjectController.text = widget.attendance!.subject;
       attended = widget.attendance!.present;
       missed = widget.attendance!.absent;
       required = widget.attendance!.requirement;
+      schedules = widget.attendance!.schedules;
     }
   }
 
@@ -74,7 +86,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   }
 
   // Main function for creating or updating attendance
-  dynamic isAttendanceAlreadyExistUpdateElseCreate() {
+  dynamic isAttendanceAlreadyExistUpdateElseCreate() async {
     // update current attendance
     if (subjectController.text.trim().isNotEmpty && widget.attendance != null) {
       try {
@@ -82,7 +94,9 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
         widget.attendance?.present = attended;
         widget.attendance?.absent = missed;
         widget.attendance?.requirement = required;
+        widget.attendance?.schedules = schedules;
         widget.attendance?.save();
+        await setNotificationsForAttendance(widget.attendance!);
         Dialogs.showSnackBar(context, 'Attendance updated successfully!');
         Navigator.pop(context);
       } catch (error) {
@@ -95,14 +109,69 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
         absent: missed,
         requirement: required,
         createdAt: DateTime.now().toString(),
+        schedules: schedules,
       );
       // We are adding this new attendance to Hive DB using inherited widget
       BaseWidget.of(context).dataStore.addAttendance(attendance: attendance);
+      // Schedule notifications
+      await setNotificationsForAttendance(attendance);
       Dialogs.showSnackBar(context, 'Attendance created successfully!');
       Navigator.pop(context);
     } else {
       Dialogs.showErrorSnackBar(context, 'Enter subject');
     }
+  }
+
+  Future<void> setNotificationsForAttendance(Attendance attendance) async {
+    for (var entry in attendance.schedules.entries) {
+      final day = entry.key; // e.g., "Monday"
+      final timeString = entry.value; // e.g., "10:30 AM"
+
+      if (timeString != null) {
+        final DateTime now = DateTime.now();
+        DateTime scheduleTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.parse(timeString.split(":")[0]),
+          int.parse(timeString.split(":")[1].split(" ")[0]),
+        );
+
+        // Adjust the date to the next occurrence of the day
+        while (scheduleTime.weekday != _weekdayFromName(day)) {
+          scheduleTime = scheduleTime.add(const Duration(days: 1));
+        }
+
+        int total = 0;
+        double miss = 0.0;
+        total = attendance.present + attendance.absent;
+        miss =
+            (100.0 * attendance.present) - (attendance.requirement * (total));
+        miss /= attendance.requirement;
+        String missClass = miss.toStringAsFixed(0);
+        String title = miss >= 2
+            ? 'You can miss $missClass classes'
+            : miss >= 1
+                ? 'You can miss $missClass class'
+                : 'Don\'t forget to attend';
+        String body = 'You have ${attendance.subject} class in 1 hour.';
+        await NotificationService.scheduleNotification(
+            title: title, body: body, scheduledTime: scheduleTime);
+      }
+    }
+  }
+
+  int _weekdayFromName(String dayName) {
+    const days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
+    return days.indexOf(dayName) + 1;
   }
 
   @override
@@ -167,6 +236,37 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
               ),
               const SizedBox(height: 10),
               _customCounterContainer(title: 'Required', number: required),
+              const SizedBox(height: 25),
+              const Text(
+                'Set Weekly Schedules',
+                style: TextStyle(fontSize: 15, color: Colors.grey),
+              ),
+              const SizedBox(height: 10),
+              ...schedules.keys.map((day) {
+                return ListTile(
+                  title: Text(day),
+                  trailing: schedules[day] != null
+                      ? Text(
+                          schedules[day]!,
+                          style: const TextStyle(color: Colors.blue),
+                        )
+                      : const Text(
+                          'Set Time',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                  onTap: () async {
+                    final localTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    setState(() {
+                      if (localTime != null) {
+                        schedules[day] = localTime.format(context);
+                      }
+                    });
+                  },
+                );
+              }).toList(),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

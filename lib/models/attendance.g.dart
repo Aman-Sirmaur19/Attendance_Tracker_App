@@ -24,13 +24,14 @@ class AttendanceAdapter extends TypeAdapter<Attendance> {
       absent: fields[4] as int,
       requirement: fields[5] as int,
       createdAt: fields[6] as String,
+      schedules: (fields[7] as Map).cast<String, String?>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Attendance obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class AttendanceAdapter extends TypeAdapter<Attendance> {
       ..writeByte(5)
       ..write(obj.requirement)
       ..writeByte(6)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(7)
+      ..write(obj.schedules);
   }
 
   @override
