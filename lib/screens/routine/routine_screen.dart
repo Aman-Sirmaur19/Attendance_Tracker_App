@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 
 import '../../main.dart';
 import '../../widgets/main_drawer.dart';
@@ -45,9 +44,6 @@ class _RoutineScreenState extends State<RoutineScreen>
     'Sunday'
   ];
   List<List<String>> subjects = List.generate(7, (_) => []);
-  late AnimationController animationController;
-  bool isDrawerOpen = false;
-  GlobalKey<SliderDrawerState> drawerKey = GlobalKey<SliderDrawerState>();
 
   void saveRoutineScreenState() {
     bool isPhoto = _routine == Routine.photo;
@@ -115,27 +111,6 @@ class _RoutineScreenState extends State<RoutineScreen>
     readRoutineScreenState();
     _loadImage();
     loadSubjects();
-    animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800));
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    animationController.dispose();
-  }
-
-  void onDrawerToggle() {
-    setState(() {
-      isDrawerOpen = !isDrawerOpen;
-      if (isDrawerOpen) {
-        animationController.forward();
-        drawerKey.currentState!.openSlider();
-      } else {
-        animationController.reverse();
-        drawerKey.currentState!.closeSlider();
-      }
-    });
   }
 
   void loadSubjects() {
@@ -162,6 +137,35 @@ class _RoutineScreenState extends State<RoutineScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: const Text(
+            'Routine',
+            style: TextStyle(
+              letterSpacing: 2,
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          actions: [
+            IconButton(
+              onPressed: onPressedSwitchButton,
+              tooltip: _routine == Routine.photo
+                  ? 'Switch to WeekDay mode'
+                  : 'Switch to Picture mode',
+              icon: Icon(_routine == Routine.photo
+                  ? CupertinoIcons.calendar_today
+                  : CupertinoIcons.photo),
+            ),
+            if (_routine == Routine.weekdays && !isFloatingActionButton)
+              IconButton(
+                onPressed: () => _addSubject(_pageController.page!.toInt()),
+                tooltip: 'Add routine',
+                icon: const Icon(Icons.add),
+              ),
+          ],
+        ),
         bottomNavigationBar: isBannerLoaded
             ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
             : const SizedBox(),
@@ -172,49 +176,10 @@ class _RoutineScreenState extends State<RoutineScreen>
                     tooltip: 'Add routine',
                     child: const Icon(Icons.add))
                 : null,
-        body: SliderDrawer(
-          key: drawerKey,
-          isDraggable: false,
-          animationDuration: 800,
-          appBar: AppBar(
-            leading: IconButton(
-              onPressed: onDrawerToggle,
-              icon: AnimatedIcon(
-                icon: AnimatedIcons.menu_close,
-                progress: animationController,
-              ),
-            ),
-            centerTitle: true,
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: const Text(
-              'Routine',
-              style: TextStyle(
-                letterSpacing: 2,
-                fontSize: 21,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            actions: [
-              IconButton(
-                onPressed: onPressedSwitchButton,
-                tooltip: _routine == Routine.photo
-                    ? 'Switch to WeekDay mode'
-                    : 'Switch to Picture mode',
-                icon: Icon(_routine == Routine.photo
-                    ? CupertinoIcons.calendar_today
-                    : CupertinoIcons.photo),
-              ),
-              if (_routine == Routine.weekdays && !isFloatingActionButton)
-                IconButton(
-                  onPressed: () => _addSubject(_pageController.page!.toInt()),
-                  tooltip: 'Add routine',
-                  icon: const Icon(Icons.add),
-                ),
-            ],
-          ),
-          slider: const MainDrawer(),
-          child: _routine == Routine.photo
-              ? Column(
+        drawer: const MainDrawer(),
+        body: _routine == Routine.photo
+            ? Center(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _imageBytes == null
@@ -241,34 +206,34 @@ class _RoutineScreenState extends State<RoutineScreen>
                             ? 'Switch to WeekDay'
                             : 'Switch to Picture')),
                   ],
-                )
-              : Column(
-                  children: [
-                    Expanded(
-                      child: PageView.builder(
-                        controller: _pageController,
-                        itemCount: daysOfWeek.length,
-                        itemBuilder: (context, index) {
-                          return buildDayPage(index);
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: SmoothPageIndicator(
-                        controller: _pageController,
-                        count: daysOfWeek.length,
-                        effect: const WormEffect(
-                          activeDotColor: Colors.blue,
-                          spacing: 5,
-                          dotWidth: 7,
-                          dotHeight: 7,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
-        ));
+              )
+            : Column(
+                children: [
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: daysOfWeek.length,
+                      itemBuilder: (context, index) {
+                        return buildDayPage(index);
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: SmoothPageIndicator(
+                      controller: _pageController,
+                      count: daysOfWeek.length,
+                      effect: const WormEffect(
+                        activeDotColor: Colors.blue,
+                        spacing: 5,
+                        dotWidth: 7,
+                        dotHeight: 7,
+                      ),
+                    ),
+                  ),
+                ],
+              ));
   }
 
   Widget buildDayPage(int dayIndex) {
@@ -339,13 +304,14 @@ class _RoutineScreenState extends State<RoutineScreen>
                             ),
                           ),
                           trailing: IconButton(
-                            icon: const Icon(Icons.delete),
                             onPressed: () {
                               setState(() {
                                 subjects[dayIndex].removeAt(subjectIndex);
                                 saveSubjects(dayIndex);
                               });
                             },
+                            tooltip: 'Delete',
+                            icon: const Icon(Icons.delete),
                           ),
                         ),
                       );
