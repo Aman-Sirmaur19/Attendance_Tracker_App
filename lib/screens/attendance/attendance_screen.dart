@@ -10,6 +10,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../main.dart';
 import '../../models/attendance.dart';
+import '../../services/notification_service.dart';
 import '../../widgets/chart_bar.dart';
 import '../../widgets/dialogs.dart';
 import '../../widgets/main_drawer.dart';
@@ -459,6 +460,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                     }
                                                   });
                                                   attendances[index].save();
+                                                  NotificationService
+                                                      .setNotificationsForAttendance(
+                                                          attendances[index]);
                                                 },
                                                 () {
                                                   setState(() {
@@ -469,6 +473,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                             .toString();
                                                   });
                                                   attendances[index].save();
+                                                  NotificationService
+                                                      .setNotificationsForAttendance(
+                                                          attendances[index]);
                                                 },
                                               ),
                                               customButton(
@@ -487,6 +494,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                     }
                                                   });
                                                   attendances[index].save();
+                                                  NotificationService
+                                                      .setNotificationsForAttendance(
+                                                          attendances[index]);
                                                 },
                                                 () {
                                                   setState(() {
@@ -496,6 +506,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                             .toString();
                                                   });
                                                   attendances[index].save();
+                                                  NotificationService
+                                                      .setNotificationsForAttendance(
+                                                          attendances[index]);
                                                 },
                                               ),
                                               customButton(
@@ -514,6 +527,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                     }
                                                   });
                                                   attendances[index].save();
+                                                  NotificationService
+                                                      .setNotificationsForAttendance(
+                                                          attendances[index]);
                                                 },
                                                 () {
                                                   setState(() {
@@ -528,6 +544,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                     }
                                                   });
                                                   attendances[index].save();
+                                                  NotificationService
+                                                      .setNotificationsForAttendance(
+                                                          attendances[index]);
                                                 },
                                               ),
                                             ],
