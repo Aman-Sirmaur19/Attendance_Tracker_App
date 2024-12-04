@@ -21,6 +21,7 @@ class AddAttendanceScreen extends StatefulWidget {
 class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   bool isBannerLoaded = false;
   late BannerAd bannerAd;
+  bool _isDropdownOpen = false;
   final TextEditingController subjectController = TextEditingController();
   int attended = 0;
   int missed = 0;
@@ -38,7 +39,6 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
       'Thursday': null,
       'Friday': null,
       'Saturday': null,
-      'Sunday': null,
     };
     if (widget.attendance != null) {
       subjectController.text = widget.attendance!.subject;
@@ -231,42 +231,18 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
               _customCounterContainer(title: 'Missed', number: missed),
               const SizedBox(height: 25),
               const Text(
-                'Enter the no. of classes required',
+                'Enter the % of classes required',
                 style: TextStyle(fontSize: 15, color: Colors.grey),
               ),
               const SizedBox(height: 10),
               _customCounterContainer(title: 'Required', number: required),
               const SizedBox(height: 25),
               const Text(
-                'Set Weekly Schedules',
+                'Set weekly schedules for push notifications',
                 style: TextStyle(fontSize: 15, color: Colors.grey),
               ),
               const SizedBox(height: 10),
-              ...schedules.keys.map((day) {
-                return ListTile(
-                  title: Text(day),
-                  trailing: schedules[day] != null
-                      ? Text(
-                          schedules[day]!,
-                          style: const TextStyle(color: Colors.blue),
-                        )
-                      : const Text(
-                          'Set Time',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                  onTap: () async {
-                    final localTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                    );
-                    setState(() {
-                      if (localTime != null) {
-                        schedules[day] = localTime.format(context);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
+              _customColumn(),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -422,6 +398,85 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _customColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _isDropdownOpen = !_isDropdownOpen;
+            });
+          },
+          child: Container(
+            // width: double.infinity,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              border: Border.all(
+                  color:
+                      Theme.of(context).colorScheme.secondary.withOpacity(.4)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 10),
+                Icon(Icons.alarm_rounded, color: Colors.amber.shade300),
+                const SizedBox(width: 12),
+                Text(
+                  'Routine',
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.amber.shade300,
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                  color: Colors.amber.shade300,
+                ),
+                const SizedBox(width: 10),
+              ],
+            ),
+          ),
+        ),
+        if (_isDropdownOpen)
+          ...schedules.keys.map((day) {
+            return ListTile(
+              title: Text(
+                day,
+                style: const TextStyle(
+                    color: Colors.black54,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold),
+              ),
+              trailing: schedules[day] != null
+                  ? Text(
+                      schedules[day]!,
+                      style: const TextStyle(color: Colors.blue, fontSize: 15),
+                    )
+                  : const Text(
+                      'Set Time',
+                      style: TextStyle(color: Colors.grey, fontSize: 15),
+                    ),
+              onTap: () async {
+                final localTime = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                );
+                setState(() {
+                  if (localTime != null) {
+                    schedules[day] = localTime.format(context);
+                  }
+                });
+              },
+            );
+          }).toList(),
+      ],
     );
   }
 }
