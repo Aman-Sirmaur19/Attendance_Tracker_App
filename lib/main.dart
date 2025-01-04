@@ -83,6 +83,17 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
+        appBarTheme: AppBarTheme(
+            centerTitle: true,
+            titleTextStyle: TextStyle(
+              fontSize: 21,
+              letterSpacing: 1.5,
+              color: Colors.blue.shade700,
+              fontWeight: FontWeight.bold,
+            )),
+        iconButtonTheme: IconButtonThemeData(
+            style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all(Colors.blue))),
       ),
       home: const TabScreen(),
     );

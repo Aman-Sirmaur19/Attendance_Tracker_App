@@ -166,28 +166,11 @@ class MainDrawer extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           InkWell(
-                            child: Image.asset('assets/images/linkedin.png',
+                            child: Image.asset('assets/images/youtube.png',
                                 width: 30),
                             onTap: () async {
                               const url =
-                                  'https://www.linkedin.com/in/aman-kumar-257613257/';
-                              _launchInBrowser(context, Uri.parse(url));
-                            },
-                          ),
-                          InkWell(
-                            child: Image.asset('assets/images/github.png',
-                                width: 30),
-                            onTap: () async {
-                              const url = 'https://github.com/Aman-Sirmaur19';
-                              _launchInBrowser(context, Uri.parse(url));
-                            },
-                          ),
-                          InkWell(
-                            child: Image.asset('assets/images/instagram.png',
-                                width: 30),
-                            onTap: () async {
-                              const url =
-                                  'https://www.instagram.com/aman_sirmaur19/';
+                                  'https://www.youtube.com/@AmanSirmaur';
                               _launchInBrowser(context, Uri.parse(url));
                             },
                           ),
@@ -201,11 +184,28 @@ class MainDrawer extends StatelessWidget {
                             },
                           ),
                           InkWell(
-                            child: Image.asset('assets/images/youtube.png',
+                            child: Image.asset('assets/images/instagram.png',
                                 width: 30),
                             onTap: () async {
                               const url =
-                                  'https://www.youtube.com/@AmanSirmaur';
+                                  'https://www.instagram.com/aman_sirmaur19/';
+                              _launchInBrowser(context, Uri.parse(url));
+                            },
+                          ),
+                          InkWell(
+                            child: Image.asset('assets/images/github.png',
+                                width: 30),
+                            onTap: () async {
+                              const url = 'https://github.com/Aman-Sirmaur19';
+                              _launchInBrowser(context, Uri.parse(url));
+                            },
+                          ),
+                          InkWell(
+                            child: Image.asset('assets/images/linkedin.png',
+                                width: 30),
+                            onTap: () async {
+                              const url =
+                                  'https://www.linkedin.com/in/aman-kumar-257613257/';
                               _launchInBrowser(context, Uri.parse(url));
                             },
                           ),

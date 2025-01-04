@@ -43,7 +43,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   // if any task already exist return true, else false
-  bool isTaskAlreadyExist() {
+  bool _isTaskAlreadyExist() {
     if (widget.task != null) {
       return true;
     } else {
@@ -52,7 +52,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   // Main function for creating or updating task
-  dynamic isTaskAlreadyExistUpdateElseCreate() {
+  dynamic _isTaskAlreadyExistUpdateElseCreate() {
     // update current task
     if (titleController.text.trim().isNotEmpty &&
         descriptionController.text.trim().isNotEmpty &&
@@ -85,7 +85,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-  dynamic deleteTask() {
+  dynamic _deleteTask() {
     return widget.task?.delete();
   }
 
@@ -97,19 +97,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         appBar: AppBar(
           leading: IconButton(
             tooltip: 'Back',
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            icon: const Icon(CupertinoIcons.chevron_back),
             onPressed: () => Navigator.pop(context),
           ),
-          centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(
-            isTaskAlreadyExist() ? 'Update Task' : 'Add Task',
-            style: const TextStyle(
-              letterSpacing: 2,
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          title: Text(_isTaskAlreadyExist() ? 'Update Task' : 'Add Task'),
         ),
         bottomNavigationBar: const CustomBannerAd(),
         body: Padding(
@@ -160,10 +151,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  if (isTaskAlreadyExist())
+                  if (_isTaskAlreadyExist())
                     ElevatedButton.icon(
                         onPressed: () {
-                          deleteTask();
+                          _deleteTask();
                           Dialogs.showSnackBar(
                               context, 'Task deleted successfully!');
                           Navigator.pop(context);
@@ -176,14 +167,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         icon: const Icon(CupertinoIcons.delete),
                         label: const Text('Delete')),
                   ElevatedButton.icon(
-                    onPressed: () => isTaskAlreadyExistUpdateElseCreate(),
+                    onPressed: () => _isTaskAlreadyExistUpdateElseCreate(),
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.blue),
-                    icon: Icon(isTaskAlreadyExist()
+                    icon: Icon(_isTaskAlreadyExist()
                         ? CupertinoIcons.refresh_thick
                         : CupertinoIcons.list_bullet_indent),
-                    label: Text(isTaskAlreadyExist() ? 'Update' : 'Add'),
+                    label: Text(_isTaskAlreadyExist() ? 'Update' : 'Add'),
                   ),
                 ],
               ),

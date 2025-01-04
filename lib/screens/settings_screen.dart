@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
@@ -53,19 +54,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         leading: IconButton(
           tooltip: 'Back',
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(CupertinoIcons.chevron_back),
           onPressed: () => Navigator.pop(context),
         ),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text(
-          'Settings',
-          style: TextStyle(
-            letterSpacing: 2,
-            fontSize: 21,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Settings'),
       ),
       bottomNavigationBar: const CustomBannerAd(),
       floatingActionButton: isFloatingActionButton

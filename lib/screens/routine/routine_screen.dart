@@ -98,7 +98,7 @@ class _RoutineScreenState extends State<RoutineScreen>
     setState(() {});
   }
 
-  void onPressedSwitchButton() {
+  void _onPressedSwitchButton() {
     setState(() {
       if (_routine == Routine.photo) {
         _routine = Routine.weekdays;
@@ -113,19 +113,10 @@ class _RoutineScreenState extends State<RoutineScreen>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text(
-            'Routine',
-            style: TextStyle(
-              letterSpacing: 2,
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          title: const Text('Routine'),
           actions: [
             IconButton(
-              onPressed: onPressedSwitchButton,
+              onPressed: _onPressedSwitchButton,
               tooltip: _routine == Routine.photo
                   ? 'Switch to WeekDay mode'
                   : 'Switch to Picture mode',
@@ -137,7 +128,7 @@ class _RoutineScreenState extends State<RoutineScreen>
               IconButton(
                 onPressed: () => _addSubject(_pageController.page!.toInt()),
                 tooltip: 'Add routine',
-                icon: const Icon(Icons.add),
+                icon: const Icon(Icons.add_circle_outline_rounded),
               ),
           ],
         ),
@@ -173,7 +164,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                         icon: const Icon(CupertinoIcons.photo),
                         label: const Text('Add Routine Image')),
                     TextButton.icon(
-                        onPressed: onPressedSwitchButton,
+                        onPressed: _onPressedSwitchButton,
                         icon: const Icon(CupertinoIcons.arrow_swap),
                         label: Text(_routine == Routine.photo
                             ? 'Switch to WeekDay'
@@ -216,7 +207,7 @@ class _RoutineScreenState extends State<RoutineScreen>
         child: Column(
           children: [
             TextButton.icon(
-                onPressed: onPressedSwitchButton,
+                onPressed: _onPressedSwitchButton,
                 icon: const Icon(CupertinoIcons.arrow_swap),
                 label: Text(_routine == Routine.photo
                     ? 'Switch to WeekDay'

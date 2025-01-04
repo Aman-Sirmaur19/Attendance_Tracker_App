@@ -53,7 +53,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   }
 
   // if any attendance already exist return true, else false
-  bool isAttendanceAlreadyExist() {
+  bool _isAttendanceAlreadyExist() {
     if (widget.attendance != null) {
       return true;
     } else {
@@ -62,7 +62,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   }
 
   // Main function for creating or updating attendance
-  dynamic isAttendanceAlreadyExistUpdateElseCreate() async {
+  dynamic _isAttendanceAlreadyExistUpdateElseCreate() async {
     // update current attendance
     if (subjectController.text.trim().isNotEmpty && widget.attendance != null) {
       try {
@@ -107,19 +107,12 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
         appBar: AppBar(
           leading: IconButton(
             tooltip: 'Back',
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            icon: const Icon(CupertinoIcons.chevron_back),
             onPressed: () => Navigator.pop(context),
           ),
-          centerTitle: true,
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(
-            isAttendanceAlreadyExist() ? 'Update Attendance' : 'Add Attendance',
-            style: const TextStyle(
-              letterSpacing: 2,
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          title: Text(_isAttendanceAlreadyExist()
+              ? 'Update Attendance'
+              : 'Add Attendance'),
         ),
         bottomNavigationBar: const CustomBannerAd(),
         body: Padding(
@@ -180,7 +173,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  if (isAttendanceAlreadyExist())
+                  if (_isAttendanceAlreadyExist())
                     ElevatedButton.icon(
                         onPressed: () => showDialog(
                             context: context,
@@ -218,14 +211,15 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                         icon: const Icon(CupertinoIcons.delete),
                         label: const Text('Delete')),
                   ElevatedButton.icon(
-                    onPressed: () => isAttendanceAlreadyExistUpdateElseCreate(),
+                    onPressed: () =>
+                        _isAttendanceAlreadyExistUpdateElseCreate(),
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.blue),
-                    icon: Icon(isAttendanceAlreadyExist()
+                    icon: Icon(_isAttendanceAlreadyExist()
                         ? CupertinoIcons.refresh_thick
                         : CupertinoIcons.list_bullet_indent),
-                    label: Text(isAttendanceAlreadyExist() ? 'Update' : 'Add'),
+                    label: Text(_isAttendanceAlreadyExist() ? 'Update' : 'Add'),
                   ),
                 ],
               ),

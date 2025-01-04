@@ -26,16 +26,7 @@ class MyTasksScreen extends StatelessWidget {
 
           return Scaffold(
             appBar: AppBar(
-              centerTitle: true,
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: const Text(
-                'My Tasks',
-                style: TextStyle(
-                  letterSpacing: 2,
-                  fontSize: 21,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              title: const Text('My Tasks'),
               actions: [
                 if (!isFloatingActionButton)
                   IconButton(
@@ -44,7 +35,7 @@ class MyTasksScreen extends StatelessWidget {
                         CupertinoPageRoute(
                             builder: (_) => const AddTaskScreen(task: null))),
                     tooltip: 'Add task',
-                    icon: const Icon(Icons.add),
+                    icon: const Icon(Icons.add_circle_outline_rounded),
                   )
               ],
             ),

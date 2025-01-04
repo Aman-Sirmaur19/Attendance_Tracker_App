@@ -75,16 +75,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
 
           return Scaffold(
             appBar: AppBar(
-              centerTitle: true,
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: const Text(
-                'Attendance Tracker',
-                style: TextStyle(
-                  letterSpacing: 2,
-                  fontSize: 21,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              title: const Text('Attendance Tracker'),
               actions: [
                 if (!isFloatingActionButton)
                   IconButton(
