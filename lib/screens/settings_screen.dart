@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../main.dart';
 import '../widgets/dialogs.dart';
+import '../widgets/custom_banner_ad.dart';
 
 class SettingsScreen extends StatefulWidget {
   static Map<String, Color> selectedColorPair = {
@@ -37,8 +37,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool isBannerLoaded = false;
-  late BannerAd bannerAd;
   bool _isDropdownOpen = false;
 
   List<Map<String, Color>> categories = [
@@ -48,32 +46,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     {'present': Colors.blue, 'absent': Colors.amber.shade600},
     {'present': Colors.purple, 'absent': Colors.red[400]!},
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    initializeBannerAd();
-  }
-
-  initializeBannerAd() async {
-    bannerAd = BannerAd(
-      size: AdSize.banner,
-      adUnitId: 'ca-app-pub-9389901804535827/6598107759',
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            isBannerLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          isBannerLoaded = false;
-        },
-      ),
-      request: const AdRequest(),
-    );
-    bannerAd.load();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,9 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: isBannerLoaded
-          ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
-          : const SizedBox(),
+      bottomNavigationBar: const CustomBannerAd(),
       floatingActionButton: isFloatingActionButton
           ? FloatingActionButton(
               onPressed: () => Dialogs.showSnackBar(

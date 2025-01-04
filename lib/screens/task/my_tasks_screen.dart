@@ -1,56 +1,18 @@
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:lottie/lottie.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../main.dart';
 import '../../models/task.dart';
 import '../../widgets/dialogs.dart';
 import '../../widgets/main_drawer.dart';
 import '../../widgets/task_widget.dart';
+import '../../widgets/custom_banner_ad.dart';
 import 'add_task_screen.dart';
 
-class MyTasksScreen extends StatefulWidget {
+class MyTasksScreen extends StatelessWidget {
   const MyTasksScreen({super.key});
-
-  @override
-  State<MyTasksScreen> createState() => _MyTasksScreenState();
-}
-
-class _MyTasksScreenState extends State<MyTasksScreen>
-    with SingleTickerProviderStateMixin {
-  bool isBannerLoaded = false;
-  late BannerAd bannerAd;
-
-  @override
-  void initState() {
-    super.initState();
-    initializeBannerAd();
-  }
-
-  initializeBannerAd() async {
-    bannerAd = BannerAd(
-      size: AdSize.banner,
-      adUnitId: 'ca-app-pub-9389901804535827/6598107759',
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            isBannerLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          isBannerLoaded = false;
-          log(error.message);
-        },
-      ),
-      request: const AdRequest(),
-    );
-    bannerAd.load();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,9 +49,7 @@ class _MyTasksScreenState extends State<MyTasksScreen>
               ],
             ),
             backgroundColor: Colors.white,
-            bottomNavigationBar: isBannerLoaded
-                ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
-                : const SizedBox(),
+            bottomNavigationBar: const CustomBannerAd(),
             floatingActionButton: isFloatingActionButton
                 ? FloatingActionButton(
                     onPressed: () => Navigator.push(

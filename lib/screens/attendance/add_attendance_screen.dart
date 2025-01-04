@@ -2,12 +2,12 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../main.dart';
 import '../../models/attendance.dart';
-import '../../services/notification_service.dart';
 import '../../widgets/dialogs.dart';
+import '../../widgets/custom_banner_ad.dart';
+import '../../services/notification_service.dart';
 
 class AddAttendanceScreen extends StatefulWidget {
   const AddAttendanceScreen({super.key, required this.attendance});
@@ -19,8 +19,6 @@ class AddAttendanceScreen extends StatefulWidget {
 }
 
 class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
-  bool isBannerLoaded = false;
-  late BannerAd bannerAd;
   bool _isDropdownOpen = false;
   final TextEditingController subjectController = TextEditingController();
   int attended = 0;
@@ -31,7 +29,6 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   @override
   void initState() {
     super.initState();
-    initializeBannerAd();
     schedules = {
       'Monday': null,
       'Tuesday': null,
@@ -53,27 +50,6 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   void dispose() {
     super.dispose();
     subjectController.dispose();
-  }
-
-  initializeBannerAd() async {
-    bannerAd = BannerAd(
-      size: AdSize.banner,
-      adUnitId: 'ca-app-pub-9389901804535827/6598107759',
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            isBannerLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          isBannerLoaded = false;
-          log(error.message);
-        },
-      ),
-      request: const AdRequest(),
-    );
-    bannerAd.load();
   }
 
   // if any attendance already exist return true, else false
@@ -145,9 +121,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
             ),
           ),
         ),
-        bottomNavigationBar: isBannerLoaded
-            ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
-            : const SizedBox(),
+        bottomNavigationBar: const CustomBannerAd(),
         body: Padding(
           padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
           child: ListView(
@@ -192,6 +166,16 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
               ),
               const SizedBox(height: 10),
               _customColumn(),
+              const SizedBox(height: 10),
+              Text(
+                "Once saved, swipe the card (Left <-- Right) to 'DELETE'",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.redAccent.shade200,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

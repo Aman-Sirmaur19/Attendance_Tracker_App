@@ -1,16 +1,15 @@
-import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../main.dart';
 import '../../widgets/main_drawer.dart';
+import '../../widgets/custom_banner_ad.dart';
 
 enum Routine {
   photo,
@@ -26,8 +25,6 @@ class RoutineScreen extends StatefulWidget {
 
 class _RoutineScreenState extends State<RoutineScreen>
     with SingleTickerProviderStateMixin {
-  bool isBannerLoaded = false;
-  late BannerAd bannerAd;
   Routine _routine = Routine.photo;
   final ImagePicker _picker = ImagePicker();
   Uint8List? _imageBytes;
@@ -45,12 +42,12 @@ class _RoutineScreenState extends State<RoutineScreen>
   ];
   List<List<String>> subjects = List.generate(7, (_) => []);
 
-  void saveRoutineScreenState() {
+  void _saveRoutineScreenState() {
     bool isPhoto = _routine == Routine.photo;
     prefs.setBool('PhotoOrWeekday', isPhoto);
   }
 
-  void readRoutineScreenState() {
+  void _readRoutineScreenState() {
     bool? isPhoto = prefs.getBool('PhotoOrWeekday') ?? true;
     if (isPhoto) {
       setState(() {
@@ -83,37 +80,15 @@ class _RoutineScreenState extends State<RoutineScreen>
     });
   }
 
-  initializeBannerAd() async {
-    bannerAd = BannerAd(
-      size: AdSize.banner,
-      adUnitId: 'ca-app-pub-9389901804535827/6598107759',
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            isBannerLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          isBannerLoaded = false;
-          log(error.message);
-        },
-      ),
-      request: const AdRequest(),
-    );
-    bannerAd.load();
-  }
-
   @override
   void initState() {
     super.initState();
-    initializeBannerAd();
-    readRoutineScreenState();
+    _readRoutineScreenState();
     _loadImage();
-    loadSubjects();
+    _loadSubjects();
   }
 
-  void loadSubjects() {
+  void _loadSubjects() {
     for (int i = 0; i < daysOfWeek.length; i++) {
       List<String>? savedSubjects = prefs.getStringList('subjects_$i');
       if (savedSubjects != null) {
@@ -131,7 +106,7 @@ class _RoutineScreenState extends State<RoutineScreen>
         _routine = Routine.photo;
       }
     });
-    saveRoutineScreenState();
+    _saveRoutineScreenState();
   }
 
   @override
@@ -166,9 +141,7 @@ class _RoutineScreenState extends State<RoutineScreen>
               ),
           ],
         ),
-        bottomNavigationBar: isBannerLoaded
-            ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
-            : const SizedBox(),
+        bottomNavigationBar: const CustomBannerAd(),
         floatingActionButton:
             (_routine == Routine.weekdays && isFloatingActionButton)
                 ? FloatingActionButton(
