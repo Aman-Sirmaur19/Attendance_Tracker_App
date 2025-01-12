@@ -64,37 +64,6 @@ class MainDrawer extends StatelessWidget {
             ),
             SizedBox(height: mq.height * .03),
             buildListTile(
-              'Info',
-              CupertinoIcons.info,
-              () => showDialog(
-                  context: context,
-                  builder: (context) => const AlertDialog(
-                        title: Text(
-                          'NOTE',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        content: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Divider(),
-                            Text(
-                              '\n\u2022 Swipe the cards to delete.\n',
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              '\u2022 Copyright section is \'clickable\'.',
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      )),
-            ),
-            buildListTile(
               'Settings',
               CupertinoIcons.settings,
               () => Navigator.push(context,

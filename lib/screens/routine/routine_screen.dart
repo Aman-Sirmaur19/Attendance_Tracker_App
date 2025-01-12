@@ -120,9 +120,12 @@ class _RoutineScreenState extends State<RoutineScreen>
               tooltip: _routine == Routine.photo
                   ? 'Switch to WeekDay mode'
                   : 'Switch to Picture mode',
-              icon: Icon(_routine == Routine.photo
-                  ? CupertinoIcons.calendar_today
-                  : CupertinoIcons.photo),
+              icon: Icon(
+                _routine == Routine.photo
+                    ? CupertinoIcons.calendar_today
+                    : CupertinoIcons.photo,
+                color: Colors.deepPurple,
+              ),
             ),
             if (_routine == Routine.weekdays && !isFloatingActionButton)
               IconButton(
@@ -147,9 +150,9 @@ class _RoutineScreenState extends State<RoutineScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _imageBytes == null
-                        ? const Icon(CupertinoIcons.calendar_today, size: 250)
+                        ? Image.asset('assets/images/calendar.png', width: 150)
                         : SizedBox(
-                            height: mq.height * .5,
+                            height: 350,
                             child: PhotoView(
                               imageProvider: MemoryImage(_imageBytes!),
                               minScale: PhotoViewComputedScale.contained,
@@ -163,12 +166,11 @@ class _RoutineScreenState extends State<RoutineScreen>
                             backgroundColor: Colors.blue),
                         icon: const Icon(CupertinoIcons.photo),
                         label: const Text('Add Routine Image')),
-                    TextButton.icon(
-                        onPressed: _onPressedSwitchButton,
-                        icon: const Icon(CupertinoIcons.arrow_swap),
-                        label: Text(_routine == Routine.photo
-                            ? 'Switch to WeekDay'
-                            : 'Switch to Picture')),
+                    const Text(
+                      'Or',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    _switchButton(),
                   ],
                 ),
               )
@@ -179,7 +181,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                       controller: _pageController,
                       itemCount: daysOfWeek.length,
                       itemBuilder: (context, index) {
-                        return buildDayPage(index);
+                        return _buildDayPage(index);
                       },
                     ),
                   ),
@@ -200,18 +202,24 @@ class _RoutineScreenState extends State<RoutineScreen>
               ));
   }
 
-  Widget buildDayPage(int dayIndex) {
+  Widget _switchButton() {
+    return ElevatedButton.icon(
+        onPressed: _onPressedSwitchButton,
+        style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white, backgroundColor: Colors.deepPurple),
+        icon: const Icon(CupertinoIcons.arrow_swap),
+        label: Text(_routine == Routine.photo
+            ? 'Switch to WeekDay'
+            : 'Switch to Picture'));
+  }
+
+  Widget _buildDayPage(int dayIndex) {
     return Padding(
       padding: EdgeInsets.all(mq.width * .03),
       child: SingleChildScrollView(
         child: Column(
           children: [
-            TextButton.icon(
-                onPressed: _onPressedSwitchButton,
-                icon: const Icon(CupertinoIcons.arrow_swap),
-                label: Text(_routine == Routine.photo
-                    ? 'Switch to WeekDay'
-                    : 'Switch to Picture')),
+            _switchButton(),
             Text(
               daysOfWeek[dayIndex],
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -271,7 +279,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                             onPressed: () {
                               setState(() {
                                 subjects[dayIndex].removeAt(subjectIndex);
-                                saveSubjects(dayIndex);
+                                _saveSubjects(dayIndex);
                               });
                             },
                             tooltip: 'Delete',
@@ -287,7 +295,7 @@ class _RoutineScreenState extends State<RoutineScreen>
     );
   }
 
-  void saveSubjects(int dayIndex) {
+  void _saveSubjects(int dayIndex) {
     prefs.setStringList('subjects_$dayIndex', subjects[dayIndex]);
   }
 
@@ -359,7 +367,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                       '$subjectName - $startTimeFormatted to $endTimeFormatted';
                   setState(() {
                     subjects[index].add(subjectInfo);
-                    saveSubjects(index);
+                    _saveSubjects(index);
                   });
                   subjectController.clear();
                   startTime = null;

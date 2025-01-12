@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
-import 'package:lottie/lottie.dart';
 import 'package:in_app_update/in_app_update.dart';
 
 import '../../main.dart';
@@ -36,7 +35,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       setState(() {
         if (info.updateAvailability == UpdateAvailability.updateAvailable) {
           log('Update available!');
-          update();
+          _update();
         }
       });
     }).catchError((error) {
@@ -44,7 +43,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     });
   }
 
-  void update() async {
+  void _update() async {
     log('Updating');
     await InAppUpdate.startFlexibleUpdate();
     InAppUpdate.completeFlexibleUpdate().then((_) {}).catchError((error) {
@@ -72,7 +71,6 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         builder: (ctx, Box<Attendance> box, Widget? child) {
           List<Attendance> attendances = box.values.toList();
           attendances.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
           return Scaffold(
             appBar: AppBar(
               title: const Text('Attendance Tracker'),
@@ -103,23 +101,34 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             drawer: const MainDrawer(),
             body: attendances.isEmpty
                 ? Center(
-                    child: Stack(
-                      children: <Widget>[
-                        const Positioned(
-                          top: 50,
-                          left: 0,
-                          right: 0,
-                          child: Text(
-                            'No subjects added yet!',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset('assets/images/text-books.png', width: 130),
+                        const Text(
+                          'Your presence matters more\nthan you think!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
                         ),
-                        Lottie.asset('assets/lottie/books.json'),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () => Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (_) => const AddAttendanceScreen(
+                                      attendance: null))),
+                          style: const ButtonStyle(
+                            backgroundColor:
+                                MaterialStatePropertyAll(Colors.blue),
+                            foregroundColor:
+                                MaterialStatePropertyAll(Colors.white),
+                          ),
+                          child: const Text('Get started'),
+                        )
                       ],
                     ),
                   )
@@ -273,7 +282,12 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                         radius: mq.width * .07,
                                                         child: FittedBox(
                                                             child: Text(
-                                                                '${percentage.floor().toStringAsFixed(0)}%')),
+                                                          '${percentage.floor().toStringAsFixed(0)}%',
+                                                          style: const TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        )),
                                                       ),
                                                 title: Row(
                                                   children: [
@@ -488,7 +502,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                       MainAxisAlignment
                                                           .spaceAround,
                                                   children: [
-                                                    customButton(
+                                                    _customButton(
                                                       'Attended',
                                                       '${attendances[index].present}',
                                                       () {
@@ -528,7 +542,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                                     index]);
                                                       },
                                                     ),
-                                                    customButton(
+                                                    _customButton(
                                                       'Missed',
                                                       '${attendances[index].absent}',
                                                       () {
@@ -568,7 +582,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                                     index]);
                                                       },
                                                     ),
-                                                    customButton(
+                                                    _customButton(
                                                       'Required',
                                                       '${attendances[index].requirement} %',
                                                       () {
@@ -628,7 +642,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         });
   }
 
-  Widget customButton(String name, String num, void Function()? onRemove,
+  Widget _customButton(String name, String num, void Function()? onRemove,
       void Function()? onAdd) {
     return Column(
       children: [
@@ -637,14 +651,14 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             IconButton(
                 onPressed: onRemove,
                 tooltip: 'Remove',
-                icon: const Icon(Icons.remove_circle_rounded,
+                icon: const Icon(Icons.remove_circle_outline_rounded,
                     color: Colors.green)),
             Text(num, style: const TextStyle(fontWeight: FontWeight.bold)),
             IconButton(
                 onPressed: onAdd,
                 tooltip: 'Add',
-                icon:
-                    const Icon(Icons.add_circle_rounded, color: Colors.green)),
+                icon: const Icon(Icons.add_circle_outline_rounded,
+                    color: Colors.green)),
           ],
         ),
         Text(

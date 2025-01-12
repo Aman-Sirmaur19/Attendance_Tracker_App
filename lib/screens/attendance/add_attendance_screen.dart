@@ -115,117 +115,115 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
               : 'Add Attendance'),
         ),
         bottomNavigationBar: const CustomBannerAd(),
-        body: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
-          child: ListView(
-            children: [
-              const Text(
-                'Enter subject',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
+        body: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.shade300,
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(height: 10),
-              CustomTextFormField(
-                controller: subjectController,
-                hintText: 'Subject',
-                onFieldSubmitted: (value) {
-                  subjectController.text = value;
-                },
-              ),
-              const SizedBox(height: 25),
-              const Text(
-                'Enter the no. of classes attended',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              _customCounterContainer(title: 'Attended', number: attended),
-              const SizedBox(height: 25),
-              const Text(
-                'Enter the no. of classes missed',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              _customCounterContainer(title: 'Missed', number: missed),
-              const SizedBox(height: 25),
-              const Text(
-                'Enter the % of classes required',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              _customCounterContainer(title: 'Required', number: required),
-              const SizedBox(height: 25),
-              const Text(
-                'Set weekly schedules for push notifications',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              _customColumn(),
-              const SizedBox(height: 10),
-              Text(
+              child: const Text(
                 "Once saved, swipe the card (Left <-- Right) to 'DELETE'",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.redAccent.shade200,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  if (_isAttendanceAlreadyExist())
-                    ElevatedButton.icon(
-                        onPressed: () => showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                                  title: const Text('Are you sure?'),
-                                  content:
-                                      const Text('Do you want to delete this?'),
-                                  actions: <Widget>[
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: [
-                                          TextButton(
-                                              child: const Text('Yes'),
-                                              onPressed: () {
-                                                widget.attendance?.delete();
-                                                Dialogs.showSnackBar(context,
-                                                    'Attendance deleted successfully!');
-                                                Navigator.of(ctx).pop(true);
-                                                Navigator.pop(context);
-                                              }),
-                                          TextButton(
-                                              child: const Text('No'),
-                                              onPressed: () {
-                                                Navigator.of(ctx).pop(false);
-                                              }),
-                                        ])
-                                  ],
-                                )),
-                        style: const ButtonStyle(
-                            backgroundColor:
-                                MaterialStatePropertyAll(Colors.red),
-                            foregroundColor:
-                                MaterialStatePropertyAll(Colors.white)),
-                        icon: const Icon(CupertinoIcons.delete),
-                        label: const Text('Delete')),
+            ),
+            const SizedBox(height: 10),
+            _customText('Enter subject'),
+            const SizedBox(height: 5),
+            CustomTextFormField(
+              controller: subjectController,
+              hintText: 'Subject',
+              onFieldSubmitted: (value) {
+                subjectController.text = value;
+              },
+            ),
+            const SizedBox(height: 20),
+            _customText('Enter the no. of classes attended'),
+            const SizedBox(height: 5),
+            _customCounterContainer(title: 'Attended', number: attended),
+            const SizedBox(height: 20),
+            _customText('Enter the no. of classes missed'),
+            const SizedBox(height: 5),
+            _customCounterContainer(title: 'Missed', number: missed),
+            const SizedBox(height: 20),
+            _customText('Enter the % of classes required'),
+            const SizedBox(height: 5),
+            _customCounterContainer(title: 'Required', number: required),
+            const SizedBox(height: 20),
+            _customText('Set weekly schedules for push notifications'),
+            const SizedBox(height: 5),
+            _customColumn(),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                if (_isAttendanceAlreadyExist())
                   ElevatedButton.icon(
-                    onPressed: () =>
-                        _isAttendanceAlreadyExistUpdateElseCreate(),
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue),
-                    icon: Icon(_isAttendanceAlreadyExist()
-                        ? CupertinoIcons.refresh_thick
-                        : CupertinoIcons.list_bullet_indent),
-                    label: Text(_isAttendanceAlreadyExist() ? 'Update' : 'Add'),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                      onPressed: () => showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                                title: const Text('Are you sure?'),
+                                content:
+                                    const Text('Do you want to delete this?'),
+                                actions: <Widget>[
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        TextButton(
+                                            child: const Text('Yes'),
+                                            onPressed: () {
+                                              widget.attendance?.delete();
+                                              Dialogs.showSnackBar(context,
+                                                  'Attendance deleted successfully!');
+                                              Navigator.of(ctx).pop(true);
+                                              Navigator.pop(context);
+                                            }),
+                                        TextButton(
+                                            child: const Text('No'),
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop(false);
+                                            }),
+                                      ])
+                                ],
+                              )),
+                      style: const ButtonStyle(
+                          backgroundColor: MaterialStatePropertyAll(Colors.red),
+                          foregroundColor:
+                              MaterialStatePropertyAll(Colors.white)),
+                      icon: const Icon(CupertinoIcons.delete),
+                      label: const Text('Delete')),
+                ElevatedButton.icon(
+                  onPressed: () => _isAttendanceAlreadyExistUpdateElseCreate(),
+                  style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue),
+                  icon: Icon(_isAttendanceAlreadyExist()
+                      ? CupertinoIcons.refresh_thick
+                      : CupertinoIcons.list_bullet_indent),
+                  label: Text(_isAttendanceAlreadyExist() ? 'Update' : 'Add'),
+                ),
+              ],
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _customText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 15,
+        color: Colors.grey,
+        fontWeight: FontWeight.w600,
       ),
     );
   }

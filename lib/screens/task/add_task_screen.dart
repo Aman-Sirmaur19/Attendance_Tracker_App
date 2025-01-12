@@ -19,27 +19,28 @@ class AddTaskScreen extends StatefulWidget {
 }
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-  String? time;
-  DateTime? date;
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  String? _time;
+  DateTime? _date;
 
   @override
   void initState() {
     super.initState();
     if (widget.task != null) {
-      titleController.text = widget.task!.title;
-      descriptionController.text = widget.task!.subTitle;
+      _titleController.text = widget.task!.title;
+      _descriptionController.text = widget.task!.subTitle;
     }
-    time = widget.task?.createdAtTime ?? DateFormat.jm().format(DateTime.now());
-    date = widget.task?.createdAtDate ?? DateTime.now();
+    _time =
+        widget.task?.createdAtTime ?? DateFormat.jm().format(DateTime.now());
+    _date = widget.task?.createdAtDate ?? DateTime.now();
   }
 
   @override
   void dispose() {
     super.dispose();
-    titleController.dispose();
-    descriptionController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
   }
 
   // if any task already exist return true, else false
@@ -54,27 +55,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   // Main function for creating or updating task
   dynamic _isTaskAlreadyExistUpdateElseCreate() {
     // update current task
-    if (titleController.text.trim().isNotEmpty &&
-        descriptionController.text.trim().isNotEmpty &&
+    if (_titleController.text.trim().isNotEmpty &&
+        _descriptionController.text.trim().isNotEmpty &&
         widget.task != null) {
       try {
-        widget.task?.title = titleController.text.trim();
-        widget.task?.subTitle = descriptionController.text.trim();
-        widget.task?.createdAtTime = time!;
-        widget.task?.createdAtDate = date!;
+        widget.task?.title = _titleController.text.trim();
+        widget.task?.subTitle = _descriptionController.text.trim();
+        widget.task?.createdAtTime = _time!;
+        widget.task?.createdAtDate = _date!;
         widget.task?.save();
         Dialogs.showSnackBar(context, 'Task updated successfully!');
         Navigator.pop(context);
       } catch (error) {
         log(error.toString());
       }
-    } else if (titleController.text.trim().isNotEmpty &&
-        descriptionController.text.trim().isNotEmpty) {
+    } else if (_titleController.text.trim().isNotEmpty &&
+        _descriptionController.text.trim().isNotEmpty) {
       var task = Task.create(
-        title: titleController.text.trim(),
-        subTitle: descriptionController.text.trim(),
-        createdAtTime: time,
-        createdAtDate: date,
+        title: _titleController.text.trim(),
+        subTitle: _descriptionController.text.trim(),
+        createdAtTime: _time,
+        createdAtDate: _date,
       );
       // We are adding this new task to Hive DB using inherited widget
       BaseWidget.of(context).dataStore.addTask(task: task);
@@ -103,89 +104,101 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           title: Text(_isTaskAlreadyExist() ? 'Update Task' : 'Add Task'),
         ),
         bottomNavigationBar: const CustomBannerAd(),
-        body: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
-          child: ListView(
-            children: [
-              const Text(
-                'What\'s your plan?',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
+        body: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.shade300,
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(height: 10),
-              CustomTextFormField(
-                controller: titleController,
-                hintText: 'Plan',
-                onFieldSubmitted: (value) {
-                  titleController.text = value;
-                },
+              child: const Text(
+                "Once saved, swipe the card (Left <-- Right) to 'DELETE'",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 25),
-              const Text(
-                'Provide a brief description',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              CustomTextFormField(
-                controller: descriptionController,
-                hintText: 'Add note',
-                isForDescription: true,
-                onFieldSubmitted: (value) {
-                  descriptionController.text = value;
-                },
-              ),
-              const SizedBox(height: 25),
-              const Text(
-                'Set time for the task',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              customDateTimePickerContainer('Time', CupertinoIcons.time),
-              const SizedBox(height: 25),
-              const Text(
-                'Set date for the task',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              customDateTimePickerContainer('Date', CupertinoIcons.calendar),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  if (_isTaskAlreadyExist())
-                    ElevatedButton.icon(
-                        onPressed: () {
-                          _deleteTask();
-                          Dialogs.showSnackBar(
-                              context, 'Task deleted successfully!');
-                          Navigator.pop(context);
-                        },
-                        style: const ButtonStyle(
-                            backgroundColor:
-                                MaterialStatePropertyAll(Colors.red),
-                            foregroundColor:
-                                MaterialStatePropertyAll(Colors.white)),
-                        icon: const Icon(CupertinoIcons.delete),
-                        label: const Text('Delete')),
+            ),
+            const SizedBox(height: 10),
+            _customText('What\'s your plan?'),
+            const SizedBox(height: 5),
+            CustomTextFormField(
+              controller: _titleController,
+              hintText: 'Plan',
+              onFieldSubmitted: (value) {
+                _titleController.text = value;
+              },
+            ),
+            const SizedBox(height: 20),
+            _customText('Provide a brief description'),
+            const SizedBox(height: 5),
+            CustomTextFormField(
+              controller: _descriptionController,
+              hintText: 'Add note',
+              isForDescription: true,
+              onFieldSubmitted: (value) {
+                _descriptionController.text = value;
+              },
+            ),
+            const SizedBox(height: 20),
+            _customText('Set time for the task'),
+            const SizedBox(height: 5),
+            _customDateTimePickerContainer('Time', CupertinoIcons.time),
+            const SizedBox(height: 20),
+            _customText('Set date for the task'),
+            const SizedBox(height: 5),
+            _customDateTimePickerContainer('Date', CupertinoIcons.calendar),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                if (_isTaskAlreadyExist())
                   ElevatedButton.icon(
-                    onPressed: () => _isTaskAlreadyExistUpdateElseCreate(),
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue),
-                    icon: Icon(_isTaskAlreadyExist()
-                        ? CupertinoIcons.refresh_thick
-                        : CupertinoIcons.list_bullet_indent),
-                    label: Text(_isTaskAlreadyExist() ? 'Update' : 'Add'),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                      onPressed: () {
+                        _deleteTask();
+                        Dialogs.showSnackBar(
+                            context, 'Task deleted successfully!');
+                        Navigator.pop(context);
+                      },
+                      style: const ButtonStyle(
+                          backgroundColor: MaterialStatePropertyAll(Colors.red),
+                          foregroundColor:
+                              MaterialStatePropertyAll(Colors.white)),
+                      icon: const Icon(CupertinoIcons.delete),
+                      label: const Text('Delete')),
+                ElevatedButton.icon(
+                  onPressed: () => _isTaskAlreadyExistUpdateElseCreate(),
+                  style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue),
+                  icon: Icon(_isTaskAlreadyExist()
+                      ? CupertinoIcons.refresh_thick
+                      : CupertinoIcons.list_bullet_indent),
+                  label: Text(_isTaskAlreadyExist() ? 'Update' : 'Add'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget customDateTimePickerContainer(String dateTime, IconData icon) {
+  Widget _customText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 15,
+        color: Colors.grey,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  Widget _customDateTimePickerContainer(String dateTime, IconData icon) {
     return InkWell(
       onTap: () async {
         if (dateTime == 'Time') {
@@ -194,7 +207,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             initialTime: TimeOfDay.now(),
           );
           setState(() {
-            if (localTime != null) time = localTime.format(context);
+            if (localTime != null) _time = localTime.format(context);
           });
         } else {
           final localDate = await showDatePicker(
@@ -203,11 +216,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               firstDate: DateTime.now(),
               lastDate: DateTime(3000));
           setState(() {
-            if (localDate != null) date = localDate;
+            if (localDate != null) _date = localDate;
           });
         }
       },
-      borderRadius: BorderRadius.circular(15),
+      borderRadius: BorderRadius.circular(10),
       child: Container(
         width: double.infinity,
         height: 60,
@@ -215,7 +228,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           color: Theme.of(context).scaffoldBackgroundColor,
           border: Border.all(
               color: Theme.of(context).colorScheme.secondary.withOpacity(.4)),
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -228,8 +241,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   const SizedBox(width: 12),
                   Text(
                       dateTime == 'Time'
-                          ? time!
-                          : DateFormat.yMMMEd().format(date!),
+                          ? _time!
+                          : DateFormat.yMMMEd().format(_date!),
                       style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:lottie/lottie.dart';
 
 import '../../main.dart';
 import '../../models/task.dart';
@@ -56,15 +55,31 @@ class MyTasksScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        Image.asset('assets/images/to-do-list.png', width: 150),
                         const Text(
-                          'No task to do!',
+                          'Plan your work,\nAnd work your plan!',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 25,
+                            fontSize: 15,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
-                        Lottie.asset('assets/lottie/checklist.json'),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () => Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (_) =>
+                                      const AddTaskScreen(task: null))),
+                          style: const ButtonStyle(
+                            backgroundColor:
+                                MaterialStatePropertyAll(Colors.blue),
+                            foregroundColor:
+                                MaterialStatePropertyAll(Colors.white),
+                          ),
+                          child: const Text('Get started'),
+                        )
                       ],
                     ),
                   )
