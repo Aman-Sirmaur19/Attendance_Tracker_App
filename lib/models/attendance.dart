@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -14,6 +13,7 @@ class Attendance extends HiveObject {
   int requirement;
   String createdAt;
   Map<String, String?> schedules;
+  List<Map<String, dynamic>> notes;
 
   Attendance({
     @HiveField(0) required this.id,
@@ -24,6 +24,7 @@ class Attendance extends HiveObject {
     @HiveField(5) required this.requirement,
     @HiveField(6) required this.createdAt,
     @HiveField(7) required this.schedules,
+    @HiveField(8) required this.notes,
   });
 
   // create new attendance
@@ -35,6 +36,7 @@ class Attendance extends HiveObject {
     int? requirement,
     String? createdAt,
     Map<String, String?>? schedules,
+    List<Map<String, dynamic>>? notes,
   }) =>
       Attendance(
         id: const Uuid().v1(),
@@ -45,5 +47,6 @@ class Attendance extends HiveObject {
         requirement: requirement ?? 75,
         createdAt: createdAt ?? DateTime.now().toString(),
         schedules: schedules ?? {},
+        notes: notes ?? [],
       );
 }

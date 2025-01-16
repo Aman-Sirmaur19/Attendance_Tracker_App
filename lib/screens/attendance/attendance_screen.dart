@@ -15,6 +15,7 @@ import '../../widgets/custom_banner_ad.dart';
 import '../../services/notification_service.dart';
 import '../settings_screen.dart';
 import 'add_attendance_screen.dart';
+import 'notes_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
@@ -295,6 +296,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                       child: Text(
                                                           attendances[index]
                                                               .subject,
+                                                          maxLines: 2,
                                                           overflow: TextOverflow
                                                               .ellipsis,
                                                           style: const TextStyle(
@@ -302,6 +304,24 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold)),
+                                                    ),
+                                                    IconButton(
+                                                      onPressed: () => Navigator.push(
+                                                          context,
+                                                          CupertinoPageRoute(
+                                                              builder: (_) => NotesScreen(
+                                                                  attendance:
+                                                                      attendances[
+                                                                          index],
+                                                                  notes: attendances[
+                                                                          index]
+                                                                      .notes))),
+                                                      tooltip: 'Sticky Notes',
+                                                      icon: const Icon(
+                                                        CupertinoIcons
+                                                            .doc_on_doc,
+                                                        color: Colors.green,
+                                                      ),
                                                     ),
                                                     IconButton(
                                                       onPressed: () => Navigator.push(
@@ -319,7 +339,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                         color: Colors
                                                             .blue.shade600,
                                                       ),
-                                                    )
+                                                    ),
                                                   ],
                                                 ),
                                                 subtitle: Padding(

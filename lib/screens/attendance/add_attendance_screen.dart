@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../main.dart';
 import '../../models/attendance.dart';
+import '../../widgets/custom_text_form_field.dart';
 import '../../widgets/dialogs.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../services/notification_service.dart';
@@ -20,7 +21,7 @@ class AddAttendanceScreen extends StatefulWidget {
 
 class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   bool _isDropdownOpen = false;
-  final TextEditingController subjectController = TextEditingController();
+  final TextEditingController _subjectController = TextEditingController();
   int attended = 0;
   int missed = 0;
   int required = 75;
@@ -38,7 +39,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
       'Saturday': null,
     };
     if (widget.attendance != null) {
-      subjectController.text = widget.attendance!.subject;
+      _subjectController.text = widget.attendance!.subject;
       attended = widget.attendance!.present;
       missed = widget.attendance!.absent;
       required = widget.attendance!.requirement;
@@ -49,7 +50,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   @override
   void dispose() {
     super.dispose();
-    subjectController.dispose();
+    _subjectController.dispose();
   }
 
   // if any attendance already exist return true, else false
@@ -61,12 +62,13 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
     }
   }
 
-  // Main function for creating or updating attendance
-  dynamic _isAttendanceAlreadyExistUpdateElseCreate() async {
+  // Main function for creating & editing attendance
+  dynamic _createAndEdit() async {
     // update current attendance
-    if (subjectController.text.trim().isNotEmpty && widget.attendance != null) {
+    if (_subjectController.text.trim().isNotEmpty &&
+        widget.attendance != null) {
       try {
-        widget.attendance?.subject = subjectController.text.trim();
+        widget.attendance?.subject = _subjectController.text.trim();
         widget.attendance?.present = attended;
         widget.attendance?.absent = missed;
         widget.attendance?.requirement = required;
@@ -79,14 +81,15 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
       } catch (error) {
         log(error.toString());
       }
-    } else if (subjectController.text.trim().isNotEmpty) {
+    } else if (_subjectController.text.trim().isNotEmpty) {
       var attendance = Attendance.create(
-        subject: subjectController.text.trim(),
+        subject: _subjectController.text.trim(),
         present: attended,
         absent: missed,
         requirement: required,
         createdAt: DateTime.now().toString(),
         schedules: schedules,
+        notes: [],
       );
       // We are adding this new attendance to Hive DB using inherited widget
       BaseWidget.of(context).dataStore.addAttendance(attendance: attendance);
@@ -137,10 +140,10 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
             _customText('Enter subject'),
             const SizedBox(height: 5),
             CustomTextFormField(
-              controller: subjectController,
+              controller: _subjectController,
               hintText: 'Subject',
               onFieldSubmitted: (value) {
-                subjectController.text = value;
+                _subjectController.text = value;
               },
             ),
             const SizedBox(height: 20),
@@ -200,7 +203,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                       icon: const Icon(CupertinoIcons.delete),
                       label: const Text('Delete')),
                 ElevatedButton.icon(
-                  onPressed: () => _isAttendanceAlreadyExistUpdateElseCreate(),
+                  onPressed: () => _createAndEdit(),
                   style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: Colors.blue),
@@ -402,47 +405,6 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
             );
           }).toList(),
       ],
-    );
-  }
-}
-
-class CustomTextFormField extends StatelessWidget {
-  const CustomTextFormField({
-    super.key,
-    required this.controller,
-    required this.hintText,
-    required this.onFieldSubmitted,
-  });
-
-  final TextEditingController? controller;
-  final Function(String)? onFieldSubmitted;
-
-  final String hintText;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      onFieldSubmitted: onFieldSubmitted,
-      cursorColor: Colors.blue,
-      style: const TextStyle(
-          fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1),
-      decoration: InputDecoration(
-        prefixIcon:
-            const Icon(Icons.stacked_bar_chart_rounded, color: Colors.grey),
-        hintText: hintText,
-        hintStyle:
-            const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.secondary.withOpacity(.4)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.lightBlue),
-        ),
-      ),
     );
   }
 }
