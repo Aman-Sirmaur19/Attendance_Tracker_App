@@ -109,6 +109,19 @@ class _NotesScreenState extends State<NotesScreen> {
         ],
       ),
       bottomNavigationBar: const CustomBannerAd(),
+      floatingActionButton: isFloatingActionButton
+          ? FloatingActionButton(
+              onPressed: () {
+                if (_isInterstitialLoaded) _interstitialAd.show();
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (_) =>
+                            AddNotesScreen(attendance: widget.attendance)));
+              },
+              tooltip: 'Add task',
+              child: const Icon(Icons.add))
+          : null,
       body: widget.notes.isEmpty
           ? Center(
               child: Column(
@@ -154,13 +167,16 @@ class _NotesScreenState extends State<NotesScreen> {
                 final Color randomColor =
                     _colors[Random().nextInt(_colors.length)];
                 return GestureDetector(
-                  onTap: () => Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                          builder: (_) => AddNotesScreen(
-                                attendance: widget.attendance,
-                                note: widget.notes[index],
-                              ))),
+                  onTap: () {
+                    if (_isInterstitialLoaded) _interstitialAd.show();
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (_) => AddNotesScreen(
+                                  attendance: widget.attendance,
+                                  note: widget.notes[index],
+                                )));
+                  },
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 15),
                     decoration: BoxDecoration(
@@ -185,6 +201,7 @@ class _NotesScreenState extends State<NotesScreen> {
                               ? Text(
                                   widget.notes[index]['description'],
                                   maxLines: 3,
+                                  textAlign: TextAlign.center,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,

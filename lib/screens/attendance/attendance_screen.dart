@@ -410,20 +410,6 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                           ),
                                                         ],
                                                       ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                top: mq.height *
-                                                                    .005),
-                                                        child: Text(
-                                                            'Last updated: $time, $date',
-                                                            style: const TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                color: Colors
-                                                                    .grey)),
-                                                      ),
                                                       if (total != 0)
                                                         Padding(
                                                           padding:
@@ -509,6 +495,42 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      if (isExpanded)
+                                                        Container(
+                                                          decoration: BoxDecoration(
+                                                              color: Colors
+                                                                  .white60,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5)),
+                                                          child: RichText(
+                                                            text: TextSpan(
+                                                              text:
+                                                                  'Last updated: ',
+                                                              style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .brown),
+                                                              children: [
+                                                                TextSpan(
+                                                                  text:
+                                                                      '$time, $date',
+                                                                  style: const TextStyle(
+                                                                      letterSpacing:
+                                                                          0.75,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                      color: Colors
+                                                                          .blue),
+                                                                )
+                                                              ],
                                                             ),
                                                           ),
                                                         ),
