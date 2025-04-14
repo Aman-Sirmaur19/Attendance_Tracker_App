@@ -198,6 +198,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                                   context, 'Task deleted successfully!');
                             },
                             background: Container(
+                              margin: const EdgeInsets.only(top: 8),
                               decoration: BoxDecoration(
                                 color: Colors.red.shade800,
                                 borderRadius: BorderRadius.circular(20),
@@ -209,7 +210,13 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                                 color: Colors.white,
                               ),
                             ),
-                            child: TaskWidget(task: task));
+                            child: GestureDetector(
+                                onTap: () => Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                        builder: (_) =>
+                                            AddTaskScreen(task: task))),
+                                child: TaskWidget(task: task)));
                       },
                     ),
                   ),

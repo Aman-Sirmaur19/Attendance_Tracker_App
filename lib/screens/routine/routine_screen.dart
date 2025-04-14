@@ -310,38 +310,60 @@ class _RoutineScreenState extends State<RoutineScreen>
                       String subjectInfo = subjects[dayIndex][subjectIndex];
                       List<String> infoParts = subjectInfo.split(' - ');
                       String subjectName = infoParts[0];
-                      String timeInfo = infoParts[
-                          1]; // Assuming time info is formatted as 'Starting Time to Ending Time'
+                      String timeInfo = infoParts[1];
 
-                      return ListTile(
-                        tileColor:
-                            Theme.of(context).colorScheme.primaryContainer,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16)),
-                        title: Text(
-                          subjectName,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      return Container(
+                        margin: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.only(
+                          left: 20,
+                          right: 8,
+                          top: 8,
+                          bottom: 8,
                         ),
-                        subtitle: Text(
-                          timeInfo,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Theme.of(context).colorScheme.primaryContainer,
                         ),
-                        trailing: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              subjects[dayIndex].removeAt(subjectIndex);
-                              _saveSubjects(dayIndex);
-                            });
-                          },
-                          tooltip: 'Delete',
-                          icon: const Icon(Icons.delete_outline_rounded),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    subjectName,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    timeInfo,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  subjects[dayIndex].removeAt(subjectIndex);
+                                  _saveSubjects(dayIndex);
+                                });
+                              },
+                              tooltip: 'Delete',
+                              icon: const Icon(
+                                Icons.delete_outline_rounded,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -397,7 +419,22 @@ class _RoutineScreenState extends State<RoutineScreen>
             children: [
               TextField(
                 controller: subjectController,
-                decoration: const InputDecoration(labelText: 'Subject Name'),
+                decoration: InputDecoration(
+                  hintText: 'Subject Name',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(.4)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.lightBlue),
+                  ),
+                ),
               ),
               ListTile(
                 title: Text(

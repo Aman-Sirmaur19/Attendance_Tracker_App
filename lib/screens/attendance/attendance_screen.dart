@@ -347,9 +347,13 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                                         index]
                                                                     .notes))),
                                                     tooltip: 'Sticky Notes',
-                                                    icon: const Icon(
+                                                    icon: Icon(
                                                       CupertinoIcons.doc_on_doc,
-                                                      color: Colors.lightGreen,
+                                                      color: Theme.of(context)
+                                                                  .brightness ==
+                                                              Brightness.light
+                                                          ? Colors.green
+                                                          : Colors.lightGreen,
                                                     ),
                                                   ),
                                                   IconButton(
@@ -513,9 +517,14 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                           miss >= 2
                                                               ? 'Can miss ${miss.floor()} classes in a row'
                                                               : 'Can miss 1 class',
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.green,
+                                                          style: TextStyle(
+                                                            color: Theme.of(context)
+                                                                        .brightness ==
+                                                                    Brightness
+                                                                        .light
+                                                                ? Colors.green
+                                                                : Colors
+                                                                    .lightGreen,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -544,7 +553,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                           style:
                                                               const TextStyle(
                                                                   letterSpacing:
-                                                                      .75,
+                                                                      .25,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
@@ -722,14 +731,22 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             IconButton(
                 onPressed: onRemove,
                 tooltip: 'Remove',
-                icon: const Icon(Icons.remove_circle_outline_rounded,
-                    color: Colors.lightGreen)),
+                icon: Icon(
+                  Icons.remove_circle_outline_rounded,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.green
+                      : Colors.lightGreen,
+                )),
             Text(num, style: const TextStyle(fontWeight: FontWeight.bold)),
             IconButton(
                 onPressed: onAdd,
                 tooltip: 'Add',
-                icon: const Icon(Icons.add_circle_outline_rounded,
-                    color: Colors.lightGreen)),
+                icon: Icon(
+                  Icons.add_circle_outline_rounded,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.green
+                      : Colors.lightGreen,
+                )),
           ],
         ),
         Text(

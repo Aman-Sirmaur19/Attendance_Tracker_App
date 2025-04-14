@@ -69,40 +69,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
               tooltip: 'Floating button!',
               child: const Icon(Icons.add))
           : null,
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 5),
+      body: Column(
         children: [
-          Card(
-            child: SwitchListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              inactiveThumbColor: Theme.of(context).colorScheme.secondary,
-              inactiveTrackColor: Colors.black12,
-              activeColor: Colors.blue,
-              title: const Text(
-                'Floating Button',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                  fontSize: 18,
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              children: [
+                Card(
+                  child: SwitchListTile(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    inactiveThumbColor: Theme.of(context).colorScheme.secondary,
+                    inactiveTrackColor: Colors.black12,
+                    activeColor: Colors.blue,
+                    title: const Text(
+                      'Floating Button',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                        fontSize: 18,
+                      ),
+                    ),
+                    value: isFloatingActionButton,
+                    onChanged: (newValue) {
+                      setState(() {
+                        isFloatingActionButton = newValue;
+                      });
+                      prefs.setBool(
+                          'FloatingActionButton', isFloatingActionButton);
+                    },
+                  ),
                 ),
-              ),
-              value: isFloatingActionButton,
-              onChanged: (newValue) {
-                setState(() {
-                  isFloatingActionButton = newValue;
-                });
-                prefs.setBool('FloatingActionButton', isFloatingActionButton);
-              },
+                _customColumn(),
+              ],
             ),
           ),
-          _customColumn(),
-          const SizedBox(height: 10),
           const Text(
             'More features coming soon...',
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
           ),
+          const SizedBox(height: 5),
         ],
       ),
     );
