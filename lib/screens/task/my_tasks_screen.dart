@@ -8,7 +8,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../main.dart';
 import '../../models/task.dart';
 import '../../secrets.dart';
-import '../../widgets/dialogs.dart';
+import '../../utils/dialogs.dart';
+import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/main_drawer.dart';
 import '../../widgets/task_widget.dart';
 import '../../widgets/custom_banner_ad.dart';
@@ -97,7 +98,6 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                   )
               ],
             ),
-            backgroundColor: Colors.white,
             bottomNavigationBar: const CustomBannerAd(),
             floatingActionButton: isFloatingActionButton
                 ? FloatingActionButton(
@@ -108,6 +108,8 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                           CupertinoPageRoute(
                               builder: (_) => const AddTaskScreen(task: null)));
                     },
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue,
                     tooltip: 'Add task',
                     child: const Icon(Icons.add))
                 : null,
@@ -124,11 +126,10 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
                           ),
                         ),
                         const SizedBox(height: 10),
-                        ElevatedButton(
+                        CustomElevatedButton(
                           onPressed: () {
                             if (_isInterstitialLoaded) _interstitialAd.show();
                             Navigator.push(
@@ -137,13 +138,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                                     builder: (_) =>
                                         const AddTaskScreen(task: null)));
                           },
-                          style: const ButtonStyle(
-                            backgroundColor:
-                                MaterialStatePropertyAll(Colors.blue),
-                            foregroundColor:
-                                MaterialStatePropertyAll(Colors.white),
-                          ),
-                          child: const Text('Get started'),
+                          title: 'Get started',
                         )
                       ],
                     ),
@@ -173,12 +168,22 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                                             MainAxisAlignment.spaceAround,
                                         children: [
                                           TextButton(
-                                              child: const Text('Yes'),
+                                              child: const Text(
+                                                'Yes',
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              ),
                                               onPressed: () {
                                                 Navigator.of(ctx).pop(true);
                                               }),
                                           TextButton(
-                                              child: const Text('No'),
+                                              child: Text(
+                                                'No',
+                                                style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .secondary),
+                                              ),
                                               onPressed: () {
                                                 Navigator.of(ctx).pop(false);
                                               }),
@@ -194,15 +199,11 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                             },
                             background: Container(
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Theme.of(context).colorScheme.error,
+                                color: Colors.red.shade800,
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               padding: const EdgeInsets.only(right: 20),
                               alignment: Alignment.centerRight,
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 15,
-                                vertical: 4,
-                              ),
                               child: const Icon(
                                 Icons.delete,
                                 color: Colors.white,

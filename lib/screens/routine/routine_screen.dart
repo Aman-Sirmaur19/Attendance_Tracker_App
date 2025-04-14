@@ -169,7 +169,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                 _routine == Routine.photo
                     ? CupertinoIcons.calendar_today
                     : CupertinoIcons.photo,
-                color: Colors.deepPurple,
+                color: Colors.deepPurpleAccent,
               ),
             ),
             if (_routine == Routine.weekdays && !isFloatingActionButton)
@@ -185,6 +185,8 @@ class _RoutineScreenState extends State<RoutineScreen>
             (_routine == Routine.weekdays && isFloatingActionButton)
                 ? FloatingActionButton(
                     onPressed: () => _addSubject(_pageController.page!.toInt()),
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue,
                     tooltip: 'Add routine',
                     child: const Icon(Icons.add))
                 : null,
@@ -207,8 +209,12 @@ class _RoutineScreenState extends State<RoutineScreen>
                     ElevatedButton.icon(
                         onPressed: _pickImage,
                         style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.blue),
+                          alignment: Alignment.center,
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                        ),
                         icon: const Icon(CupertinoIcons.photo),
                         label: const Text('Add Routine Image')),
                     const Text(
@@ -251,7 +257,11 @@ class _RoutineScreenState extends State<RoutineScreen>
     return ElevatedButton.icon(
         onPressed: _onPressedSwitchButton,
         style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.deepPurple),
+          alignment: Alignment.center,
+          backgroundColor: Colors.deepPurpleAccent,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
         icon: const Icon(CupertinoIcons.arrow_swap),
         label: Text(_routine == Routine.photo
             ? 'Switch to WeekDay'
@@ -274,12 +284,12 @@ class _RoutineScreenState extends State<RoutineScreen>
                     child: Column(
                       children: <Widget>[
                         const SizedBox(height: 15),
-                        Text(
+                        const Text(
                           'No routine added yet!',
                           style: TextStyle(
-                            fontSize: 25,
+                            fontSize: 20,
+                            color: Colors.grey,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black.withOpacity(.67),
                           ),
                         ),
                         SizedBox(height: mq.height * .04),
@@ -303,33 +313,35 @@ class _RoutineScreenState extends State<RoutineScreen>
                       String timeInfo = infoParts[
                           1]; // Assuming time info is formatted as 'Starting Time to Ending Time'
 
-                      return Card(
-                        child: ListTile(
-                          title: Text(
-                            subjectName,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      return ListTile(
+                        tileColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                        title: Text(
+                          subjectName,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
                           ),
-                          subtitle: Text(
-                            timeInfo,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black54,
-                            ),
+                        ),
+                        subtitle: Text(
+                          timeInfo,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
                           ),
-                          trailing: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                subjects[dayIndex].removeAt(subjectIndex);
-                                _saveSubjects(dayIndex);
-                              });
-                            },
-                            tooltip: 'Delete',
-                            icon: const Icon(Icons.delete),
-                          ),
+                        ),
+                        trailing: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              subjects[dayIndex].removeAt(subjectIndex);
+                              _saveSubjects(dayIndex);
+                            });
+                          },
+                          tooltip: 'Delete',
+                          icon: const Icon(Icons.delete_outline_rounded),
                         ),
                       );
                     },
@@ -420,7 +432,10 @@ class _RoutineScreenState extends State<RoutineScreen>
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Add'),
+              child: const Text(
+                'Add',
+                style: TextStyle(color: Colors.blue),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -429,7 +444,10 @@ class _RoutineScreenState extends State<RoutineScreen>
                 endTime = null;
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.blue),
+              ),
             ),
           ],
         );

@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/attendance.dart';
-import '../../widgets/dialogs.dart';
+import '../../utils/dialogs.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_text_form_field.dart';
 
@@ -122,7 +122,12 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
             ElevatedButton.icon(
               onPressed: () => setState(() => _createAndEdit()),
               style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.blue),
+                alignment: Alignment.center,
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
               icon: Icon(_isNoteAlreadyExist()
                   ? CupertinoIcons.refresh_thick
                   : CupertinoIcons.list_bullet_indent),

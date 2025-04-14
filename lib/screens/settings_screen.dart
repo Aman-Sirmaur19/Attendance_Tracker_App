@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
-import '../widgets/dialogs.dart';
+import '../utils/dialogs.dart';
 import '../widgets/custom_banner_ad.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -41,12 +41,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDropdownOpen = false;
 
   List<Map<String, Color>> categories = [
-    {'present': Colors.deepPurple, 'absent': Colors.amber.shade600},
     {'present': Colors.blue, 'absent': Colors.red[400]!},
-    {'present': Colors.purple, 'absent': Colors.amber.shade600},
+    {'present': Colors.deepPurpleAccent, 'absent': Colors.amber.shade600},
     {'present': Colors.lightGreen, 'absent': Colors.red[400]!},
     {'present': Colors.blue, 'absent': Colors.amber.shade600},
-    {'present': Colors.deepPurple, 'absent': Colors.redAccent},
+    {'present': Colors.deepPurpleAccent, 'absent': Colors.redAccent},
   ];
 
   @override
@@ -65,6 +64,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ? FloatingActionButton(
               onPressed: () => Dialogs.showSnackBar(
                   context, 'Already enabled in all pages!'),
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.blue,
               tooltip: 'Floating button!',
               child: const Icon(Icons.add))
           : null,
@@ -73,8 +74,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           Card(
             child: SwitchListTile(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               inactiveThumbColor: Theme.of(context).colorScheme.secondary,
               inactiveTrackColor: Colors.black12,
+              activeColor: Colors.blue,
               title: const Text(
                 'Floating Button',
                 style: TextStyle(

@@ -8,8 +8,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../main.dart';
 import '../../secrets.dart';
 import '../../models/attendance.dart';
-import '../../widgets/dialogs.dart';
+import '../../utils/dialogs.dart';
 import '../../widgets/custom_banner_ad.dart';
+import '../../widgets/custom_elevated_button.dart';
 import 'add_notes_screen.dart';
 
 class NotesScreen extends StatefulWidget {
@@ -33,9 +34,9 @@ class _NotesScreenState extends State<NotesScreen> {
     Colors.lime,
     Colors.red,
     Colors.orange,
-    Colors.purple,
+    Colors.deepPurpleAccent,
     Colors.cyan,
-    Colors.indigo,
+    Colors.indigoAccent,
   ];
 
   @override
@@ -119,6 +120,8 @@ class _NotesScreenState extends State<NotesScreen> {
                         builder: (_) =>
                             AddNotesScreen(attendance: widget.attendance)));
               },
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.blue,
               tooltip: 'Add task',
               child: const Icon(Icons.add))
           : null,
@@ -134,11 +137,10 @@ class _NotesScreenState extends State<NotesScreen> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
+                  CustomElevatedButton(
                     onPressed: () {
                       if (_isInterstitialLoaded) _interstitialAd.show();
                       Navigator.push(
@@ -147,11 +149,7 @@ class _NotesScreenState extends State<NotesScreen> {
                               builder: (_) => AddNotesScreen(
                                   attendance: widget.attendance)));
                     },
-                    style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.blue),
-                      foregroundColor: MaterialStatePropertyAll(Colors.white),
-                    ),
-                    child: const Text('Get started'),
+                    title: 'Get started',
                   )
                 ],
               ),
@@ -215,7 +213,7 @@ class _NotesScreenState extends State<NotesScreen> {
                                 onPressed: () => _deleteNote(index),
                                 tooltip: 'Delete',
                                 icon: const Icon(
-                                  Icons.delete_rounded,
+                                  Icons.delete_outline_rounded,
                                   color: Colors.red,
                                 ))),
                       ],
@@ -236,7 +234,10 @@ class _NotesScreenState extends State<NotesScreen> {
         actions: <Widget>[
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             TextButton(
-                child: const Text('Yes'),
+                child: const Text(
+                  'Yes',
+                  style: TextStyle(color: Colors.red),
+                ),
                 onPressed: () {
                   setState(() {
                     widget.attendance.notes.removeAt(index);
@@ -247,8 +248,12 @@ class _NotesScreenState extends State<NotesScreen> {
                   Navigator.of(ctx).pop(true);
                 }),
             TextButton(
-              child: const Text('No'),
               onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(
+                'No',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
             ),
           ])
         ],

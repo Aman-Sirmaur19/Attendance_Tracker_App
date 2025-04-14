@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../main.dart';
+import '../utils/dialogs.dart';
 import '../screens/settings_screen.dart';
-import 'dialogs.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key});
@@ -35,7 +35,7 @@ class MainDrawer extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(colors: [
-          Theme.of(context).colorScheme.inversePrimary,
+          Colors.blue.shade200,
           Colors.blue.shade400,
         ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
         child: Column(
@@ -85,6 +85,7 @@ class MainDrawer extends StatelessWidget {
                   context: context,
                   builder: (context) {
                     return AlertDialog(
+                      backgroundColor: Colors.black12,
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
@@ -180,14 +181,6 @@ class MainDrawer extends StatelessWidget {
                           ),
                         ],
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Close'),
-                        ),
-                      ],
                     );
                   }),
             ),

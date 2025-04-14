@@ -12,6 +12,7 @@ import 'data/hive_data_store.dart';
 import 'screens/tab_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/notification_service.dart';
+import 'utils/theme.dart';
 
 late Size mq;
 late bool isFloatingActionButton;
@@ -80,21 +81,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'AttendanceTracker',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-        appBarTheme: AppBarTheme(
-            centerTitle: true,
-            titleTextStyle: TextStyle(
-              fontSize: 21,
-              letterSpacing: 1.5,
-              color: Colors.blue.shade700,
-              fontWeight: FontWeight.bold,
-            )),
-        iconButtonTheme: IconButtonThemeData(
-            style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all(Colors.blue))),
-      ),
+      theme: lightMode,
+      darkTheme: darkMode,
       home: const TabScreen(),
     );
   }

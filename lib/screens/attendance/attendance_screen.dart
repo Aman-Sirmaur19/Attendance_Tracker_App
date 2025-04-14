@@ -8,8 +8,9 @@ import 'package:in_app_update/in_app_update.dart';
 
 import '../../main.dart';
 import '../../models/attendance.dart';
-import '../../widgets/dialogs.dart';
+import '../../utils/dialogs.dart';
 import '../../widgets/chart_bar.dart';
+import '../../widgets/custom_elevated_button.dart';
 import '../../widgets/main_drawer.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../services/notification_service.dart';
@@ -96,6 +97,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                         CupertinoPageRoute(
                             builder: (_) =>
                                 const AddAttendanceScreen(attendance: null))),
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue,
                     tooltip: 'Add subject',
                     child: const Icon(Icons.add))
                 : null,
@@ -105,31 +108,24 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset('assets/images/text-books.png', width: 130),
+                        Image.asset('assets/images/books.png', width: 150),
                         const Text(
                           'Your presence matters more\nthan you think!',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
                           ),
                         ),
                         const SizedBox(height: 10),
-                        ElevatedButton(
+                        CustomElevatedButton(
                           onPressed: () => Navigator.push(
                               context,
                               CupertinoPageRoute(
                                   builder: (_) => const AddAttendanceScreen(
                                       attendance: null))),
-                          style: const ButtonStyle(
-                            backgroundColor:
-                                MaterialStatePropertyAll(Colors.blue),
-                            foregroundColor:
-                                MaterialStatePropertyAll(Colors.white),
-                          ),
-                          child: const Text('Get started'),
-                        )
+                          title: 'Get started',
+                        ),
                       ],
                     ),
                   )
@@ -142,27 +138,39 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Chip(
-                                padding: const EdgeInsets.all(0),
-                                backgroundColor: Colors.blue.shade100,
-                                label: Text(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                child: Text(
                                   DateFormat('d MMM y').format(DateTime.now()),
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                    color: Colors.black54,
+                                    fontSize: 14,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
-                              Chip(
-                                padding: const EdgeInsets.all(0),
-                                backgroundColor: Colors.blue.shade100,
-                                label: Text(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                child: Text(
                                   DateFormat('EEEE').format(DateTime.now()),
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                    color: Colors.black54,
+                                    fontSize: 14,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
@@ -217,13 +225,24 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                         .spaceAround,
                                                 children: [
                                                   TextButton(
-                                                      child: const Text('Yes'),
+                                                      child: const Text(
+                                                        'Yes',
+                                                        style: TextStyle(
+                                                            color: Colors.red),
+                                                      ),
                                                       onPressed: () {
                                                         Navigator.of(ctx)
                                                             .pop(true);
                                                       }),
                                                   TextButton(
-                                                      child: const Text('No'),
+                                                      child: Text(
+                                                        'No',
+                                                        style: TextStyle(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .secondary),
+                                                      ),
                                                       onPressed: () {
                                                         Navigator.of(ctx)
                                                             .pop(false);
@@ -248,431 +267,441 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                     },
                                     background: Container(
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color:
-                                            Theme.of(context).colorScheme.error,
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Colors.red.shade800,
                                       ),
                                       padding: const EdgeInsets.only(right: 20),
                                       alignment: Alignment.centerRight,
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 15,
-                                        vertical: 4,
-                                      ),
+                                      margin: const EdgeInsets.only(top: 10),
                                       child: const Icon(
                                         Icons.delete,
                                         color: Colors.white,
                                       ),
                                     ),
-                                    child: Card(
-                                        elevation: 3,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _expandedIndex = isExpanded
-                                                  ? -1
-                                                  : index; // Toggle expanded state
-                                            });
-                                          },
-                                          child: Column(
-                                            children: [
-                                              ListTile(
-                                                leading: total == 0
-                                                    ? Image.asset(
-                                                        'assets/images/owl.png')
-                                                    : CircleAvatar(
-                                                        radius: mq.width * .07,
-                                                        child: FittedBox(
-                                                            child: Text(
-                                                          '${percentage.floor().toStringAsFixed(0)}%',
-                                                          style: const TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        )),
-                                                      ),
-                                                title: Row(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _expandedIndex = isExpanded
+                                              ? -1
+                                              : index; // Toggle expanded state
+                                        });
+                                      },
+                                      child: Container(
+                                        margin: const EdgeInsets.only(top: 8),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primaryContainer,
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            ListTile(
+                                              leading: total == 0
+                                                  ? Image.asset(
+                                                      'assets/images/owl.png')
+                                                  : CircleAvatar(
+                                                      radius: mq.width * .07,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .primary,
+                                                      child: FittedBox(
+                                                          child: Text(
+                                                        '${percentage.floor().toStringAsFixed(0)}%',
+                                                        style: TextStyle(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .secondary,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      )),
+                                                    ),
+                                              title: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                        attendances[index]
+                                                            .subject,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: const TextStyle(
+                                                            letterSpacing: 1,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () => Navigator.push(
+                                                        context,
+                                                        CupertinoPageRoute(
+                                                            builder: (_) => NotesScreen(
+                                                                attendance:
+                                                                    attendances[
+                                                                        index],
+                                                                notes: attendances[
+                                                                        index]
+                                                                    .notes))),
+                                                    tooltip: 'Sticky Notes',
+                                                    icon: const Icon(
+                                                      CupertinoIcons.doc_on_doc,
+                                                      color: Colors.lightGreen,
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () => Navigator.push(
+                                                        context,
+                                                        CupertinoPageRoute(
+                                                            builder: (_) =>
+                                                                AddAttendanceScreen(
+                                                                    attendance:
+                                                                        attendances[
+                                                                            index]))),
+                                                    tooltip: 'Edit',
+                                                    icon: Icon(
+                                                      CupertinoIcons
+                                                          .pencil_outline,
+                                                      color:
+                                                          Colors.blue.shade600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              subtitle: Padding(
+                                                padding: EdgeInsets.only(
+                                                    top: mq.height * .005),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Expanded(
-                                                      child: Text(
-                                                          attendances[index]
-                                                              .subject,
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style: const TextStyle(
-                                                              letterSpacing: 1,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                    ),
-                                                    IconButton(
-                                                      onPressed: () => Navigator.push(
-                                                          context,
-                                                          CupertinoPageRoute(
-                                                              builder: (_) => NotesScreen(
-                                                                  attendance:
-                                                                      attendances[
-                                                                          index],
-                                                                  notes: attendances[
-                                                                          index]
-                                                                      .notes))),
-                                                      tooltip: 'Sticky Notes',
-                                                      icon: const Icon(
-                                                        CupertinoIcons
-                                                            .doc_on_doc,
-                                                        color: Colors.green,
-                                                      ),
-                                                    ),
-                                                    IconButton(
-                                                      onPressed: () => Navigator.push(
-                                                          context,
-                                                          CupertinoPageRoute(
-                                                              builder: (_) =>
-                                                                  AddAttendanceScreen(
-                                                                      attendance:
-                                                                          attendances[
-                                                                              index]))),
-                                                      tooltip: 'Edit',
-                                                      icon: Icon(
-                                                        CupertinoIcons
-                                                            .pencil_outline,
-                                                        color: Colors
-                                                            .blue.shade600,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                subtitle: Padding(
-                                                  padding: EdgeInsets.only(
-                                                      top: mq.height * .005),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                color: Colors
-                                                                    .white60,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5)),
-                                                            child: Text(
-                                                                'Attended: ${attendances[index].present}',
-                                                                style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color: SettingsScreen
-                                                                            .selectedColorPair[
-                                                                        'present'])),
-                                                          ),
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                color: Colors
-                                                                    .white60,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5)),
-                                                            child: Text(
-                                                                'Missed: ${attendances[index].absent}',
-                                                                style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color: SettingsScreen
-                                                                            .selectedColorPair[
-                                                                        'absent'])),
-                                                          ),
-                                                          Container(
-                                                            decoration: BoxDecoration(
-                                                                color: Colors
-                                                                    .white60,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5)),
-                                                            child: Text(
-                                                                'Req.: ${attendances[index].requirement} %',
-                                                                style: const TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    color: Colors
-                                                                        .blueGrey)),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      if (total != 0)
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top:
-                                                                      mq.height *
-                                                                          .005),
-                                                          child:
-                                                              TweenAnimationBuilder(
-                                                            tween: Tween<
-                                                                    double>(
-                                                                begin: 0,
-                                                                end:
-                                                                    percentage /
-                                                                        100),
-                                                            duration:
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        500),
-                                                            builder: (context,
-                                                                    double
-                                                                        value,
-                                                                    child) =>
-                                                                ChartBar(value),
-                                                          ),
-                                                        ),
-                                                      if (required > 0)
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top:
-                                                                      mq.height *
-                                                                          .005),
-                                                          child: Text(
-                                                            required <= 1
-                                                                ? 'Attend 1 class'
-                                                                : attendances[index]
-                                                                            .requirement ==
-                                                                        100
-                                                                    ? "Can't miss any class"
-                                                                    : 'Attend ${required.ceil()} classes in a row',
-                                                            style:
-                                                                const TextStyle(
-                                                              color: Colors.red,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        )
-                                                      else if (miss >= 1)
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top:
-                                                                      mq.height *
-                                                                          .005),
-                                                          child: Text(
-                                                            miss >= 2
-                                                                ? 'Can miss ${miss.floor()} classes in a row'
-                                                                : 'Can miss 1 class',
-                                                            style:
-                                                                const TextStyle(
-                                                              color:
-                                                                  Colors.green,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        )
-                                                      else
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top:
-                                                                      mq.height *
-                                                                          .005),
-                                                          child: const Text(
-                                                            "Can't miss any class",
-                                                            style: TextStyle(
-                                                              color: Colors.red,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      if (isExpanded)
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
                                                         Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      4),
                                                           decoration: BoxDecoration(
-                                                              color: Colors
-                                                                  .white60,
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .primary,
                                                               borderRadius:
                                                                   BorderRadius
                                                                       .circular(
                                                                           5)),
-                                                          child: RichText(
-                                                            text: TextSpan(
-                                                              text:
-                                                                  'Last updated: ',
+                                                          child: Text(
+                                                              'Attended: ${attendances[index].present}',
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: SettingsScreen
+                                                                          .selectedColorPair[
+                                                                      'present'])),
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      4),
+                                                          decoration: BoxDecoration(
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .primary,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5)),
+                                                          child: Text(
+                                                              'Missed: ${attendances[index].absent}',
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: SettingsScreen
+                                                                          .selectedColorPair[
+                                                                      'absent'])),
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      4),
+                                                          decoration: BoxDecoration(
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .primary,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5)),
+                                                          child: Text(
+                                                              'Req.: ${attendances[index].requirement} %',
                                                               style: const TextStyle(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
                                                                   color: Colors
-                                                                      .brown),
-                                                              children: [
-                                                                TextSpan(
-                                                                  text:
-                                                                      '$time, $date',
-                                                                  style: const TextStyle(
-                                                                      letterSpacing:
-                                                                          0.75,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                      color: Colors
-                                                                          .blue),
-                                                                )
-                                                              ],
-                                                            ),
+                                                                      .blueGrey)),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    if (total != 0)
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: mq.height *
+                                                                    .005),
+                                                        child:
+                                                            TweenAnimationBuilder(
+                                                          tween: Tween<double>(
+                                                              begin: 0,
+                                                              end: percentage /
+                                                                  100),
+                                                          duration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      500),
+                                                          builder: (context,
+                                                                  double value,
+                                                                  child) =>
+                                                              ChartBar(value),
+                                                        ),
+                                                      ),
+                                                    if (required > 0)
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: mq.height *
+                                                                    .005),
+                                                        child: Text(
+                                                          required <= 1
+                                                              ? 'Attend 1 class'
+                                                              : attendances[index]
+                                                                          .requirement ==
+                                                                      100
+                                                                  ? "Can't miss any class"
+                                                                  : 'Attend ${required.ceil()} classes in a row',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.red,
+                                                            fontWeight:
+                                                                FontWeight.bold,
                                                           ),
                                                         ),
-                                                    ],
-                                                  ),
+                                                      )
+                                                    else if (miss >= 1)
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: mq.height *
+                                                                    .005),
+                                                        child: Text(
+                                                          miss >= 2
+                                                              ? 'Can miss ${miss.floor()} classes in a row'
+                                                              : 'Can miss 1 class',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.green,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      )
+                                                    else
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: mq.height *
+                                                                    .005),
+                                                        child: const Text(
+                                                          "Can't miss any class",
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    if (isExpanded)
+                                                      RichText(
+                                                        text: TextSpan(
+                                                          text:
+                                                              'Last updated: ',
+                                                          style:
+                                                              const TextStyle(
+                                                                  letterSpacing:
+                                                                      .75,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .blue),
+                                                          children: [
+                                                            TextSpan(
+                                                              text:
+                                                                  '$time, $date',
+                                                              style: TextStyle(
+                                                                  letterSpacing:
+                                                                      .75,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .secondaryContainer),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                  ],
                                                 ),
                                               ),
-                                              if (isExpanded)
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceAround,
-                                                  children: [
-                                                    _customButton(
-                                                      'Attended',
-                                                      '${attendances[index].present}',
-                                                      () {
-                                                        setState(() {
-                                                          if (attendances[index]
-                                                                  .present !=
-                                                              0) {
-                                                            attendances[index]
-                                                                .present--;
-                                                            attendances[index]
-                                                                    .time =
-                                                                DateTime.now()
-                                                                    .toString();
-                                                          }
-                                                        });
-                                                        attendances[index]
-                                                            .save();
-                                                        NotificationService
-                                                            .setNotificationsForAttendance(
-                                                                attendances[
-                                                                    index]);
-                                                      },
-                                                      () {
-                                                        setState(() {
+                                            ),
+                                            if (isExpanded)
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: [
+                                                  _customButton(
+                                                    'Attended',
+                                                    '${attendances[index].present}',
+                                                    () {
+                                                      setState(() {
+                                                        if (attendances[index]
+                                                                .present !=
+                                                            0) {
                                                           attendances[index]
-                                                              .present++;
+                                                              .present--;
                                                           attendances[index]
                                                                   .time =
                                                               DateTime.now()
                                                                   .toString();
-                                                        });
+                                                        }
+                                                      });
+                                                      attendances[index].save();
+                                                      NotificationService
+                                                          .setNotificationsForAttendance(
+                                                              attendances[
+                                                                  index]);
+                                                    },
+                                                    () {
+                                                      setState(() {
                                                         attendances[index]
-                                                            .save();
-                                                        NotificationService
-                                                            .setNotificationsForAttendance(
-                                                                attendances[
-                                                                    index]);
-                                                      },
-                                                    ),
-                                                    _customButton(
-                                                      'Missed',
-                                                      '${attendances[index].absent}',
-                                                      () {
-                                                        setState(() {
-                                                          if (attendances[index]
-                                                                  .absent !=
-                                                              0) {
-                                                            attendances[index]
-                                                                .absent--;
-                                                            attendances[index]
-                                                                    .time =
-                                                                DateTime.now()
-                                                                    .toString();
-                                                          }
-                                                        });
+                                                            .present++;
                                                         attendances[index]
-                                                            .save();
-                                                        NotificationService
-                                                            .setNotificationsForAttendance(
-                                                                attendances[
-                                                                    index]);
-                                                      },
-                                                      () {
-                                                        setState(() {
+                                                                .time =
+                                                            DateTime.now()
+                                                                .toString();
+                                                      });
+                                                      attendances[index].save();
+                                                      NotificationService
+                                                          .setNotificationsForAttendance(
+                                                              attendances[
+                                                                  index]);
+                                                    },
+                                                  ),
+                                                  _customButton(
+                                                    'Missed',
+                                                    '${attendances[index].absent}',
+                                                    () {
+                                                      setState(() {
+                                                        if (attendances[index]
+                                                                .absent !=
+                                                            0) {
                                                           attendances[index]
-                                                              .absent++;
+                                                              .absent--;
                                                           attendances[index]
                                                                   .time =
                                                               DateTime.now()
                                                                   .toString();
-                                                        });
+                                                        }
+                                                      });
+                                                      attendances[index].save();
+                                                      NotificationService
+                                                          .setNotificationsForAttendance(
+                                                              attendances[
+                                                                  index]);
+                                                    },
+                                                    () {
+                                                      setState(() {
                                                         attendances[index]
-                                                            .save();
-                                                        NotificationService
-                                                            .setNotificationsForAttendance(
-                                                                attendances[
-                                                                    index]);
-                                                      },
-                                                    ),
-                                                    _customButton(
-                                                      'Required',
-                                                      '${attendances[index].requirement} %',
-                                                      () {
-                                                        setState(() {
-                                                          if (attendances[index]
-                                                                  .requirement !=
-                                                              0) {
-                                                            attendances[index]
-                                                                .requirement -= 5;
-                                                            attendances[index]
-                                                                    .time =
-                                                                DateTime.now()
-                                                                    .toString();
-                                                          }
-                                                        });
+                                                            .absent++;
                                                         attendances[index]
-                                                            .save();
-                                                        NotificationService
-                                                            .setNotificationsForAttendance(
-                                                                attendances[
-                                                                    index]);
-                                                      },
-                                                      () {
-                                                        setState(() {
-                                                          if (attendances[index]
-                                                                  .requirement <
-                                                              100) {
-                                                            attendances[index]
-                                                                .requirement += 5;
-                                                            attendances[index]
-                                                                    .time =
-                                                                DateTime.now()
-                                                                    .toString();
-                                                          }
-                                                        });
-                                                        attendances[index]
-                                                            .save();
-                                                        NotificationService
-                                                            .setNotificationsForAttendance(
-                                                                attendances[
-                                                                    index]);
-                                                      },
-                                                    ),
-                                                  ],
-                                                )
-                                            ],
-                                          ),
-                                        )),
+                                                                .time =
+                                                            DateTime.now()
+                                                                .toString();
+                                                      });
+                                                      attendances[index].save();
+                                                      NotificationService
+                                                          .setNotificationsForAttendance(
+                                                              attendances[
+                                                                  index]);
+                                                    },
+                                                  ),
+                                                  _customButton(
+                                                    'Required',
+                                                    '${attendances[index].requirement} %',
+                                                    () {
+                                                      setState(() {
+                                                        if (attendances[index]
+                                                                .requirement !=
+                                                            0) {
+                                                          attendances[index]
+                                                              .requirement -= 5;
+                                                          attendances[index]
+                                                                  .time =
+                                                              DateTime.now()
+                                                                  .toString();
+                                                        }
+                                                      });
+                                                      attendances[index].save();
+                                                      NotificationService
+                                                          .setNotificationsForAttendance(
+                                                              attendances[
+                                                                  index]);
+                                                    },
+                                                    () {
+                                                      setState(() {
+                                                        if (attendances[index]
+                                                                .requirement <
+                                                            100) {
+                                                          attendances[index]
+                                                              .requirement += 5;
+                                                          attendances[index]
+                                                                  .time =
+                                                              DateTime.now()
+                                                                  .toString();
+                                                        }
+                                                      });
+                                                      attendances[index].save();
+                                                      NotificationService
+                                                          .setNotificationsForAttendance(
+                                                              attendances[
+                                                                  index]);
+                                                    },
+                                                  ),
+                                                ],
+                                              )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   );
                                 }),
                           ),
@@ -694,13 +723,13 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                 onPressed: onRemove,
                 tooltip: 'Remove',
                 icon: const Icon(Icons.remove_circle_outline_rounded,
-                    color: Colors.green)),
+                    color: Colors.lightGreen)),
             Text(num, style: const TextStyle(fontWeight: FontWeight.bold)),
             IconButton(
                 onPressed: onAdd,
                 tooltip: 'Add',
                 icon: const Icon(Icons.add_circle_outline_rounded,
-                    color: Colors.green)),
+                    color: Colors.lightGreen)),
           ],
         ),
         Text(

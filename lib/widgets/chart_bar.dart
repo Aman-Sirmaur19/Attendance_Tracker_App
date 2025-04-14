@@ -13,12 +13,15 @@ class ChartBar extends StatelessWidget {
       builder: (ctx, constraints) {
         return SizedBox(
           width: constraints.maxWidth,
-          height: constraints.maxWidth * .05,
+          height: constraints.maxWidth * .04,
           child: Stack(
             children: <Widget>[
               Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, width: 1.0),
+                  border: Border.all(
+                    width: 1.0,
+                    color: SettingsScreen.selectedColorPair['absent']!,
+                  ),
                   color: SettingsScreen.selectedColorPair['absent'],
                   borderRadius: BorderRadius.circular(10),
                 ),

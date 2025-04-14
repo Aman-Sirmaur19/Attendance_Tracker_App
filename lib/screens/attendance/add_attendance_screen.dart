@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../main.dart';
+import '../../utils/dialogs.dart';
 import '../../models/attendance.dart';
-import '../../widgets/custom_text_form_field.dart';
-import '../../widgets/dialogs.dart';
-import '../../widgets/custom_banner_ad.dart';
 import '../../services/notification_service.dart';
+import '../../widgets/custom_banner_ad.dart';
+import '../../widgets/custom_text_form_field.dart';
 
 class AddAttendanceScreen extends StatefulWidget {
   const AddAttendanceScreen({super.key, required this.attendance});
@@ -159,7 +159,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
             const SizedBox(height: 5),
             _customCounterContainer(title: 'Required', number: required),
             const SizedBox(height: 20),
-            _customText('Set weekly schedules for push notifications'),
+            _customText('Set weekly schedules for push notifications 🔔'),
             const SizedBox(height: 5),
             _customColumn(),
             const SizedBox(height: 15),
@@ -180,7 +180,11 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                                           MainAxisAlignment.spaceAround,
                                       children: [
                                         TextButton(
-                                            child: const Text('Yes'),
+                                            child: const Text(
+                                              'Yes',
+                                              style:
+                                                  TextStyle(color: Colors.red),
+                                            ),
                                             onPressed: () {
                                               widget.attendance?.delete();
                                               Dialogs.showSnackBar(context,
@@ -189,24 +193,37 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                                               Navigator.pop(context);
                                             }),
                                         TextButton(
-                                            child: const Text('No'),
+                                            child: Text(
+                                              'No',
+                                              style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary),
+                                            ),
                                             onPressed: () {
                                               Navigator.of(ctx).pop(false);
                                             }),
                                       ])
                                 ],
                               )),
-                      style: const ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll(Colors.red),
-                          foregroundColor:
-                              MaterialStatePropertyAll(Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        alignment: Alignment.center,
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
                       icon: const Icon(CupertinoIcons.delete),
                       label: const Text('Delete')),
                 ElevatedButton.icon(
                   onPressed: () => _createAndEdit(),
                   style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blue),
+                    alignment: Alignment.center,
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
                   icon: Icon(_isAttendanceAlreadyExist()
                       ? CupertinoIcons.refresh_thick
                       : CupertinoIcons.list_bullet_indent),
@@ -233,7 +250,6 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
 
   Widget _customCounterContainer({required String title, required int number}) {
     return Container(
-      // width: double.infinity,
       height: 60,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -288,12 +304,11 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                 icon: const Icon(Icons.remove_circle_outline_rounded),
               ),
               Container(
-                // margin: const EdgeInsets.only(right: 10),
                 width: 70,
                 height: 35,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(10),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 child: Center(
                   child: Text(
@@ -340,7 +355,6 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
             });
           },
           child: Container(
-            // width: double.infinity,
             height: 60,
             decoration: BoxDecoration(
               color: Theme.of(context).scaffoldBackgroundColor,
@@ -352,20 +366,20 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
             child: Row(
               children: [
                 const SizedBox(width: 10),
-                Icon(Icons.alarm_rounded, color: Colors.amber.shade300),
+                Icon(Icons.alarm_rounded, color: Colors.amber.shade400),
                 const SizedBox(width: 12),
                 Text(
                   'Routine',
                   style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.bold,
-                    color: Colors.amber.shade300,
+                    color: Colors.amber.shade400,
                   ),
                 ),
                 const Spacer(),
                 Icon(
                   _isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                  color: Colors.amber.shade300,
+                  color: Colors.amber.shade400,
                 ),
                 const SizedBox(width: 10),
               ],
@@ -378,9 +392,9 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
               title: Text(
                 day,
                 style: const TextStyle(
-                    color: Colors.black54,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold),
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               trailing: schedules[day] != null
                   ? Text(

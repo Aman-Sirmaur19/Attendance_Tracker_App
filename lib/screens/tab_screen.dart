@@ -20,18 +20,9 @@ class _TabScreenState extends State<TabScreen> {
   void initState() {
     super.initState();
     _pages = [
-      {
-        'page': const AttendanceScreen(),
-        // 'title': 'Attendance Tracker',
-      },
-      {
-        'page': const RoutineScreen(),
-        // 'title': 'Routine',
-      },
-      {
-        'page': const MyTasksScreen(),
-        // 'title': 'Routine',
-      }
+      {'page': const AttendanceScreen()},
+      {'page': const RoutineScreen()},
+      {'page': const MyTasksScreen()}
     ];
   }
 
@@ -48,9 +39,9 @@ class _TabScreenState extends State<TabScreen> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: _selectPage,
         selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.black.withOpacity(.5),
+        unselectedItemColor: Theme.of(context).colorScheme.secondaryContainer,
         currentIndex: _selectedPageIndex,
-        type: BottomNavigationBarType.shifting,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.stacked_bar_chart_rounded),

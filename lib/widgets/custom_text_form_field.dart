@@ -22,8 +22,15 @@ class CustomTextFormField extends StatelessWidget {
       style: const TextStyle(
           fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1),
       decoration: InputDecoration(
-        prefixIcon:
-            const Icon(Icons.stacked_bar_chart_rounded, color: Colors.grey),
+        prefixIcon: hintText == 'Description' || hintText == 'Add note'
+            ? const Icon(Icons.bookmark_border_rounded, color: Colors.grey)
+            : hintText == 'Plan'
+                ? const Icon(Icons.sports_gymnastics_rounded,
+                    color: Colors.grey)
+                : hintText == 'Subject'
+                    ? const Icon(Icons.stacked_bar_chart_rounded,
+                        color: Colors.grey)
+                    : const Icon(Icons.title_rounded, color: Colors.grey),
         hintText: hintText,
         hintStyle:
             const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
