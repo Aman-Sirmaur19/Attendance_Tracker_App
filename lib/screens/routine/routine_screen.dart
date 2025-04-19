@@ -11,8 +11,8 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../main.dart';
 import '../../secrets.dart';
-import '../../widgets/main_drawer.dart';
 import '../../widgets/custom_banner_ad.dart';
+import '../dashboard_screen.dart';
 
 enum Routine {
   photo,
@@ -158,6 +158,14 @@ class _RoutineScreenState extends State<RoutineScreen>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => Navigator.push(
+                context,
+                CupertinoPageRoute(
+                    builder: (context) => const DashboardScreen())),
+            tooltip: 'Dashboard',
+            icon: const Icon(CupertinoIcons.square_grid_2x2),
+          ),
           title: const Text('Routine'),
           actions: [
             IconButton(
@@ -190,7 +198,6 @@ class _RoutineScreenState extends State<RoutineScreen>
                     tooltip: 'Add routine',
                     child: const Icon(Icons.add))
                 : null,
-        drawer: const MainDrawer(),
         body: _routine == Routine.photo
             ? Center(
                 child: Column(

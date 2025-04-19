@@ -7,13 +7,13 @@ import 'package:hive/hive.dart';
 import 'package:in_app_update/in_app_update.dart';
 
 import '../../main.dart';
-import '../../models/attendance.dart';
 import '../../utils/dialogs.dart';
+import '../../models/attendance.dart';
 import '../../widgets/chart_bar.dart';
-import '../../widgets/custom_elevated_button.dart';
-import '../../widgets/main_drawer.dart';
 import '../../widgets/custom_banner_ad.dart';
+import '../../widgets/custom_elevated_button.dart';
 import '../../services/notification_service.dart';
+import '../dashboard_screen.dart';
 import '../settings_screen.dart';
 import 'add_attendance_screen.dart';
 import 'notes_screen.dart';
@@ -75,6 +75,14 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           attendances.sort((a, b) => b.createdAt.compareTo(a.createdAt));
           return Scaffold(
             appBar: AppBar(
+              leading: IconButton(
+                onPressed: () => Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => const DashboardScreen())),
+                tooltip: 'Dashboard',
+                icon: const Icon(CupertinoIcons.square_grid_2x2),
+              ),
               title: const Text('Attendance Tracker'),
               actions: [
                 if (!isFloatingActionButton)
@@ -102,7 +110,6 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                     tooltip: 'Add subject',
                     child: const Icon(Icons.add))
                 : null,
-            drawer: const MainDrawer(),
             body: attendances.isEmpty
                 ? Center(
                     child: Column(

@@ -6,13 +6,13 @@ import 'package:hive/hive.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../main.dart';
-import '../../models/task.dart';
 import '../../secrets.dart';
+import '../../models/task.dart';
 import '../../utils/dialogs.dart';
-import '../../widgets/custom_elevated_button.dart';
-import '../../widgets/main_drawer.dart';
 import '../../widgets/task_widget.dart';
 import '../../widgets/custom_banner_ad.dart';
+import '../../widgets/custom_elevated_button.dart';
+import '../dashboard_screen.dart';
 import 'add_task_screen.dart';
 
 class MyTasksScreen extends StatefulWidget {
@@ -82,6 +82,14 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
 
           return Scaffold(
             appBar: AppBar(
+              leading: IconButton(
+                onPressed: () => Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => const DashboardScreen())),
+                tooltip: 'Dashboard',
+                icon: const Icon(CupertinoIcons.square_grid_2x2),
+              ),
               title: const Text('My Tasks'),
               actions: [
                 if (!isFloatingActionButton)
@@ -113,7 +121,6 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                     tooltip: 'Add task',
                     child: const Icon(Icons.add))
                 : null,
-            drawer: const MainDrawer(),
             body: tasks.isEmpty
                 ? Center(
                     child: Column(
