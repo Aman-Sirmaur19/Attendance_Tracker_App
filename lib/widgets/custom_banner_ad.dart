@@ -21,7 +21,7 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
   @override
   void initState() {
     super.initState();
-    _initializeNativeAd();
+    _initializeBannerAd();
   }
 
   Future<void> _initializeBannerAd() async {
@@ -36,9 +36,12 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
           });
         },
         onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          isBannerAdLoaded = false;
           log('Failed to load banner ad: ${error.message}');
+          ad.dispose();
+          setState(() {
+            isBannerAdLoaded = false;
+          });
+          _initializeNativeAd();
         },
       ),
     );
@@ -70,7 +73,6 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
           setState(() {
             isNativeAdLoaded = false;
           });
-          _initializeBannerAd();
         },
       ),
     );
@@ -86,10 +88,11 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
 
   @override
   Widget build(BuildContext context) {
-    return isNativeAdLoaded
-        ? SizedBox(height: 85, child: AdWidget(ad: nativeAd))
-        : isBannerAdLoaded
-            ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+    // return const SizedBox();
+    return isBannerAdLoaded
+        ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+        : isNativeAdLoaded
+            ? SizedBox(height: 85, child: AdWidget(ad: nativeAd))
             : const SizedBox();
   }
 }
