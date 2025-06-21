@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../main.dart';
 import '../utils/dialogs.dart';
+import '../services/ad_manager.dart';
 import '../widgets/custom_banner_ad.dart';
 import 'settings_screen.dart';
 
@@ -34,234 +36,249 @@ class DashboardScreen extends StatelessWidget {
       bottomNavigationBar: const CustomBannerAd(),
       body: Column(
         children: [
+          const Text(
+            'Version: 1.1.6',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              letterSpacing: 1.5,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
               physics: const BouncingScrollPhysics(),
               children: [
-                _customContainer(
-                    context: context,
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Coming soon...',
-                                    style: TextStyle(
-                                      letterSpacing: 1,
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                                Spacer(),
-                                Text('🔔'),
-                              ],
-                            ),
-                            // backgroundColor: Colors.black87,
-                            duration: Duration(seconds: 2),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                      leading: const Icon(Icons.star_rate_rounded,
-                          color: Colors.amber),
-                      title: RichText(
-                        text: const TextSpan(
-                          text: 'Attendance',
+                ListTile(
+                  tileColor: Theme.of(context).colorScheme.primary,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Coming soon...',
+                                style: TextStyle(
+                                  letterSpacing: 1,
+                                  fontWeight: FontWeight.bold,
+                                )),
+                            Spacer(),
+                            Text('🔔'),
+                          ],
+                        ),
+                        // backgroundColor: Colors.black87,
+                        duration: Duration(seconds: 2),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  leading:
+                      const Icon(Icons.star_rate_rounded, color: Colors.amber),
+                  title: RichText(
+                    text: const TextSpan(
+                      text: 'Attendance',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Fredoka',
+                        color: Colors.lightBlue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'Tracker',
                           style: TextStyle(
                             fontSize: 18,
+                            color: Colors.red,
+                            fontFamily: 'Fredoka',
                             fontWeight: FontWeight.bold,
-                            color: Colors.lightBlue,
                           ),
                           children: [
                             TextSpan(
-                              text: 'Tracker',
+                              text: ' Pro',
                               style: TextStyle(
                                 fontSize: 18,
+                                color: Colors.amber,
+                                fontFamily: 'Fredoka',
                                 fontWeight: FontWeight.bold,
-                                color: Colors.red,
                               ),
-                              children: [
-                                TextSpan(
-                                  text: ' Pro',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.amber,
-                                  ),
-                                ),
-                              ],
                             ),
                           ],
                         ),
-                      ),
-                      trailing: const Icon(
-                        CupertinoIcons.chevron_forward,
-                        color: Colors.grey,
-                      ),
-                    )),
-                const SizedBox(height: 20),
-                _customContainer(
-                  context: context,
-                  child: Column(
-                    children: [
-                      _customListTile(
-                        () => Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (_) => const SettingsScreen())),
-                        CupertinoIcons.settings,
-                        'Settings',
-                      ),
-                      _customListTile(
-                        () async {
-                          const url =
-                              'https://play.google.com/store/apps/developer?id=SIRMAUR';
-                          _launchInBrowser(context, Uri.parse(url));
-                        },
-                        CupertinoIcons.app_badge,
-                        'More Apps',
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                  trailing: const Icon(
+                    CupertinoIcons.chevron_forward,
+                    color: Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 20),
-                _customContainer(
+                _customListTile(
+                  onTap: () => AdManager()
+                      .navigateWithAd(context, const SettingsScreen()),
+                  icon: CupertinoIcons.settings,
+                  title: 'Settings',
+                  isFirst: true,
                   context: context,
-                  child: Column(
-                    children: [
-                      _customListTile(
-                        () => showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                backgroundColor: Colors.blue.shade200,
-                                title: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(50),
-                                      child: Image.asset(
-                                        'assets/images/avatar.png',
-                                        width: 100,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      'Aman Sirmaur',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        letterSpacing: 1,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.only(top: mq.width * .01),
-                                      child: Text(
-                                        'MECHANICAL ENGINEERING',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          letterSpacing: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.only(top: mq.width * .03),
-                                      child: Text(
-                                        'NIT AGARTALA',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w900,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          letterSpacing: 1,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                ),
+                _customListTile(
+                  onTap: () async {
+                    const String appUrl =
+                        'https://play.google.com/store/apps/details?id=com.sirmaur.attendance_tracker';
+                    Share.share(
+                        'Check out this awesome Attendance Tracker app:\n\n$appUrl');
+                  },
+                  icon: CupertinoIcons.share,
+                  title: 'Share with friends',
+                  context: context,
+                ),
+                _customListTile(
+                  onTap: () async {
+                    const url =
+                        'https://play.google.com/store/apps/developer?id=SIRMAUR';
+                    _launchInBrowser(context, Uri.parse(url));
+                  },
+                  icon: CupertinoIcons.app_badge,
+                  title: 'More Apps',
+                  isLast: true,
+                  context: context,
+                ),
+                const SizedBox(height: 20),
+                _customListTile(
+                  onTap: () => showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          backgroundColor: Colors.blue.shade200,
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.asset(
+                                  'assets/images/avatar.png',
+                                  width: 100,
                                 ),
-                                content: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    InkWell(
-                                      child: Image.asset(
-                                          'assets/images/youtube.png',
-                                          width: 30),
-                                      onTap: () async {
-                                        const url =
-                                            'https://www.youtube.com/@AmanSirmaur';
-                                        _launchInBrowser(
-                                            context, Uri.parse(url));
-                                      },
-                                    ),
-                                    InkWell(
-                                      child: Image.asset(
-                                          'assets/images/twitter.png',
-                                          width: 30),
-                                      onTap: () async {
-                                        const url =
-                                            'https://x.com/AmanSirmaur?t=2QWiqzkaEgpBFNmLI38sbA&s=09';
-                                        _launchInBrowser(
-                                            context, Uri.parse(url));
-                                      },
-                                    ),
-                                    InkWell(
-                                      child: Image.asset(
-                                          'assets/images/instagram.png',
-                                          width: 30),
-                                      onTap: () async {
-                                        const url =
-                                            'https://www.instagram.com/aman_sirmaur19/';
-                                        _launchInBrowser(
-                                            context, Uri.parse(url));
-                                      },
-                                    ),
-                                    InkWell(
-                                      child: Image.asset(
-                                          'assets/images/github.png',
-                                          width: 30),
-                                      onTap: () async {
-                                        const url =
-                                            'https://github.com/Aman-Sirmaur19';
-                                        _launchInBrowser(
-                                            context, Uri.parse(url));
-                                      },
-                                    ),
-                                    InkWell(
-                                      child: Image.asset(
-                                          'assets/images/linkedin.png',
-                                          width: 30),
-                                      onTap: () async {
-                                        const url =
-                                            'https://www.linkedin.com/in/aman-kumar-257613257/';
-                                        _launchInBrowser(
-                                            context, Uri.parse(url));
-                                      },
-                                    ),
-                                  ],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                'Aman Sirmaur',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  letterSpacing: 1,
                                 ),
-                              );
-                            }),
-                        Icons.copyright_rounded,
-                        'Copyright',
-                      ),
-                    ],
-                  ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: mq.width * .01),
+                                child: Text(
+                                  'MECHANICAL ENGINEERING',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: mq.width * .03),
+                                child: Text(
+                                  'NIT AGARTALA',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          content: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              InkWell(
+                                child: Image.asset('assets/images/youtube.png',
+                                    width: 30),
+                                onTap: () async {
+                                  const url =
+                                      'https://www.youtube.com/@AmanSirmaur';
+                                  _launchInBrowser(context, Uri.parse(url));
+                                },
+                              ),
+                              InkWell(
+                                child: Image.asset('assets/images/twitter.png',
+                                    width: 30),
+                                onTap: () async {
+                                  const url =
+                                      'https://x.com/AmanSirmaur?t=2QWiqzkaEgpBFNmLI38sbA&s=09';
+                                  _launchInBrowser(context, Uri.parse(url));
+                                },
+                              ),
+                              InkWell(
+                                child: Image.asset(
+                                    'assets/images/instagram.png',
+                                    width: 30),
+                                onTap: () async {
+                                  const url =
+                                      'https://www.instagram.com/aman_sirmaur19/';
+                                  _launchInBrowser(context, Uri.parse(url));
+                                },
+                              ),
+                              InkWell(
+                                child: Image.asset('assets/images/github.png',
+                                    width: 30),
+                                onTap: () async {
+                                  const url =
+                                      'https://github.com/Aman-Sirmaur19';
+                                  _launchInBrowser(context, Uri.parse(url));
+                                },
+                              ),
+                              InkWell(
+                                child: Image.asset('assets/images/linkedin.png',
+                                    width: 30),
+                                onTap: () async {
+                                  const url =
+                                      'https://www.linkedin.com/in/aman-kumar-257613257/';
+                                  _launchInBrowser(context, Uri.parse(url));
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                  icon: Icons.copyright_rounded,
+                  title: 'Copyright',
+                  isFirst: true,
+                  isLast: true,
+                  context: context,
+                ),
+                const SizedBox(height: 20),
+                _customListTile(
+                  onTap: () async {
+                    const url =
+                        'https://play.google.com/store/apps/details?id=com.sirmaur.shreemad_bhagavad_geeta';
+                    _launchInBrowser(context, Uri.parse(url));
+                  },
+                  tileColor: Colors.amber,
+                  imageUrl:
+                      'https://play-lh.googleusercontent.com/L4FMm88yMoWIKhUX3U1XJTmvd8_MkoQUX4IfN61QBSq51GWpnMPvs4Dz7gpmlmXspA=w480-h960-rw',
+                  title: 'Shreemad Bhagavad Geeta',
+                  subtitle:
+                      'The Divine Song of God\nAvailable in 100+ global languages',
+                  context: context,
+                  isFirst: true,
+                  isLast: true,
                 ),
               ],
             ),
@@ -280,29 +297,63 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _customContainer({
+  Widget _customListTile({
+    required void Function() onTap,
+    required String title,
     required BuildContext context,
-    required Widget child,
+    Color? tileColor,
+    IconData? icon,
+    String? imageUrl,
+    String? subtitle,
+    bool isFirst = false,
+    bool isLast = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      child: child,
-    );
-  }
-
-  Widget _customListTile(void Function() onTap, IconData icon, String title) {
     return ListTile(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      tileColor: tileColor ?? Theme.of(context).colorScheme.primary,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+        topLeft: isFirst ? const Radius.circular(20) : Radius.zero,
+        topRight: isFirst ? const Radius.circular(20) : Radius.zero,
+        bottomLeft: isLast ? const Radius.circular(20) : Radius.zero,
+        bottomRight: isLast ? const Radius.circular(20) : Radius.zero,
+      )),
       onTap: onTap,
-      leading: Icon(icon),
-      title: Text(title),
-      trailing: const Icon(
-        CupertinoIcons.chevron_forward,
-        color: Colors.grey,
+      leading: imageUrl != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.network(
+                imageUrl,
+                width: 45,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.broken_image_rounded,
+                    size: 45,
+                    color: Colors.white,
+                  );
+                },
+              ))
+          : Icon(icon),
+      title: Text(
+        title,
+        style: subtitle != null
+            ? const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              )
+            : null,
       ),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: const TextStyle(color: Colors.black),
+            )
+          : null,
+      trailing: subtitle == null
+          ? const Icon(
+              CupertinoIcons.chevron_forward,
+              color: Colors.grey,
+            )
+          : null,
     );
   }
 }
