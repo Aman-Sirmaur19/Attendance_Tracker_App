@@ -6,13 +6,14 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'utils/theme.dart';
 import 'models/task.dart';
 import 'models/attendance.dart';
 import 'data/hive_data_store.dart';
 import 'screens/tab_screen.dart';
 import 'screens/settings_screen.dart';
+import 'services/ad_manager.dart';
 import 'services/notification_service.dart';
-import 'utils/theme.dart';
 
 late Size mq;
 late bool isFloatingActionButton;
@@ -20,6 +21,7 @@ late SharedPreferences prefs;
 
 _initializeMobileAds() async {
   await MobileAds.instance.initialize();
+  AdManager().initialize();
 }
 
 Future<void> main() async {

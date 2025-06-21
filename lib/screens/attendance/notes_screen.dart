@@ -1,14 +1,12 @@
 import 'dart:math';
-import 'dart:developer' as dev;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../main.dart';
-import '../../secrets.dart';
-import '../../models/attendance.dart';
 import '../../utils/dialogs.dart';
+import '../../models/attendance.dart';
+import '../../services/ad_manager.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
 import 'add_notes_screen.dart';
@@ -24,8 +22,6 @@ class NotesScreen extends StatefulWidget {
 }
 
 class _NotesScreenState extends State<NotesScreen> {
-  bool _isInterstitialLoaded = false;
-  late InterstitialAd _interstitialAd;
   final List<Color> _colors = [
     Colors.amber,
     Colors.lightGreen,
@@ -40,50 +36,6 @@ class _NotesScreenState extends State<NotesScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _initializeInterstitialAd();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _interstitialAd.dispose();
-  }
-
-  void _initializeInterstitialAd() async {
-    InterstitialAd.load(
-      adUnitId: Secrets.interstitialAdId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          _interstitialAd = ad;
-          setState(() {
-            _isInterstitialLoaded = true;
-          });
-          _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              ad.dispose();
-              _initializeInterstitialAd();
-            },
-            onAdFailedToShowFullScreenContent: (ad, error) {
-              dev.log('Ad failed to show: ${error.message}');
-              ad.dispose();
-              _initializeInterstitialAd();
-            },
-          );
-        },
-        onAdFailedToLoad: (error) {
-          dev.log('Failed to load interstitial ad: ${error.message}');
-          setState(() {
-            _isInterstitialLoaded = false;
-          });
-        },
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -96,14 +48,8 @@ class _NotesScreenState extends State<NotesScreen> {
         actions: [
           if (!isFloatingActionButton)
             IconButton(
-              onPressed: () {
-                if (_isInterstitialLoaded) _interstitialAd.show();
-                Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (_) =>
-                            AddNotesScreen(attendance: widget.attendance)));
-              },
+              onPressed: () => AdManager().navigateWithAd(
+                  context, AddNotesScreen(attendance: widget.attendance)),
               tooltip: 'Add note',
               icon: const Icon(Icons.add_circle_outline_rounded),
             )
@@ -112,14 +58,8 @@ class _NotesScreenState extends State<NotesScreen> {
       bottomNavigationBar: const CustomBannerAd(),
       floatingActionButton: isFloatingActionButton
           ? FloatingActionButton(
-              onPressed: () {
-                if (_isInterstitialLoaded) _interstitialAd.show();
-                Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (_) =>
-                            AddNotesScreen(attendance: widget.attendance)));
-              },
+              onPressed: () => AdManager().navigateWithAd(
+                  context, AddNotesScreen(attendance: widget.attendance)),
               foregroundColor: Colors.white,
               backgroundColor: Colors.blue,
               tooltip: 'Add task',
@@ -141,14 +81,8 @@ class _NotesScreenState extends State<NotesScreen> {
                   ),
                   const SizedBox(height: 10),
                   CustomElevatedButton(
-                    onPressed: () {
-                      if (_isInterstitialLoaded) _interstitialAd.show();
-                      Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (_) => AddNotesScreen(
-                                  attendance: widget.attendance)));
-                    },
+                    onPressed: () => AdManager().navigateWithAd(
+                        context, AddNotesScreen(attendance: widget.attendance)),
                     title: 'Get started',
                   )
                 ],
@@ -165,16 +99,12 @@ class _NotesScreenState extends State<NotesScreen> {
                 final Color randomColor =
                     _colors[Random().nextInt(_colors.length)];
                 return GestureDetector(
-                  onTap: () {
-                    if (_isInterstitialLoaded) _interstitialAd.show();
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (_) => AddNotesScreen(
-                                  attendance: widget.attendance,
-                                  note: widget.notes[index],
-                                )));
-                  },
+                  onTap: () => AdManager().navigateWithAd(
+                      context,
+                      AddNotesScreen(
+                        attendance: widget.attendance,
+                        note: widget.notes[index],
+                      )),
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 15),
                     decoration: BoxDecoration(

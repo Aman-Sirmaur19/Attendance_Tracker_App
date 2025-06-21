@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -6,11 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../main.dart';
-import '../../secrets.dart';
+import '../../services/ad_manager.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../dashboard_screen.dart';
 
@@ -28,8 +26,6 @@ class RoutineScreen extends StatefulWidget {
 
 class _RoutineScreenState extends State<RoutineScreen>
     with SingleTickerProviderStateMixin {
-  bool _isInterstitialLoaded = false;
-  late InterstitialAd _interstitialAd;
   Routine _routine = Routine.photo;
   final ImagePicker _picker = ImagePicker();
   Uint8List? _imageBytes;
@@ -88,48 +84,9 @@ class _RoutineScreenState extends State<RoutineScreen>
   @override
   void initState() {
     super.initState();
-    _initializeInterstitialAd();
     _readRoutineScreenState();
     _loadImage();
     _loadSubjects();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _interstitialAd.dispose();
-  }
-
-  void _initializeInterstitialAd() async {
-    InterstitialAd.load(
-      adUnitId: Secrets.interstitialAdId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          _interstitialAd = ad;
-          setState(() {
-            _isInterstitialLoaded = true;
-          });
-          _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              ad.dispose();
-              _initializeInterstitialAd();
-            },
-            onAdFailedToShowFullScreenContent: (ad, error) {
-              log('Ad failed to show: ${error.message}');
-              ad.dispose();
-              _initializeInterstitialAd();
-            },
-          );
-        },
-        onAdFailedToLoad: (error) {
-          log('Failed to load interstitial ad: ${error.message}');
-          setState(() {
-            _isInterstitialLoaded = false;
-          });
-        },
-      ),
-    );
   }
 
   void _loadSubjects() {
@@ -143,7 +100,6 @@ class _RoutineScreenState extends State<RoutineScreen>
   }
 
   void _onPressedSwitchButton() {
-    if (_isInterstitialLoaded) _interstitialAd.show();
     setState(() {
       if (_routine == Routine.photo) {
         _routine = Routine.weekdays;
@@ -159,10 +115,8 @@ class _RoutineScreenState extends State<RoutineScreen>
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            onPressed: () => Navigator.push(
-                context,
-                CupertinoPageRoute(
-                    builder: (context) => const DashboardScreen())),
+            onPressed: () =>
+                AdManager().navigateWithAd(context, const DashboardScreen()),
             tooltip: 'Dashboard',
             icon: const Icon(CupertinoIcons.square_grid_2x2),
           ),

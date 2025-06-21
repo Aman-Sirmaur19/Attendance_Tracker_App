@@ -1,14 +1,11 @@
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../main.dart';
-import '../../secrets.dart';
 import '../../models/task.dart';
 import '../../utils/dialogs.dart';
+import '../../services/ad_manager.dart';
 import '../../widgets/task_widget.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
@@ -23,53 +20,6 @@ class MyTasksScreen extends StatefulWidget {
 }
 
 class _MyTasksScreenState extends State<MyTasksScreen> {
-  bool _isInterstitialLoaded = false;
-  late InterstitialAd _interstitialAd;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeInterstitialAd();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _interstitialAd.dispose();
-  }
-
-  void _initializeInterstitialAd() async {
-    InterstitialAd.load(
-      adUnitId: Secrets.interstitialAdId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          _interstitialAd = ad;
-          setState(() {
-            _isInterstitialLoaded = true;
-          });
-          _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              ad.dispose();
-              _initializeInterstitialAd();
-            },
-            onAdFailedToShowFullScreenContent: (ad, error) {
-              log('Ad failed to show: ${error.message}');
-              ad.dispose();
-              _initializeInterstitialAd();
-            },
-          );
-        },
-        onAdFailedToLoad: (error) {
-          log('Failed to load interstitial ad: ${error.message}');
-          setState(() {
-            _isInterstitialLoaded = false;
-          });
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final base = BaseWidget.of(context);
@@ -83,10 +33,8 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
-                onPressed: () => Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (context) => const DashboardScreen())),
+                onPressed: () => AdManager()
+                    .navigateWithAd(context, const DashboardScreen()),
                 tooltip: 'Dashboard',
                 icon: const Icon(CupertinoIcons.square_grid_2x2),
               ),
@@ -94,13 +42,8 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
               actions: [
                 if (!isFloatingActionButton)
                   IconButton(
-                    onPressed: () {
-                      if (_isInterstitialLoaded) _interstitialAd.show();
-                      Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (_) => const AddTaskScreen(task: null)));
-                    },
+                    onPressed: () => AdManager().navigateWithAd(
+                        context, const AddTaskScreen(task: null)),
                     tooltip: 'Add task',
                     icon: const Icon(Icons.add_circle_outline_rounded),
                   )
@@ -109,13 +52,8 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
             bottomNavigationBar: const CustomBannerAd(),
             floatingActionButton: isFloatingActionButton
                 ? FloatingActionButton(
-                    onPressed: () {
-                      if (_isInterstitialLoaded) _interstitialAd.show();
-                      Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (_) => const AddTaskScreen(task: null)));
-                    },
+                    onPressed: () => AdManager().navigateWithAd(
+                        context, const AddTaskScreen(task: null)),
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue,
                     tooltip: 'Add task',
@@ -137,14 +75,8 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                         ),
                         const SizedBox(height: 10),
                         CustomElevatedButton(
-                          onPressed: () {
-                            if (_isInterstitialLoaded) _interstitialAd.show();
-                            Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                    builder: (_) =>
-                                        const AddTaskScreen(task: null)));
-                          },
+                          onPressed: () => AdManager().navigateWithAd(
+                              context, const AddTaskScreen(task: null)),
                           title: 'Get started',
                         )
                       ],
@@ -218,11 +150,8 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                               ),
                             ),
                             child: GestureDetector(
-                                onTap: () => Navigator.push(
-                                    context,
-                                    CupertinoPageRoute(
-                                        builder: (_) =>
-                                            AddTaskScreen(task: task))),
+                                onTap: () => AdManager().navigateWithAd(
+                                    context, AddTaskScreen(task: task)),
                                 child: TaskWidget(task: task)));
                       },
                     ),

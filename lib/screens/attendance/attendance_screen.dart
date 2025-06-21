@@ -9,14 +9,15 @@ import 'package:in_app_update/in_app_update.dart';
 import '../../main.dart';
 import '../../utils/dialogs.dart';
 import '../../models/attendance.dart';
+import '../../services/ad_manager.dart';
+import '../../services/notification_service.dart';
 import '../../widgets/chart_bar.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
-import '../../services/notification_service.dart';
-import '../dashboard_screen.dart';
 import '../settings_screen.dart';
-import 'add_attendance_screen.dart';
+import '../dashboard_screen.dart';
 import 'notes_screen.dart';
+import 'add_attendance_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
@@ -76,10 +77,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
-                onPressed: () => Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (context) => const DashboardScreen())),
+                onPressed: () => AdManager()
+                    .navigateWithAd(context, const DashboardScreen()),
                 tooltip: 'Dashboard',
                 icon: const Icon(CupertinoIcons.square_grid_2x2),
               ),
@@ -87,11 +86,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
               actions: [
                 if (!isFloatingActionButton)
                   IconButton(
-                    onPressed: () => Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (_) =>
-                                const AddAttendanceScreen(attendance: null))),
+                    onPressed: () => AdManager().navigateWithAd(
+                        context, const AddAttendanceScreen(attendance: null)),
                     tooltip: 'Add subject',
                     icon: const Icon(Icons.add_circle_outline_rounded),
                   )
@@ -100,11 +96,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             bottomNavigationBar: const CustomBannerAd(),
             floatingActionButton: isFloatingActionButton
                 ? FloatingActionButton(
-                    onPressed: () => Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (_) =>
-                                const AddAttendanceScreen(attendance: null))),
+                    onPressed: () => AdManager().navigateWithAd(
+                        context, const AddAttendanceScreen(attendance: null)),
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue,
                     tooltip: 'Add subject',
@@ -126,11 +119,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                         ),
                         const SizedBox(height: 10),
                         CustomElevatedButton(
-                          onPressed: () => Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                  builder: (_) => const AddAttendanceScreen(
-                                      attendance: null))),
+                          onPressed: () => AdManager().navigateWithAd(context,
+                              const AddAttendanceScreen(attendance: null)),
                           title: 'Get started',
                         ),
                       ],
@@ -343,16 +333,16 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                                     .bold)),
                                                   ),
                                                   IconButton(
-                                                    onPressed: () => Navigator.push(
-                                                        context,
-                                                        CupertinoPageRoute(
-                                                            builder: (_) => NotesScreen(
+                                                    onPressed: () => AdManager()
+                                                        .navigateWithAd(
+                                                            context,
+                                                            NotesScreen(
                                                                 attendance:
                                                                     attendances[
                                                                         index],
                                                                 notes: attendances[
                                                                         index]
-                                                                    .notes))),
+                                                                    .notes)),
                                                     tooltip: 'Sticky Notes',
                                                     icon: Icon(
                                                       CupertinoIcons.doc_on_doc,
@@ -364,14 +354,13 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                     ),
                                                   ),
                                                   IconButton(
-                                                    onPressed: () => Navigator.push(
-                                                        context,
-                                                        CupertinoPageRoute(
-                                                            builder: (_) =>
-                                                                AddAttendanceScreen(
-                                                                    attendance:
-                                                                        attendances[
-                                                                            index]))),
+                                                    onPressed: () => AdManager()
+                                                        .navigateWithAd(
+                                                            context,
+                                                            AddAttendanceScreen(
+                                                                attendance:
+                                                                    attendances[
+                                                                        index])),
                                                     tooltip: 'Edit',
                                                     icon: Icon(
                                                       CupertinoIcons
