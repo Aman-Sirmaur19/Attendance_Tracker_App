@@ -2,13 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../main.dart';
 import '../../utils/dialogs.dart';
 import '../../models/attendance.dart';
 import '../../services/ad_manager.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
+import '../../providers/settings_provider.dart';
 import 'add_notes_screen.dart';
 
 class NotesScreen extends StatefulWidget {
@@ -37,6 +38,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -46,7 +48,7 @@ class _NotesScreenState extends State<NotesScreen> {
         ),
         title: const Text('Sticky Notes'),
         actions: [
-          if (!isFloatingActionButton)
+          if (!settingsProvider.isFloatingActionButton)
             IconButton(
               onPressed: () => AdManager().navigateWithAd(
                   context, AddNotesScreen(attendance: widget.attendance)),
@@ -56,7 +58,7 @@ class _NotesScreenState extends State<NotesScreen> {
         ],
       ),
       bottomNavigationBar: const CustomBannerAd(),
-      floatingActionButton: isFloatingActionButton
+      floatingActionButton: settingsProvider.isFloatingActionButton
           ? FloatingActionButton(
               onPressed: () => AdManager().navigateWithAd(
                   context, AddNotesScreen(attendance: widget.attendance)),

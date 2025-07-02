@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 
 import '../../main.dart';
 import '../../models/task.dart';
@@ -9,6 +10,7 @@ import '../../services/ad_manager.dart';
 import '../../widgets/task_widget.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
+import '../../providers/settings_provider.dart';
 import '../dashboard_screen.dart';
 import 'add_task_screen.dart';
 
@@ -23,7 +25,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
   @override
   Widget build(BuildContext context) {
     final base = BaseWidget.of(context);
-
+    final settingsProvider = Provider.of<SettingsProvider>(context);
     return ValueListenableBuilder(
         valueListenable: base.dataStore.listenToTask(),
         builder: (ctx, Box<Task> box, Widget? child) {
@@ -40,7 +42,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
               ),
               title: const Text('My Tasks'),
               actions: [
-                if (!isFloatingActionButton)
+                if (!settingsProvider.isFloatingActionButton)
                   IconButton(
                     onPressed: () => AdManager().navigateWithAd(
                         context, const AddTaskScreen(task: null)),
@@ -50,7 +52,7 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
               ],
             ),
             bottomNavigationBar: const CustomBannerAd(),
-            floatingActionButton: isFloatingActionButton
+            floatingActionButton: settingsProvider.isFloatingActionButton
                 ? FloatingActionButton(
                     onPressed: () => AdManager().navigateWithAd(
                         context, const AddTaskScreen(task: null)),

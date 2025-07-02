@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -10,6 +11,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../main.dart';
 import '../../services/ad_manager.dart';
 import '../../widgets/custom_banner_ad.dart';
+import '../../providers/settings_provider.dart';
 import '../dashboard_screen.dart';
 
 enum Routine {
@@ -112,6 +114,7 @@ class _RoutineScreenState extends State<RoutineScreen>
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -134,7 +137,8 @@ class _RoutineScreenState extends State<RoutineScreen>
                 color: Colors.deepPurpleAccent,
               ),
             ),
-            if (_routine == Routine.weekdays && !isFloatingActionButton)
+            if (_routine == Routine.weekdays &&
+                !settingsProvider.isFloatingActionButton)
               IconButton(
                 onPressed: () => _addSubject(_pageController.page!.toInt()),
                 tooltip: 'Add routine',
@@ -143,15 +147,15 @@ class _RoutineScreenState extends State<RoutineScreen>
           ],
         ),
         bottomNavigationBar: const CustomBannerAd(),
-        floatingActionButton:
-            (_routine == Routine.weekdays && isFloatingActionButton)
-                ? FloatingActionButton(
-                    onPressed: () => _addSubject(_pageController.page!.toInt()),
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue,
-                    tooltip: 'Add routine',
-                    child: const Icon(Icons.add))
-                : null,
+        floatingActionButton: (_routine == Routine.weekdays &&
+                settingsProvider.isFloatingActionButton)
+            ? FloatingActionButton(
+                onPressed: () => _addSubject(_pageController.page!.toInt()),
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue,
+                tooltip: 'Add routine',
+                child: const Icon(Icons.add))
+            : null,
         body: _routine == Routine.photo
             ? Center(
                 child: Column(

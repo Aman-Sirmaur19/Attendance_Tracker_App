@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../screens/settings_screen.dart';
+import '../providers/settings_provider.dart';
 
 class ChartBar extends StatelessWidget {
   final double fraction;
@@ -9,6 +10,7 @@ class ChartBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
     return LayoutBuilder(
       builder: (ctx, constraints) {
         return SizedBox(
@@ -20,9 +22,9 @@ class ChartBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 1.0,
-                    color: SettingsScreen.selectedColorPair['absent']!,
+                    color: settingsProvider.selectedColorPair['absent']!,
                   ),
-                  color: SettingsScreen.selectedColorPair['absent'],
+                  color: settingsProvider.selectedColorPair['absent'],
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -32,7 +34,7 @@ class ChartBar extends StatelessWidget {
                   widthFactor: fraction,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: SettingsScreen.selectedColorPair['present'],
+                      color: settingsProvider.selectedColorPair['present'],
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),

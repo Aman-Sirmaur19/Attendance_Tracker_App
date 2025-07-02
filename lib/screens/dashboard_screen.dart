@@ -37,7 +37,7 @@ class DashboardScreen extends StatelessWidget {
       body: Column(
         children: [
           const Text(
-            'Version: 1.1.6',
+            'Version: 1.1.7',
             textAlign: TextAlign.center,
             style: TextStyle(
               letterSpacing: 1.5,
@@ -258,7 +258,7 @@ class DashboardScreen extends StatelessWidget {
                         );
                       }),
                   icon: Icons.copyright_rounded,
-                  title: 'Copyright',
+                  title: 'Developer',
                   isFirst: true,
                   isLast: true,
                   context: context,

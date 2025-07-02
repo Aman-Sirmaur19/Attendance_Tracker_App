@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzz;
 import 'package:hive_flutter/hive_flutter.dart';
@@ -9,14 +10,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'utils/theme.dart';
 import 'models/task.dart';
 import 'models/attendance.dart';
-import 'data/hive_data_store.dart';
 import 'screens/tab_screen.dart';
-import 'screens/settings_screen.dart';
+import 'data/hive_data_store.dart';
 import 'services/ad_manager.dart';
 import 'services/notification_service.dart';
+import 'providers/settings_provider.dart';
 
 late Size mq;
-late bool isFloatingActionButton;
 late SharedPreferences prefs;
 
 _initializeMobileAds() async {
@@ -26,14 +26,17 @@ _initializeMobileAds() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
+  );
+
   _initializeMobileAds();
   tzz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
   await NotificationService.init();
+
   prefs = await SharedPreferences.getInstance();
-  isFloatingActionButton = prefs.getBool('FloatingActionButton') ?? false;
 
   // Init Hive DB before runApp()
   await Hive.initFlutter();
@@ -47,9 +50,15 @@ Future<void> main() async {
   await Hive.openBox('routineImageBox');
   await Hive.openBox<Task>(HiveDataStore.taskBoxName);
 
-  // Calls theme settings
-  await SettingsScreen.loadSettings();
-  runApp(BaseWidget(child: const MyApp()));
+  // Load settings from SharedPreferences into provider
+  final settingsProvider = await SettingsProvider.loadFromPrefs(prefs);
+
+  runApp(
+    ChangeNotifierProvider<SettingsProvider>(
+      create: (_) => settingsProvider,
+      child: BaseWidget(child: const MyApp()),
+    ),
+  );
 }
 
 // This inherited widget provides us with a convenient way to pass data between
