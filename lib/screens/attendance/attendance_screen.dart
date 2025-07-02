@@ -2,20 +2,20 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:in_app_update/in_app_update.dart';
 
 import '../../main.dart';
 import '../../utils/dialogs.dart';
 import '../../models/attendance.dart';
+import '../../providers/settings_provider.dart';
 import '../../services/ad_manager.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/chart_bar.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
-import '../../providers/settings_provider.dart';
 import '../dashboard_screen.dart';
 import 'notes_screen.dart';
 import 'add_attendance_screen.dart';
@@ -273,7 +273,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                       alignment: Alignment.centerRight,
                                       margin: const EdgeInsets.only(top: 10),
                                       child: const Icon(
-                                        Icons.delete,
+                                        Icons.delete_rounded,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -365,7 +365,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                             child:
                                                                 CircularProgressIndicator(
                                                               value: 1,
-                                                              strokeWidth: 1,
+                                                              strokeWidth: .5,
                                                               color: required >
                                                                       0
                                                                   ? Colors.red
@@ -437,18 +437,11 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                             NotesScreen(
                                                                 attendance:
                                                                     attendances[
-                                                                        index],
-                                                                notes: attendances[
-                                                                        index]
-                                                                    .notes)),
+                                                                        index])),
                                                     tooltip: 'Sticky Notes',
-                                                    icon: Icon(
-                                                      CupertinoIcons.doc_on_doc,
-                                                      color: Theme.of(context)
-                                                                  .brightness ==
-                                                              Brightness.light
-                                                          ? Colors.green
-                                                          : Colors.lightGreen,
+                                                    icon: Image.asset(
+                                                      'assets/images/sticky-notes.png',
+                                                      width: 25,
                                                     ),
                                                   ),
                                                   IconButton(
@@ -460,11 +453,11 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                                     attendances[
                                                                         index])),
                                                     tooltip: 'Edit',
-                                                    icon: Icon(
+                                                    icon: const Icon(
                                                       CupertinoIcons
-                                                          .pencil_outline,
-                                                      color:
-                                                          Colors.blue.shade600,
+                                                          .pencil_ellipsis_rectangle,
+                                                      size: 25,
+                                                      color: Colors.lightBlue,
                                                     ),
                                                   ),
                                                 ],
