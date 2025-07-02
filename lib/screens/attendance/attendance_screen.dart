@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import 'package:in_app_update/in_app_update.dart';
 
 import '../../main.dart';
@@ -14,7 +15,7 @@ import '../../services/notification_service.dart';
 import '../../widgets/chart_bar.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
-import '../settings_screen.dart';
+import '../../providers/settings_provider.dart';
 import '../dashboard_screen.dart';
 import 'notes_screen.dart';
 import 'add_attendance_screen.dart';
@@ -69,6 +70,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   @override
   Widget build(BuildContext context) {
     final base = BaseWidget.of(context);
+    final settingsProvider = Provider.of<SettingsProvider>(context);
     return ValueListenableBuilder(
         valueListenable: base.dataStore.listenToAttendance(),
         builder: (ctx, Box<Attendance> box, Widget? child) {
@@ -84,7 +86,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
               ),
               title: const Text('Attendance Tracker'),
               actions: [
-                if (!isFloatingActionButton)
+                if (!settingsProvider.isFloatingActionButton)
                   IconButton(
                     onPressed: () => AdManager().navigateWithAd(
                         context, const AddAttendanceScreen(attendance: null)),
@@ -94,7 +96,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
               ],
             ),
             bottomNavigationBar: const CustomBannerAd(),
-            floatingActionButton: isFloatingActionButton
+            floatingActionButton: settingsProvider.isFloatingActionButton
                 ? FloatingActionButton(
                     onPressed: () => AdManager().navigateWithAd(
                         context, const AddAttendanceScreen(attendance: null)),
@@ -286,37 +288,133 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                       child: Container(
                                         margin: const EdgeInsets.only(top: 8),
                                         decoration: BoxDecoration(
+                                          border: Border.all(
+                                              width: .5,
+                                              color: required > 0
+                                                  ? Colors.red
+                                                  : miss >= 1
+                                                      ? Colors.lightGreen
+                                                      : Colors.amber),
                                           borderRadius:
                                               BorderRadius.circular(20),
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primaryContainer,
+                                          color: required > 0
+                                              ? Colors.red.withOpacity(.075)
+                                              : miss >= 1
+                                                  ? Colors.lightGreen
+                                                      .withOpacity(.075)
+                                                  : Colors.amber
+                                                      .withOpacity(.075),
                                         ),
                                         child: Column(
                                           children: [
                                             ListTile(
-                                              leading: total == 0
-                                                  ? Image.asset(
-                                                      'assets/images/owl.png')
-                                                  : CircleAvatar(
-                                                      radius: mq.width * .07,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .primary,
-                                                      child: FittedBox(
-                                                          child: Text(
-                                                        '${percentage.floor().toStringAsFixed(0)}%',
-                                                        style: TextStyle(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .secondary,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      )),
-                                                    ),
+                                              leading:
+                                                  TweenAnimationBuilder<double>(
+                                                tween: Tween(
+                                                    begin: 0.0,
+                                                    end: percentage / 100),
+                                                duration: const Duration(
+                                                    milliseconds: 500),
+                                                builder:
+                                                    (context, value, child) =>
+                                                        Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    settingsProvider
+                                                                .showCircularIndicator &&
+                                                            total != 0
+                                                        ? SizedBox(
+                                                            width:
+                                                                mq.width * .14,
+                                                            height:
+                                                                mq.width * .14,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              value: (value
+                                                                          .isNaN ||
+                                                                      value
+                                                                          .isInfinite)
+                                                                  ? 0.0
+                                                                  : value.clamp(
+                                                                      0.0, 1.0),
+                                                              strokeWidth: 7,
+                                                              strokeCap:
+                                                                  StrokeCap
+                                                                      .round,
+                                                              strokeAlign:
+                                                                  BorderSide
+                                                                      .strokeAlignOutside,
+                                                              backgroundColor:
+                                                                  settingsProvider
+                                                                          .selectedColorPair[
+                                                                      'absent'],
+                                                              valueColor:
+                                                                  AlwaysStoppedAnimation<
+                                                                      Color>(
+                                                                settingsProvider
+                                                                        .selectedColorPair[
+                                                                    'present']!,
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : SizedBox(
+                                                            width:
+                                                                mq.width * .14,
+                                                            height:
+                                                                mq.width * .14,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              value: 1,
+                                                              strokeWidth: 1,
+                                                              color: required >
+                                                                      0
+                                                                  ? Colors.red
+                                                                  : miss >= 1
+                                                                      ? Colors
+                                                                          .lightGreen
+                                                                      : Colors
+                                                                          .amber,
+                                                            ),
+                                                          ),
+                                                    total == 0
+                                                        ? CircleAvatar(
+                                                            backgroundColor:
+                                                                Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .background,
+                                                            radius: 25,
+                                                            backgroundImage:
+                                                                const AssetImage(
+                                                                    'assets/images/owl.png'),
+                                                          )
+                                                        : CircleAvatar(
+                                                            radius:
+                                                                mq.width * .07,
+                                                            backgroundColor:
+                                                                Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .background,
+                                                            child: FittedBox(
+                                                              child: Text(
+                                                                '${percentage.floor().toStringAsFixed(0)}%',
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .secondary,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                  ],
+                                                ),
+                                              ),
                                               title: Row(
                                                 children: [
                                                   Expanded(
@@ -383,83 +481,26 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                           MainAxisAlignment
                                                               .spaceBetween,
                                                       children: [
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      4),
-                                                          decoration: BoxDecoration(
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5)),
-                                                          child: Text(
+                                                        _customContainer(
+                                                          title:
                                                               'Attended: ${attendances[index].present}',
-                                                              style: TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: SettingsScreen
-                                                                          .selectedColorPair[
-                                                                      'present'])),
+                                                          key: 'present',
                                                         ),
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      4),
-                                                          decoration: BoxDecoration(
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5)),
-                                                          child: Text(
+                                                        _customContainer(
+                                                          title:
                                                               'Missed: ${attendances[index].absent}',
-                                                              style: TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: SettingsScreen
-                                                                          .selectedColorPair[
-                                                                      'absent'])),
+                                                          key: 'absent',
                                                         ),
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      4),
-                                                          decoration: BoxDecoration(
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .colorScheme
-                                                                  .primary,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5)),
-                                                          child: Text(
+                                                        _customContainer(
+                                                          title:
                                                               'Req.: ${attendances[index].requirement} %',
-                                                              style: const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .blueGrey)),
+                                                          key: 'required',
                                                         ),
                                                       ],
                                                     ),
-                                                    if (total != 0)
+                                                    if (total != 0 &&
+                                                        !settingsProvider
+                                                            .showCircularIndicator)
                                                       Padding(
                                                         padding:
                                                             EdgeInsets.only(
@@ -532,10 +573,11 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                                             EdgeInsets.only(
                                                                 top: mq.height *
                                                                     .005),
-                                                        child: const Text(
+                                                        child: Text(
                                                           "Can't miss any class",
                                                           style: TextStyle(
-                                                            color: Colors.red,
+                                                            color: Colors
+                                                                .amber.shade700,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -750,6 +792,23 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
         ),
       ],
+    );
+  }
+
+  Widget _customContainer({required String title, required String key}) {
+    final settingsProvider =
+        Provider.of<SettingsProvider>(context, listen: false);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.circular(5)),
+      child: Text(title,
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: key == 'required'
+                  ? Colors.blueGrey
+                  : settingsProvider.selectedColorPair[key])),
     );
   }
 }
