@@ -37,7 +37,7 @@ class DashboardScreen extends StatelessWidget {
       body: Column(
         children: [
           const Text(
-            'Version: 1.1.7',
+            'Version: 1.1.8',
             textAlign: TextAlign.center,
             style: TextStyle(
               letterSpacing: 1.5,
@@ -48,7 +48,6 @@ class DashboardScreen extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-              physics: const BouncingScrollPhysics(),
               children: [
                 ListTile(
                   tileColor: Theme.of(context).colorScheme.primary,
@@ -280,6 +279,23 @@ class DashboardScreen extends StatelessWidget {
                   isFirst: true,
                   isLast: true,
                 ),
+                const SizedBox(height: 10),
+                _customListTile(
+                  onTap: () async {
+                    const url =
+                        'https://play.google.com/store/apps/details?id=com.sirmaur.habito';
+                    _launchInBrowser(context, Uri.parse(url));
+                  },
+                  tileColor: Colors.deepPurpleAccent,
+                  imageUrl:
+                      'https://play-lh.googleusercontent.com/6pVzCQ-zskiVRkDHCfplR_2JNIUgotMHc_5wGG3EsQR9maMJeIoIhWjpkk4qyR_-UZ5a=w480-h960-rw',
+                  title: 'HabitO - Habit Tracker',
+                  subtitle:
+                      'Track your daily habits on beautiful colorful heatmap.',
+                  context: context,
+                  isFirst: true,
+                  isLast: true,
+                ),
               ],
             ),
           ),
@@ -336,8 +352,8 @@ class DashboardScreen extends StatelessWidget {
       title: Text(
         title,
         style: subtitle != null
-            ? const TextStyle(
-                color: Colors.black,
+            ? TextStyle(
+                color: title.contains('Geeta') ? Colors.black : Colors.white,
                 fontWeight: FontWeight.bold,
               )
             : null,
@@ -345,7 +361,8 @@ class DashboardScreen extends StatelessWidget {
       subtitle: subtitle != null
           ? Text(
               subtitle,
-              style: const TextStyle(color: Colors.black),
+              style: TextStyle(
+                  color: title.contains('Geeta') ? Colors.black : Colors.white),
             )
           : null,
       trailing: subtitle == null
