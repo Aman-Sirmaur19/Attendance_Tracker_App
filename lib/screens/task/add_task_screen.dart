@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../main.dart';
 import '../../models/task.dart';
 import '../../utils/dialogs.dart';
+import '../../widgets/custom_text.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_text_form_field.dart';
 
@@ -124,7 +125,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            _customText('What\'s your plan?'),
+            const CustomText(text: 'What\'s your plan?'),
             const SizedBox(height: 5),
             CustomTextFormField(
               controller: _titleController,
@@ -134,7 +135,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               },
             ),
             const SizedBox(height: 20),
-            _customText('Provide a brief description'),
+            const CustomText(text: 'Provide a brief description'),
             const SizedBox(height: 5),
             CustomTextFormField(
               controller: _descriptionController,
@@ -144,11 +145,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               },
             ),
             const SizedBox(height: 20),
-            _customText('Set time for the task'),
+            const CustomText(text: 'Set time for the task'),
             const SizedBox(height: 5),
             _customDateTimePickerContainer('Time', CupertinoIcons.time),
             const SizedBox(height: 20),
-            _customText('Set date for the task'),
+            const CustomText(text: 'Set date for the task'),
             const SizedBox(height: 5),
             _customDateTimePickerContainer('Date', CupertinoIcons.calendar),
             const SizedBox(height: 15),
@@ -223,17 +224,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _customText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 15,
-        color: Colors.grey,
-        fontWeight: FontWeight.w600,
       ),
     );
   }

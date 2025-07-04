@@ -43,6 +43,7 @@ class CustomTextFormField extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Colors.lightBlue),
         ),
+        contentPadding: EdgeInsets.zero,
       ),
     );
   }

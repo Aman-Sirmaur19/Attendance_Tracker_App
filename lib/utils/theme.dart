@@ -48,6 +48,7 @@ ThemeData lightMode = ThemeData(
     tertiary: Colors.grey,
     primaryContainer: Color(0xFFE5E5E4),
     secondaryContainer: Colors.black54,
+    tertiaryContainer: Colors.white,
   ),
   textSelectionTheme: TextSelectionThemeData(
     cursorColor: Colors.blue,
@@ -114,6 +115,7 @@ ThemeData darkMode = ThemeData(
     tertiary: Colors.grey.shade600,
     primaryContainer: const Color(0xFF1C1C1F),
     secondaryContainer: const Color(0xFF636366),
+    tertiaryContainer: const Color(0xFF636366),
   ),
   textSelectionTheme: TextSelectionThemeData(
     cursorColor: Colors.blue,

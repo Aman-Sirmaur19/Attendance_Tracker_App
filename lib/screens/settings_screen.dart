@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../main.dart';
 import '../utils/dialogs.dart';
+import '../widgets/custom_text.dart';
 import '../widgets/custom_banner_ad.dart';
 import '../providers/settings_provider.dart';
 
@@ -48,8 +49,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: const Icon(Icons.add))
           : null,
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         children: [
+          const CustomText(text: 'UI settings'),
+          const SizedBox(height: 5),
           SwitchListTile(
             tileColor: Theme.of(context).colorScheme.primaryContainer,
             shape:

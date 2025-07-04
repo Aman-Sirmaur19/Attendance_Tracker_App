@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/dialogs.dart';
 import '../../models/attendance.dart';
+import '../../widgets/custom_text.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_text_form_field.dart';
 
@@ -99,7 +100,7 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
         body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           children: [
-            _customText('Enter title'),
+            const CustomText(text: 'Enter title'),
             const SizedBox(height: 5),
             CustomTextFormField(
               controller: _titleController,
@@ -109,7 +110,7 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
               },
             ),
             const SizedBox(height: 20),
-            _customText('Enter description'),
+            const CustomText(text: 'Enter description'),
             const SizedBox(height: 5),
             CustomTextFormField(
               controller: _descriptionController,
@@ -135,17 +136,6 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _customText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 15,
-        color: Colors.grey,
-        fontWeight: FontWeight.w600,
       ),
     );
   }
