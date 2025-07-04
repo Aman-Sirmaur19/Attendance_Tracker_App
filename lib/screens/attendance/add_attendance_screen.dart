@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../../utils/dialogs.dart';
 import '../../models/attendance.dart';
-import '../../services/notification_service.dart';
+import '../../widgets/custom_text.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_text_form_field.dart';
+import '../../services/notification_service.dart';
 
 class AddAttendanceScreen extends StatefulWidget {
   const AddAttendanceScreen({super.key, required this.attendance});
@@ -22,15 +23,16 @@ class AddAttendanceScreen extends StatefulWidget {
 class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   bool _isDropdownOpen = false;
   final TextEditingController _subjectController = TextEditingController();
-  int attended = 0;
-  int missed = 0;
-  int required = 75;
-  late Map<String, String?> schedules;
+  int _attended = 0;
+  int _missed = 0;
+  int _required = 75;
+  bool _isLab = false;
+  late Map<String, String?> _schedules;
 
   @override
   void initState() {
     super.initState();
-    schedules = {
+    _schedules = {
       'Monday': null,
       'Tuesday': null,
       'Wednesday': null,
@@ -40,10 +42,11 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
     };
     if (widget.attendance != null) {
       _subjectController.text = widget.attendance!.subject;
-      attended = widget.attendance!.present;
-      missed = widget.attendance!.absent;
-      required = widget.attendance!.requirement;
-      schedules = widget.attendance!.schedules;
+      _attended = widget.attendance!.present;
+      _missed = widget.attendance!.absent;
+      _required = widget.attendance!.requirement;
+      _schedules = widget.attendance!.schedules;
+      _isLab = widget.attendance!.isLab!;
     }
   }
 
@@ -69,10 +72,11 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
         widget.attendance != null) {
       try {
         widget.attendance?.subject = _subjectController.text.trim();
-        widget.attendance?.present = attended;
-        widget.attendance?.absent = missed;
-        widget.attendance?.requirement = required;
-        widget.attendance?.schedules = schedules;
+        widget.attendance?.present = _attended;
+        widget.attendance?.absent = _missed;
+        widget.attendance?.requirement = _required;
+        widget.attendance?.schedules = _schedules;
+        widget.attendance?.isLab = _isLab;
         widget.attendance?.save();
         await NotificationService.setNotificationsForAttendance(
             widget.attendance!);
@@ -84,12 +88,13 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
     } else if (_subjectController.text.trim().isNotEmpty) {
       var attendance = Attendance.create(
         subject: _subjectController.text.trim(),
-        present: attended,
-        absent: missed,
-        requirement: required,
+        present: _attended,
+        absent: _missed,
+        requirement: _required,
         createdAt: DateTime.now().toString(),
-        schedules: schedules,
+        schedules: _schedules,
         notes: [],
+        isLab: _isLab,
       );
       // We are adding this new attendance to Hive DB using inherited widget
       BaseWidget.of(context).dataStore.addAttendance(attendance: attendance);
@@ -137,7 +142,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            _customText('Enter subject'),
+            const CustomText(text: 'Enter subject'),
             const SizedBox(height: 5),
             CustomTextFormField(
               controller: _subjectController,
@@ -147,19 +152,71 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
               },
             ),
             const SizedBox(height: 20),
-            _customText('Enter the no. of classes attended'),
-            const SizedBox(height: 5),
-            _customCounterContainer(title: 'Attended', number: attended),
+            const CustomText(text: 'Is this a Lab subject?'),
+            const SizedBox(height: 4),
+            Container(
+              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(.4)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  RichText(
+                      text: const TextSpan(
+                    text: 'Lab subject\n',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontFamily: 'Fredoka',
+                      color: Colors.lightGreen,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: 'Turn on if this is a Lab subject',
+                        style: TextStyle(
+                          fontSize: 13,
+                          letterSpacing: .75,
+                          color: Colors.grey,
+                          fontFamily: 'Fredoka',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    ],
+                  )),
+                  Switch(
+                    value: _isLab,
+                    activeColor: Colors.lightGreen,
+                    onChanged: (value) {
+                      setState(() {
+                        _isLab = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 20),
-            _customText('Enter the no. of classes missed'),
+            const CustomText(text: 'Enter the no. of classes attended'),
             const SizedBox(height: 5),
-            _customCounterContainer(title: 'Missed', number: missed),
+            _customCounterContainer(title: 'Attended', number: _attended),
             const SizedBox(height: 20),
-            _customText('Enter the % of classes required'),
+            const CustomText(text: 'Enter the no. of classes missed'),
             const SizedBox(height: 5),
-            _customCounterContainer(title: 'Required', number: required),
+            _customCounterContainer(title: 'Missed', number: _missed),
             const SizedBox(height: 20),
-            _customText('Set weekly schedules for push notifications 🔔'),
+            const CustomText(text: 'Enter the % of classes required'),
+            const SizedBox(height: 5),
+            _customCounterContainer(title: 'Required', number: _required),
+            const SizedBox(height: 20),
+            const CustomText(
+                text: 'Set weekly schedules for push notifications 🔔'),
             const SizedBox(height: 5),
             _customColumn(),
             const SizedBox(height: 15),
@@ -237,20 +294,9 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
     );
   }
 
-  Widget _customText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 15,
-        color: Colors.grey,
-        fontWeight: FontWeight.w600,
-      ),
-    );
-  }
-
   Widget _customCounterContainer({required String title, required int number}) {
     return Container(
-      height: 60,
+      height: 50,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border.all(
@@ -291,12 +337,12 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
               IconButton(
                 onPressed: () {
                   setState(() {
-                    if (title == 'Attended' && attended != 0) {
-                      attended--;
-                    } else if (title == 'Missed' && missed != 0) {
-                      missed--;
-                    } else if ((title == 'Required' && required != 0)) {
-                      required -= 5;
+                    if (title == 'Attended' && _attended != 0) {
+                      _attended--;
+                    } else if (title == 'Missed' && _missed != 0) {
+                      _missed--;
+                    } else if ((title == 'Required' && _required != 0)) {
+                      _required -= 5;
                     }
                   });
                 },
@@ -313,10 +359,10 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                 child: Center(
                   child: Text(
                     title == 'Attended'
-                        ? '$attended'
+                        ? '$_attended'
                         : title == 'Missed'
-                            ? '$missed'
-                            : '$required %',
+                            ? '$_missed'
+                            : '$_required %',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 15),
                   ),
@@ -326,11 +372,11 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                 onPressed: () {
                   setState(() {
                     if (title == 'Attended') {
-                      attended++;
+                      _attended++;
                     } else if (title == 'Missed') {
-                      missed++;
-                    } else if (title == 'Required' && required < 100) {
-                      required += 5;
+                      _missed++;
+                    } else if (title == 'Required' && _required < 100) {
+                      _required += 5;
                     }
                   });
                 },
@@ -387,7 +433,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
           ),
         ),
         if (_isDropdownOpen)
-          ...schedules.keys.map((day) {
+          ..._schedules.keys.map((day) {
             return ListTile(
               title: Text(
                 day,
@@ -396,9 +442,9 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              trailing: schedules[day] != null
+              trailing: _schedules[day] != null
                   ? Text(
-                      schedules[day]!,
+                      _schedules[day]!,
                       style: const TextStyle(color: Colors.blue, fontSize: 15),
                     )
                   : const Text(
@@ -412,7 +458,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                 );
                 setState(() {
                   if (localTime != null) {
-                    schedules[day] = localTime.format(context);
+                    _schedules[day] = localTime.format(context);
                   }
                 });
               },

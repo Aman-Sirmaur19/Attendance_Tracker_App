@@ -14,6 +14,7 @@ class Attendance extends HiveObject {
   String createdAt;
   Map<String, String?> schedules;
   List<Map<String, dynamic>> notes;
+  bool? isLab;
 
   Attendance({
     @HiveField(0) required this.id,
@@ -25,6 +26,7 @@ class Attendance extends HiveObject {
     @HiveField(6) required this.createdAt,
     @HiveField(7) required this.schedules,
     @HiveField(8) required this.notes,
+    @HiveField(9) this.isLab,
   });
 
   // create new attendance
@@ -37,6 +39,7 @@ class Attendance extends HiveObject {
     String? createdAt,
     Map<String, String?>? schedules,
     List<Map<String, dynamic>>? notes,
+    bool? isLab,
   }) =>
       Attendance(
         id: const Uuid().v1(),
@@ -48,5 +51,21 @@ class Attendance extends HiveObject {
         createdAt: createdAt ?? DateTime.now().toString(),
         schedules: schedules ?? {},
         notes: notes ?? [],
+        isLab: isLab ?? false,
       );
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'time': time,
+      'subject': subject,
+      'present': present,
+      'absent': absent,
+      'requirement': requirement,
+      'createdAt': createdAt,
+      'schedules': schedules,
+      'notes': notes,
+      'isLab': isLab,
+    };
+  }
 }
