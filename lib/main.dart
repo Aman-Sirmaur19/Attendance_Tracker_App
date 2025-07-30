@@ -19,7 +19,7 @@ import 'providers/settings_provider.dart';
 late Size mq;
 late SharedPreferences prefs;
 
-_initializeMobileAds() async {
+Future<void> _initializeMobileAds() async {
   await MobileAds.instance.initialize();
   AdManager().initialize();
 }
@@ -65,7 +65,7 @@ Future<void> main() async {
 // widgets. While developing an app we will need some data from parent's widgets
 // or grant parent widgets or maybe beyond that.
 class BaseWidget extends InheritedWidget {
-  BaseWidget({Key? key, required this.child}) : super(key: key, child: child);
+  BaseWidget({super.key, required this.child}) : super(child: child);
 
   final HiveDataStore dataStore = HiveDataStore();
   final Widget child;

@@ -37,7 +37,7 @@ class DashboardScreen extends StatelessWidget {
       body: Column(
         children: [
           const Text(
-            'Version: 1.1.9',
+            'Version: 1.2.0',
             textAlign: TextAlign.center,
             style: TextStyle(
               letterSpacing: 1.5,
@@ -129,8 +129,10 @@ class DashboardScreen extends StatelessWidget {
                   onTap: () async {
                     const String appUrl =
                         'https://play.google.com/store/apps/details?id=com.sirmaur.attendance_tracker';
-                    Share.share(
-                        'Check out this awesome Attendance Tracker app:\n\n$appUrl');
+                    SharePlus.instance.share(ShareParams(
+                      title: 'Check out this awesome Attendance Tracker app',
+                      uri: Uri.parse(appUrl),
+                    ));
                   },
                   icon: CupertinoIcons.share,
                   title: 'Share with friends',
@@ -342,9 +344,9 @@ class DashboardScreen extends StatelessWidget {
                 width: 45,
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(
-                    Icons.broken_image_rounded,
+                    Icons.android_rounded,
                     size: 45,
-                    color: Colors.white,
+                    color: Colors.lightGreen,
                   );
                 },
               ))

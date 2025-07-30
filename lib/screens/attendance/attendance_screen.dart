@@ -419,7 +419,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                           total == 0
                               ? CircleAvatar(
                                   backgroundColor:
-                                      Theme.of(context).colorScheme.background,
+                                      Theme.of(context).colorScheme.surface,
                                   radius: 25,
                                   backgroundImage:
                                       const AssetImage('assets/images/owl.png'),
@@ -427,7 +427,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                               : CircleAvatar(
                                   radius: 25,
                                   backgroundColor:
-                                      Theme.of(context).colorScheme.background,
+                                      Theme.of(context).colorScheme.surface,
                                   child: FittedBox(
                                     child: Text(
                                       '${percentage.floor().toStringAsFixed(0)}%',

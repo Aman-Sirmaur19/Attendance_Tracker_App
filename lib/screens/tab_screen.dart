@@ -22,7 +22,7 @@ class _TabScreenState extends State<TabScreen> {
     _pages = [
       {'page': const AttendanceScreen()},
       {'page': const RoutineScreen()},
-      {'page': const MyTasksScreen()}
+      {'page': const MyTasksScreen()},
     ];
   }
 
