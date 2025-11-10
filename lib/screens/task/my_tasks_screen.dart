@@ -11,7 +11,7 @@ import '../../widgets/task_widget.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
 import '../../providers/settings_provider.dart';
-import '../dashboard_screen.dart';
+import '../dashboard/dashboard_screen.dart';
 import 'add_task_screen.dart';
 
 class MyTasksScreen extends StatefulWidget {
@@ -63,25 +63,28 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                 : null,
             body: tasks.isEmpty
                 ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset('assets/images/to-do-list.png', width: 150),
-                        const Text(
-                          'Plan your work,\nAnd work your plan!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/images/to-do-list.png',
+                              width: 150),
+                          const Text(
+                            'Plan your work,\nAnd work your plan!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        CustomElevatedButton(
-                          onPressed: () => AdManager().navigateWithAd(
-                              context, const AddTaskScreen(task: null)),
-                          title: 'Get started',
-                        )
-                      ],
+                          const SizedBox(height: 10),
+                          CustomElevatedButton(
+                            onPressed: () => AdManager().navigateWithAd(
+                                context, const AddTaskScreen(task: null)),
+                            title: 'Get started',
+                          )
+                        ],
+                      ),
                     ),
                   )
                 : Padding(

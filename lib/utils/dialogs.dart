@@ -8,7 +8,7 @@ class Dialogs {
         content: Text(msg,
             style: const TextStyle(color: Colors.white, letterSpacing: 1)),
         backgroundColor: Colors.red.shade800,
-        duration: const Duration(seconds: 1),
+        duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
       ),
     );

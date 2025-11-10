@@ -5,10 +5,14 @@ class CustomTextFormField extends StatelessWidget {
     super.key,
     required this.controller,
     required this.hintText,
-    required this.onFieldSubmitted,
+    this.focusNode,
+    this.onChanged,
+    this.onFieldSubmitted,
   });
 
   final TextEditingController? controller;
+  final FocusNode? focusNode;
+  final Function(String)? onChanged;
   final Function(String)? onFieldSubmitted;
 
   final String hintText;
@@ -17,8 +21,11 @@ class CustomTextFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      onFieldSubmitted: onFieldSubmitted,
+      focusNode: focusNode,
       cursorColor: Colors.blue,
+      onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
+      maxLines: hintText == 'Description' || hintText == 'Add note' ? null : 1,
       style: const TextStyle(
           fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1),
       decoration: InputDecoration(
