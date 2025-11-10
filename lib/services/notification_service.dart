@@ -1,6 +1,7 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../main.dart';
 import '../models/attendance.dart';
 
 class NotificationService {
@@ -34,6 +35,7 @@ class NotificationService {
     required String title,
     required String body,
     required DateTime scheduledTime,
+    required int minutesBefore,
   }) async {
     final notificationId = scheduledTime.hashCode;
     const NotificationDetails platformChannelSpecifics = NotificationDetails(
@@ -48,7 +50,7 @@ class NotificationService {
       title,
       body,
       tz.TZDateTime.from(scheduledTime, tz.local)
-          .subtract(const Duration(hours: 1)),
+          .subtract(Duration(minutes: minutesBefore)),
       platformChannelSpecifics,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
@@ -59,6 +61,7 @@ class NotificationService {
 
   static Future<void> setNotificationsForAttendance(
       Attendance attendance) async {
+    final minutesBefore = prefs.getInt('NotificationOffsetMinutes') ?? 60;
     for (var entry in attendance.schedules.entries) {
       final day = entry.key; // e.g., "Monday"
       final timeString = entry.value; // e.g., "10:30 AM"
@@ -100,16 +103,17 @@ class NotificationService {
 
         String missClass = miss.toStringAsFixed(0);
         String title = miss >= 2
-            ? 'You can miss $missClass classes'
+            ? 'You can miss $missClass ${attendance.subject} classes'
             : miss >= 1
-                ? 'You can miss $missClass class'
-                : 'Don\'t forget to attend';
-        String body = 'You have ${attendance.subject} class in 1 hour.';
-
+                ? 'You can miss $missClass ${attendance.subject} class'
+                : 'Don\'t forget to attend ${attendance.subject} class';
+        String body =
+            'You have ${attendance.subject} class in ${minutesBefore == 60 ? '1 hour.' : minutesBefore > 60 ? '${(minutesBefore / 60).toInt()} hours.' : '$minutesBefore minutes.'}';
         await NotificationService.scheduleNotification(
           title: title,
           body: body,
           scheduledTime: scheduleTime,
+          minutesBefore: minutesBefore,
         );
       }
     }

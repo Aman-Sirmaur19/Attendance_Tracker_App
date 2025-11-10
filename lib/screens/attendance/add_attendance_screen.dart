@@ -71,6 +71,11 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
     if (_subjectController.text.trim().isNotEmpty &&
         widget.attendance != null) {
       try {
+        if (widget.attendance?.present != _attended ||
+            widget.attendance?.absent != _missed ||
+            widget.attendance?.requirement != _required) {
+          widget.attendance?.time = DateTime.now().toString();
+        }
         widget.attendance?.subject = _subjectController.text.trim();
         widget.attendance?.present = _attended;
         widget.attendance?.absent = _missed;
@@ -391,6 +396,7 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
   }
 
   Widget _customColumn() {
+    final minutesBefore = prefs.getInt('NotificationOffsetMinutes') ?? 60;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -414,12 +420,25 @@ class _AddAttendanceScreenState extends State<AddAttendanceScreen> {
                 const SizedBox(width: 10),
                 Icon(Icons.alarm_rounded, color: Colors.amber.shade400),
                 const SizedBox(width: 12),
-                Text(
-                  'Routine',
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.amber.shade400,
+                RichText(
+                  text: TextSpan(
+                    text: 'Routine',
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontFamily: 'Fredoka',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber.shade400,
+                    ),
+                    children: [
+                      TextSpan(
+                        text:
+                            '\nNotification will be sent ${minutesBefore == 60 ? '1 hour' : minutesBefore > 60 ? '${(minutesBefore / 60).toInt()} hours' : '$minutesBefore minutes'} before',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.amber,
+                        ),
+                      )
+                    ],
                   ),
                 ),
                 const Spacer(),
