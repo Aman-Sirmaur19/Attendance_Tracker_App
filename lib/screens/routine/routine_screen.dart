@@ -3,18 +3,20 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:provider/provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../main.dart';
+import '../../utils/dialogs.dart';
+import '../../models/routine.dart';
 import '../../services/ad_manager.dart';
+import '../../data/hive_data_store.dart';
 import '../../widgets/custom_banner_ad.dart';
-import '../../providers/settings_provider.dart';
-import '../dashboard_screen.dart';
+import '../../widgets/custom_text_form_field.dart';
+import '../dashboard/dashboard_screen.dart';
 
-enum Routine {
+enum RoutineType {
   photo,
   weekdays,
 }
@@ -28,25 +30,78 @@ class RoutineScreen extends StatefulWidget {
 
 class _RoutineScreenState extends State<RoutineScreen>
     with SingleTickerProviderStateMixin {
-  Routine _routine = Routine.photo;
+  RoutineType _routineType = RoutineType.photo;
+  late List<String> _timeSlots;
+  final Map<String, Color> _subjectColorMap = {};
   final ImagePicker _picker = ImagePicker();
-  Uint8List? _imageBytes;
-  final Box _routineBox = Hive.box('routineImageBox');
-  final PageController _pageController =
-      PageController(initialPage: DateTime.now().weekday - 1);
-  List<String> daysOfWeek = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
+  final Box<Uint8List> _routineImageBox =
+      Hive.box<Uint8List>('routineImageBox');
+  final List<Uint8List?> _routineImages = [null, null];
+  final PageController _pageController = PageController();
+  final List<String> _weekdays = [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun"
   ];
-  List<List<String>> subjects = List.generate(7, (_) => []);
+
+  // Master list of all available slots
+  final List<String> _defaultSlots = [
+    "6 AM",
+    "7 AM",
+    "8 AM",
+    "9 AM",
+    "10 AM",
+    "11 AM",
+    "12 PM",
+    "1 PM",
+    "2 PM",
+    "3 PM",
+    "4 PM",
+    "5 PM",
+    "6 PM",
+    "7 PM",
+    "8 PM",
+  ];
+
+  final List<Color> _availableColors = [
+    Colors.red,
+    Colors.amber,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.deepPurpleAccent,
+    Colors.lightGreen,
+    Colors.pink,
+    Colors.cyan,
+    Colors.teal,
+    Colors.deepOrangeAccent,
+    Colors.purple,
+    Colors.lime,
+    Colors.indigo,
+  ];
+
+  Color _getColorForSubject(String subject) {
+    if (subject.isEmpty) return Colors.transparent;
+    final key = subject.toLowerCase();
+    if (_subjectColorMap.containsKey(key)) return _subjectColorMap[key]!;
+    final color =
+        _availableColors[_subjectColorMap.length % _availableColors.length];
+    _subjectColorMap[key] = color;
+    return color;
+  }
+
+  Color _getTextColor(Color background) {
+    return ThemeData.estimateBrightnessForColor(background) == Brightness.dark
+        ? Colors.white
+        : Colors.black;
+  }
 
   void _saveRoutineScreenState() {
-    bool isPhoto = _routine == Routine.photo;
+    bool isPhoto = _routineType == RoutineType.photo;
     prefs.setBool('PhotoOrWeekday', isPhoto);
   }
 
@@ -54,134 +109,404 @@ class _RoutineScreenState extends State<RoutineScreen>
     bool? isPhoto = prefs.getBool('PhotoOrWeekday') ?? true;
     if (isPhoto) {
       setState(() {
-        _routine = Routine.photo;
+        _routineType = RoutineType.photo;
       });
     } else {
-      _routine = Routine.weekdays;
+      _routineType = RoutineType.weekdays;
     }
   }
 
-  Future<void> _loadImage() async {
-    final imageBytes = _routineBox.get('routineImage') as Uint8List?;
+  void _onPressedSwitchButton() {
     setState(() {
-      _imageBytes = imageBytes;
+      if (_routineType == RoutineType.photo) {
+        _routineType = RoutineType.weekdays;
+      } else {
+        _routineType = RoutineType.photo;
+      }
+    });
+    _saveRoutineScreenState();
+  }
+
+  void _showAddSubjectSheet(String day, String time, Routine? routine) {
+    final TextEditingController subjectController =
+        TextEditingController(text: routine?.subject ?? "");
+
+    // collect distinct subjects from existing routines
+    final allRoutines = Hive.box<Routine>(HiveDataStore.routineBoxName).values;
+    final savedSubjects = allRoutines
+        .map((r) => r.subject)
+        .where((s) => s.trim().isNotEmpty)
+        .toSet()
+        .toList();
+
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Add Subject for $day, $time",
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+
+                // 👇 Flutter built-in autocomplete
+                Autocomplete<String>(
+                  initialValue: TextEditingValue(text: subjectController.text),
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    if (textEditingValue.text.isEmpty) {
+                      return const Iterable<String>.empty();
+                    }
+                    return savedSubjects.where((s) => s
+                        .toLowerCase()
+                        .contains(textEditingValue.text.toLowerCase()));
+                  },
+                  onSelected: (String selection) {
+                    subjectController.text = selection;
+                  },
+                  fieldViewBuilder:
+                      (context, controller, focusNode, onFieldSubmitted) {
+                    // Pre-fill once (not on every rebuild)
+                    if (controller.text.isEmpty &&
+                        subjectController.text.isNotEmpty) {
+                      controller.text = subjectController.text;
+                    }
+
+                    return CustomTextFormField(
+                      controller: controller,
+                      hintText: 'Add subject',
+                      focusNode: focusNode,
+                      onChanged: (val) {
+                        subjectController.text = val;
+                      },
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (routine != null) {
+                      routine.subject = subjectController.text;
+                      await routine.save();
+                    } else {
+                      final newRoutine = Routine(
+                        id: "$day-$time",
+                        day: day,
+                        timeSlot: time,
+                        subject: subjectController.text,
+                      );
+                      await BaseWidget.of(context)
+                          .dataStore
+                          .addRoutine(routine: newRoutine);
+                    }
+
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text("Save"),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _loadImages() async {
+    setState(() {
+      _routineImages[0] = _routineImageBox.get('classRoutine');
+      _routineImages[1] = _routineImageBox.get('examRoutine');
     });
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(int pageIndex) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final bytes = await pickedFile.readAsBytes();
-      _saveImage(bytes);
+      if (pageIndex == 0) {
+        await _routineImageBox.put('classRoutine', bytes);
+      } else if (pageIndex == 1) {
+        await _routineImageBox.put('examRoutine', bytes);
+      }
+      _loadImages();
     }
   }
 
-  Future<void> _saveImage(Uint8List bytes) async {
-    await _routineBox.put('routineImage', bytes);
-    setState(() {
-      _imageBytes = bytes;
-    });
+  void _loadRoutineTimeRange() {
+    final start = prefs.getString('routineStart') ?? "9 AM";
+    final end = prefs.getString('routineEnd') ?? "4 PM";
+
+    int startIndex = _defaultSlots.indexOf(start);
+    int endIndex = _defaultSlots.indexOf(end);
+
+    // fallback if invalid
+    if (startIndex == -1) startIndex = _defaultSlots.indexOf("9 AM");
+    if (endIndex == -1) endIndex = _defaultSlots.indexOf("4 PM");
+
+    if (startIndex <= endIndex) {
+      _timeSlots = _defaultSlots.sublist(startIndex, endIndex + 1);
+    } else {
+      _timeSlots = _defaultSlots.sublist(
+          _defaultSlots.indexOf("9 AM"), _defaultSlots.indexOf("4 PM") + 1);
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _readRoutineScreenState();
-    _loadImage();
-    _loadSubjects();
-  }
-
-  void _loadSubjects() {
-    for (int i = 0; i < daysOfWeek.length; i++) {
-      List<String>? savedSubjects = prefs.getStringList('subjects_$i');
-      if (savedSubjects != null) {
-        subjects[i].addAll(savedSubjects);
-      }
-    }
-    setState(() {});
-  }
-
-  void _onPressedSwitchButton() {
-    setState(() {
-      if (_routine == Routine.photo) {
-        _routine = Routine.weekdays;
-      } else {
-        _routine = Routine.photo;
-      }
-    });
-    _saveRoutineScreenState();
+    _loadImages();
+    _loadRoutineTimeRange();
   }
 
   @override
   Widget build(BuildContext context) {
-    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final base = BaseWidget.of(context);
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            onPressed: () =>
-                AdManager().navigateWithAd(context, const DashboardScreen()),
-            tooltip: 'Dashboard',
-            icon: const Icon(CupertinoIcons.square_grid_2x2),
-          ),
-          title: const Text('Routine'),
-          actions: [
-            IconButton(
-              onPressed: _onPressedSwitchButton,
-              tooltip: _routine == Routine.photo
-                  ? 'Switch to WeekDay mode'
-                  : 'Switch to Picture mode',
-              icon: Icon(
-                _routine == Routine.photo
-                    ? CupertinoIcons.calendar_today
-                    : CupertinoIcons.photo,
-                color: Colors.deepPurpleAccent,
-              ),
-            ),
-            if (_routine == Routine.weekdays &&
-                !settingsProvider.isFloatingActionButton)
-              IconButton(
-                onPressed: () => _addSubject(_pageController.page!.toInt()),
-                tooltip: 'Add routine',
-                icon: const Icon(Icons.add_circle_outline_rounded),
-              ),
-          ],
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () =>
+              AdManager().navigateWithAd(context, const DashboardScreen()),
+          tooltip: 'Dashboard',
+          icon: const Icon(CupertinoIcons.square_grid_2x2),
         ),
-        bottomNavigationBar: const CustomBannerAd(),
-        floatingActionButton: (_routine == Routine.weekdays &&
-                settingsProvider.isFloatingActionButton)
-            ? FloatingActionButton(
-                onPressed: () => _addSubject(_pageController.page!.toInt()),
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.blue,
-                tooltip: 'Add routine',
-                child: const Icon(Icons.add))
-            : null,
-        body: _routine == Routine.photo
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _imageBytes == null
-                        ? Image.asset('assets/images/calendar.png', width: 150)
-                        : SizedBox(
-                            height: 350,
-                            child: PhotoView(
-                              imageProvider: MemoryImage(_imageBytes!),
-                              minScale: PhotoViewComputedScale.contained,
-                              maxScale: PhotoViewComputedScale.covered * 2,
-                            )),
-                    if (_imageBytes != null) const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                        onPressed: _pickImage,
-                        style: ElevatedButton.styleFrom(
-                          alignment: Alignment.center,
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
+        title: const Text('Routine'),
+        actions: [
+          if (_routineType == RoutineType.weekdays) ...[
+            IconButton(
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text("Reset Routine"),
+                    content: const Text(
+                        "Are you sure you want to clear all subjects?"),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text("Cancel")),
+                      TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text(
+                            "Reset",
+                            style: TextStyle(color: Colors.red),
+                          )),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  await BaseWidget.of(context).dataStore.clearAllRoutines();
+                }
+              },
+              tooltip: 'Reset',
+              icon: const Icon(CupertinoIcons.restart),
+            ),
+            IconButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  showDragHandle: true,
+                  isScrollControlled: true,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primaryContainer,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(20))),
+                  builder: (ctx) {
+                    String start = _timeSlots.first;
+                    String end = _timeSlots.last;
+
+                    return StatefulBuilder(
+                      builder: (ctx, setModalState) => Padding(
+                        padding: EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                          top: 16,
+                          bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
                         ),
-                        icon: const Icon(CupertinoIcons.photo),
-                        label: const Text('Add Routine Image')),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text("Select Routine Time Range",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Start Time',
+                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                                DropdownButton<String>(
+                                  value: start,
+                                  borderRadius: BorderRadius.circular(10),
+                                  items: _defaultSlots
+                                      .map((t) => DropdownMenuItem(
+                                          value: t, child: Text(t)))
+                                      .toList(),
+                                  onChanged: (val) =>
+                                      setModalState(() => start = val!),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'End Time',
+                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                                DropdownButton<String>(
+                                  value: end,
+                                  borderRadius: BorderRadius.circular(10),
+                                  items: _defaultSlots
+                                      .map((t) => DropdownMenuItem(
+                                          value: t, child: Text(t)))
+                                      .toList(),
+                                  onChanged: (val) =>
+                                      setModalState(() => end = val!),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            ElevatedButton(
+                              onPressed: () {
+                                final startIndex = _defaultSlots.indexOf(start);
+                                final endIndex = _defaultSlots.indexOf(end);
+
+                                if (startIndex > endIndex) {
+                                  Navigator.pop(context);
+                                  Dialogs.showErrorSnackBar(context,
+                                      'Start time can\'t be greater than End time.');
+                                  return;
+                                }
+                                if (startIndex <= endIndex) {
+                                  prefs.setString('routineStart', start);
+                                  prefs.setString('routineEnd', end);
+                                  setState(() {
+                                    _timeSlots = _defaultSlots.sublist(
+                                        startIndex, endIndex + 1);
+                                  });
+                                  Navigator.pop(ctx);
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.blue,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10))),
+                              child: const Text("Save"),
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+              tooltip: 'Settings',
+              icon: const Icon(CupertinoIcons.gear_solid),
+            ),
+          ]
+        ],
+      ),
+      bottomNavigationBar: const CustomBannerAd(),
+      body: _routineType == RoutineType.photo
+          ? Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 350,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: _routineImages.length,
+                        itemBuilder: (ctx, index) {
+                          final image = _routineImages[index];
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                index == 0
+                                    ? 'Class Routine Image'
+                                    : 'Exam Routine Image',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              Expanded(
+                                // 👈 fixes the unbounded height issue
+                                child: image == null
+                                    ? Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 100),
+                                        child: Image.asset(
+                                            'assets/images/calendar.png'),
+                                      )
+                                    : ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: PhotoView(
+                                          imageProvider: MemoryImage(image),
+                                          minScale:
+                                              PhotoViewComputedScale.contained,
+                                          maxScale:
+                                              PhotoViewComputedScale.covered *
+                                                  2,
+                                        ),
+                                      ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SmoothPageIndicator(
+                      controller: _pageController,
+                      count: _routineImages.length,
+                      effect: WormEffect(
+                        activeDotColor: Colors.blue,
+                        dotHeight: 6,
+                        dotWidth: 6,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        final currentPage = _pageController.page?.round() ?? 0;
+                        _pickImage(currentPage);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(CupertinoIcons.photo),
+                      label: const Text('Add Image'),
+                    ),
                     const Text(
                       'Or',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -189,33 +514,94 @@ class _RoutineScreenState extends State<RoutineScreen>
                     _switchButton(),
                   ],
                 ),
-              )
-            : Column(
-                children: [
-                  Expanded(
-                    child: PageView.builder(
-                      controller: _pageController,
-                      itemCount: daysOfWeek.length,
-                      itemBuilder: (context, index) {
-                        return _buildDayPage(index);
-                      },
+              ),
+            )
+          : ValueListenableBuilder(
+              valueListenable: base.dataStore.listenToRoutine(),
+              builder: (ctx, Box<Routine> box, Widget? child) {
+                return ListView(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 100),
+                      child: _switchButton(),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: SmoothPageIndicator(
-                      controller: _pageController,
-                      count: daysOfWeek.length,
-                      effect: const WormEffect(
-                        activeDotColor: Colors.blue,
-                        spacing: 5,
-                        dotWidth: 7,
-                        dotHeight: 7,
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(10),
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columnSpacing: 20,
+                        dividerThickness: .5,
+                        border: TableBorder.all(color: Colors.grey.shade400),
+                        columns: [
+                          const DataColumn(
+                            label: Text("Time"),
+                            headingRowAlignment: MainAxisAlignment.start,
+                          ),
+                          ..._weekdays.map((day) => DataColumn(
+                              label: Text(day),
+                              headingRowAlignment: MainAxisAlignment.center)),
+                        ],
+                        rows: _timeSlots.map((time) {
+                          return DataRow(
+                            cells: [
+                              DataCell(Text(
+                                time,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              )),
+                              ..._weekdays.map((day) {
+                                final routine =
+                                    box.get("$day-$time"); // fetch by id
+                                final subject = routine?.subject;
+
+                                return DataCell(
+                                  onTap: () =>
+                                      _showAddSubjectSheet(day, time, routine),
+                                  Tooltip(
+                                    message:
+                                        subject != null && subject.isNotEmpty
+                                            ? subject
+                                            : 'Add subject',
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: subject != null &&
+                                                subject.isNotEmpty
+                                            ? _getColorForSubject(subject)
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      width: 50,
+                                      child: subject == null || subject.isEmpty
+                                          ? Icon(
+                                              Icons.add_rounded,
+                                              size: 20,
+                                              color: Colors.grey.shade600,
+                                            )
+                                          : Text(
+                                              subject,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: _getTextColor(
+                                                    _getColorForSubject(
+                                                        subject)),
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ),
-                  ),
-                ],
-              ));
+                  ],
+                );
+              }),
+    );
   }
 
   Widget _switchButton() {
@@ -228,232 +614,8 @@ class _RoutineScreenState extends State<RoutineScreen>
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         icon: const Icon(CupertinoIcons.arrow_swap),
-        label: Text(_routine == Routine.photo
+        label: Text(_routineType == RoutineType.photo
             ? 'Switch to WeekDay'
             : 'Switch to Picture'));
-  }
-
-  Widget _buildDayPage(int dayIndex) {
-    return Padding(
-      padding: EdgeInsets.all(mq.width * .03),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            _switchButton(),
-            Text(
-              daysOfWeek[dayIndex],
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            subjects[dayIndex].isEmpty
-                ? Center(
-                    child: Column(
-                      children: <Widget>[
-                        const SizedBox(height: 15),
-                        const Text(
-                          'No routine added yet!',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: mq.height * .04),
-                        SizedBox(
-                          height: mq.height * 0.4,
-                          child: Image.asset(
-                            'assets/images/waiting.png',
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: subjects[dayIndex].length,
-                    itemBuilder: (context, subjectIndex) {
-                      String subjectInfo = subjects[dayIndex][subjectIndex];
-                      List<String> infoParts = subjectInfo.split(' - ');
-                      String subjectName = infoParts[0];
-                      String timeInfo = infoParts[1];
-
-                      return Container(
-                        margin: const EdgeInsets.only(top: 8),
-                        padding: const EdgeInsets.only(
-                          left: 20,
-                          right: 8,
-                          top: 8,
-                          bottom: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    subjectName,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    timeInfo,
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  subjects[dayIndex].removeAt(subjectIndex);
-                                  _saveSubjects(dayIndex);
-                                });
-                              },
-                              tooltip: 'Delete',
-                              icon: const Icon(
-                                Icons.delete_outline_rounded,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _saveSubjects(int dayIndex) {
-    prefs.setStringList('subjects_$dayIndex', subjects[dayIndex]);
-  }
-
-  void _addSubject(int index) async {
-    TextEditingController subjectController = TextEditingController();
-    TimeOfDay? startTime;
-    TimeOfDay? endTime;
-
-    void showStartTimePicker() async {
-      final selectedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-
-      if (selectedTime != null) {
-        setState(() {
-          startTime = selectedTime;
-        });
-      }
-    }
-
-    void showEndTimePicker() async {
-      final selectedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-
-      if (selectedTime != null) {
-        setState(() {
-          endTime = selectedTime;
-        });
-      }
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Add Subject'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: subjectController,
-                decoration: InputDecoration(
-                  hintText: 'Subject Name',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .secondary
-                            .withOpacity(.4)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.lightBlue),
-                  ),
-                ),
-              ),
-              ListTile(
-                title: Text(
-                    'Starting Time: ${startTime?.format(context) ?? 'Not set'}'),
-                onTap: showStartTimePicker,
-              ),
-              ListTile(
-                title: Text(
-                    'Ending Time: ${endTime?.format(context) ?? 'Not set'}'),
-                onTap: showEndTimePicker,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                if (subjectController.text.isNotEmpty &&
-                    startTime != null &&
-                    endTime != null) {
-                  String subjectName = subjectController.text;
-                  String startTimeFormatted = startTime!.format(context);
-                  String endTimeFormatted = endTime!.format(context);
-                  String subjectInfo =
-                      '$subjectName - $startTimeFormatted to $endTimeFormatted';
-                  setState(() {
-                    subjects[index].add(subjectInfo);
-                    _saveSubjects(index);
-                  });
-                  subjectController.clear();
-                  startTime = null;
-                  endTime = null;
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text(
-                'Add',
-                style: TextStyle(color: Colors.blue),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                subjectController.clear();
-                startTime = null;
-                endTime = null;
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.blue),
-              ),
-            ),
-          ],
-        );
-      },
-    );
   }
 }
