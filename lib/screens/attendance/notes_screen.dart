@@ -76,26 +76,28 @@ class _NotesScreenState extends State<NotesScreen> {
                 : null,
             body: notes.isEmpty
                 ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset('assets/images/sticky-notes.png',
-                            width: 130),
-                        const Text(
-                          'Capture your thoughts before\nthey fly away!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/images/sticky-notes.png',
+                              width: 130),
+                          const Text(
+                            'Capture your thoughts before\nthey fly away!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        CustomElevatedButton(
-                          onPressed: () => AdManager().navigateWithAd(context,
-                              AddNotesScreen(attendance: widget.attendance)),
-                          title: 'Get started',
-                        )
-                      ],
+                          const SizedBox(height: 10),
+                          CustomElevatedButton(
+                            onPressed: () => AdManager().navigateWithAd(context,
+                                AddNotesScreen(attendance: widget.attendance)),
+                            title: 'Get started',
+                          )
+                        ],
+                      ),
                     ),
                   )
                 : GridView.builder(
@@ -145,8 +147,9 @@ class _NotesScreenState extends State<NotesScreen> {
                                         textAlign: TextAlign.center,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blueGrey),
+                                          color: Colors.blueGrey,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       )
                                     : null,
                               ),
