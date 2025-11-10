@@ -1,9 +1,10 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../secrets.dart';
+import '../providers/revenue_cat_provider.dart';
 
 class CustomBannerAd extends StatefulWidget {
   const CustomBannerAd({super.key});
@@ -13,15 +14,20 @@ class CustomBannerAd extends StatefulWidget {
 }
 
 class _CustomBannerAdState extends State<CustomBannerAd> {
-  late BannerAd bannerAd;
+  BannerAd? bannerAd;
+  NativeAd? nativeAd;
   bool isBannerAdLoaded = false;
-  late NativeAd nativeAd;
   bool isNativeAdLoaded = false;
+  bool adsInitialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _initializeBannerAd();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isPro = context.watch<RevenueCatProvider>().isPro;
+    if (!adsInitialized && !isPro) {
+      adsInitialized = true;
+      _initializeBannerAd();
+    }
   }
 
   Future<void> _initializeBannerAd() async {
@@ -31,27 +37,22 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
-          setState(() {
-            isBannerAdLoaded = true;
-          });
+          setState(() => isBannerAdLoaded = true);
         },
         onAdFailedToLoad: (ad, error) {
           log('Failed to load banner ad: ${error.message}');
           ad.dispose();
-          setState(() {
-            isBannerAdLoaded = false;
-          });
+          setState(() => isBannerAdLoaded = false);
           _initializeNativeAd();
         },
       ),
     );
+
     try {
-      bannerAd.load();
+      await bannerAd!.load();
     } catch (error) {
       log('Error loading banner ad: $error');
-      setState(() {
-        isBannerAdLoaded = false;
-      });
+      setState(() => isBannerAdLoaded = false);
     }
   }
 
@@ -62,37 +63,40 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
       nativeTemplateStyle:
           NativeTemplateStyle(templateType: TemplateType.small),
       listener: NativeAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            isNativeAdLoaded = true;
-          });
-        },
+        onAdLoaded: (ad) => setState(() => isNativeAdLoaded = true),
         onAdFailedToLoad: (ad, error) {
           log('Failed to load native ad: ${error.message}');
           ad.dispose();
-          setState(() {
-            isNativeAdLoaded = false;
-          });
+          setState(() => isNativeAdLoaded = false);
         },
       ),
     );
+
     try {
-      await nativeAd.load();
+      await nativeAd!.load();
     } catch (error) {
       log('Error loading native ad: $error');
-      setState(() {
-        isNativeAdLoaded = false;
-      });
+      setState(() => isNativeAdLoaded = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // return const SizedBox();
+    final isPro = context.watch<RevenueCatProvider>().isPro;
+
+    if (isPro) return const SizedBox();
+
     return isBannerAdLoaded
-        ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+        ? SizedBox(height: 50, child: AdWidget(ad: bannerAd!))
         : isNativeAdLoaded
-            ? SizedBox(height: 85, child: AdWidget(ad: nativeAd))
+            ? SizedBox(height: 85, child: AdWidget(ad: nativeAd!))
             : const SizedBox();
+  }
+
+  @override
+  void dispose() {
+    bannerAd?.dispose();
+    nativeAd?.dispose();
+    super.dispose();
   }
 }

@@ -1,20 +1,27 @@
+import 'package:provider/provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:feedback/feedback.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzz;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'secrets.dart';
 import 'utils/theme.dart';
 import 'models/task.dart';
+import 'models/routine.dart';
 import 'models/attendance.dart';
 import 'screens/tab_screen.dart';
 import 'data/hive_data_store.dart';
-import 'services/ad_manager.dart';
-import 'services/notification_service.dart';
+import 'providers/theme_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/revenue_cat_provider.dart';
+import 'services/ad_manager.dart';
+import 'services/feedback_service.dart';
+import 'services/notification_service.dart';
 
 late Size mq;
 late SharedPreferences prefs;
@@ -26,11 +33,7 @@ Future<void> _initializeMobileAds() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await SystemChrome.setPreferredOrientations(
-    [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
-  );
-
+  await Secrets.configureRevenueCatSdk();
   _initializeMobileAds();
   tzz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
@@ -43,20 +46,37 @@ Future<void> main() async {
 
   // Register Hive Adapter
   Hive.registerAdapter<Attendance>(AttendanceAdapter());
+  Hive.registerAdapter(RoutineAdapter());
   Hive.registerAdapter<Task>(TaskAdapter());
 
   // Open all the boxes
   await Hive.openBox<Attendance>(HiveDataStore.attendanceBoxName);
-  await Hive.openBox('routineImageBox');
+  await Hive.openBox<Routine>(HiveDataStore.routineBoxName);
+  await Hive.openBox<Uint8List>('routineImageBox');
   await Hive.openBox<Task>(HiveDataStore.taskBoxName);
 
   // Load settings from SharedPreferences into provider
   final settingsProvider = await SettingsProvider.loadFromPrefs(prefs);
 
   runApp(
-    ChangeNotifierProvider<SettingsProvider>(
-      create: (_) => settingsProvider,
-      child: BaseWidget(child: const MyApp()),
+    BetterFeedback(
+      themeMode: ThemeMode.system,
+      localizationsDelegates: const [
+        DefaultMaterialLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+        DefaultCupertinoLocalizations.delegate,
+      ],
+      feedbackBuilder: FeedbackService.builder,
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<RevenueCatProvider>(
+              create: (_) => RevenueCatProvider()),
+          ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider<SettingsProvider>.value(
+              value: settingsProvider),
+        ],
+        child: BaseWidget(child: const MyApp()),
+      ),
     ),
   );
 }
@@ -89,11 +109,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     mq = MediaQuery.of(context).size;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isPro = context.watch<RevenueCatProvider>().isPro;
+    AdManager().updateAdStatus(isPro);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'AttendanceTracker',
+      title: 'Attendance Tracker',
       theme: lightMode,
       darkTheme: darkMode,
+      themeMode: themeProvider.themeMode,
       home: const TabScreen(),
     );
   }

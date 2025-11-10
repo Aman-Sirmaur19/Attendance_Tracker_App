@@ -1,13 +1,21 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:feedback/feedback.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 
-import '../main.dart';
-import '../utils/dialogs.dart';
-import '../services/ad_manager.dart';
-import '../widgets/custom_banner_ad.dart';
+import '../../main.dart';
+import '../../utils/dialogs.dart';
+import '../../services/ad_manager.dart';
+import '../../widgets/custom_banner_ad.dart';
 import 'settings_screen.dart';
+import 'help_centre_screen.dart';
+import 'subscriptions_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -16,6 +24,13 @@ class DashboardScreen extends StatelessWidget {
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       Dialogs.showErrorSnackBar(context, 'Could not launch $url');
     }
+  }
+
+  Future<String> _saveScreenshot(Uint8List bytes) async {
+    final dir = await getTemporaryDirectory(); // path_provider package
+    final file = File('${dir.path}/feedback.png');
+    await file.writeAsBytes(bytes);
+    return file.path;
   }
 
   @override
@@ -37,7 +52,7 @@ class DashboardScreen extends StatelessWidget {
       body: Column(
         children: [
           const Text(
-            'Version: 1.2.0',
+            'Version: 1.2.6',
             textAlign: TextAlign.center,
             style: TextStyle(
               letterSpacing: 1.5,
@@ -53,29 +68,8 @@ class DashboardScreen extends StatelessWidget {
                   tileColor: Theme.of(context).colorScheme.primary,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Coming soon...',
-                                style: TextStyle(
-                                  letterSpacing: 1,
-                                  fontWeight: FontWeight.bold,
-                                )),
-                            Spacer(),
-                            Text('🔔'),
-                          ],
-                        ),
-                        // backgroundColor: Colors.black87,
-                        duration: Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
+                  onTap: () => AdManager()
+                      .navigateWithAd(context, const SubscriptionsScreen()),
                   leading:
                       const Icon(Icons.star_rate_rounded, color: Colors.amber),
                   title: RichText(
@@ -126,6 +120,48 @@ class DashboardScreen extends StatelessWidget {
                   context: context,
                 ),
                 _customListTile(
+                  onTap: () => AdManager()
+                      .navigateWithAd(context, const HelpCentreScreen()),
+                  icon: CupertinoIcons.question_circle,
+                  title: 'FAQs',
+                  isLast: true,
+                  context: context,
+                ),
+                const SizedBox(height: 10),
+                CustomBannerAd(),
+                const SizedBox(height: 10),
+                _customListTile(
+                  onTap: () {
+                    BetterFeedback.of(context)
+                        .show((UserFeedback feedback) async {
+                      final path = await _saveScreenshot(feedback.screenshot);
+                      try {
+                        final email = Email(
+                          body: feedback.text,
+                          subject: 'App Feedback',
+                          recipients: ['harryandpotter19@gmail.com'],
+                          attachmentPaths: [path],
+                        );
+                        await FlutterEmailSender.send(email);
+                      } catch (e) {
+                        final Uri emailLaunchUri = Uri(
+                          scheme: 'mailto',
+                          path: 'harryandpotter19@gmail.com',
+                          queryParameters: {
+                            'subject': 'App Feedback',
+                            'body': feedback.text,
+                          },
+                        );
+                        await launchUrl(emailLaunchUri);
+                      }
+                    });
+                  },
+                  icon: CupertinoIcons.pencil_ellipsis_rectangle,
+                  title: 'Suggestions / Bug reports',
+                  context: context,
+                  isFirst: true,
+                ),
+                _customListTile(
                   onTap: () async {
                     const String appUrl =
                         'https://play.google.com/store/apps/details?id=com.sirmaur.attendance_tracker';
@@ -141,13 +177,23 @@ class DashboardScreen extends StatelessWidget {
                 _customListTile(
                   onTap: () async {
                     const url =
+                        'https://play.google.com/store/apps/details?id=com.sirmaur.attendance_tracker';
+                    _launchInBrowser(context, Uri.parse(url));
+                  },
+                  icon: CupertinoIcons.star,
+                  title: 'Rate us 5 ⭐',
+                  context: context,
+                ),
+                _customListTile(
+                  onTap: () async {
+                    const url =
                         'https://play.google.com/store/apps/developer?id=SIRMAUR';
                     _launchInBrowser(context, Uri.parse(url));
                   },
                   icon: CupertinoIcons.app_badge,
                   title: 'More Apps',
-                  isLast: true,
                   context: context,
+                  isLast: true,
                 ),
                 const SizedBox(height: 20),
                 _customListTile(
@@ -265,6 +311,42 @@ class DashboardScreen extends StatelessWidget {
                   context: context,
                 ),
                 const SizedBox(height: 20),
+                RichText(
+                    text: TextSpan(
+                        text: 'Explore our other apps ',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Fredoka',
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        children: [
+                      TextSpan(
+                        text: '(Sponsored)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontFamily: 'Fredoka',
+                          fontWeight: FontWeight.normal,
+                        ),
+                      )
+                    ])),
+                SizedBox(height: 10),
+                _customListTile(
+                  onTap: () async {
+                    const url =
+                        'https://play.google.com/store/apps/details?id=com.sirmaur.jeebuddy';
+                    _launchInBrowser(context, Uri.parse(url));
+                  },
+                  tileColor: Colors.orange,
+                  imageUrl:
+                      'https://play-lh.googleusercontent.com/X0VHDLVJEjY9UbCAj4wM_LmPoBii0hNV28ABQ8zidG2OfZ3wWAsZxNLBLVt6c396l6E=w480-h960-rw',
+                  title: 'JEEBuddy - College Predictor',
+                  subtitle:
+                      'College Predictor App for IIT-JEE exams with relevant study materials',
+                  context: context,
+                  isFirst: true,
+                ),
                 _customListTile(
                   onTap: () async {
                     const url =
@@ -278,36 +360,22 @@ class DashboardScreen extends StatelessWidget {
                   subtitle:
                       'The Divine Song of God\nAvailable in 100+ global languages',
                   context: context,
-                  isFirst: true,
-                  isLast: true,
-                ),
-                const SizedBox(height: 10),
-                _customListTile(
-                  onTap: () async {
-                    const url =
-                        'https://play.google.com/store/apps/details?id=com.sirmaur.habito';
-                    _launchInBrowser(context, Uri.parse(url));
-                  },
-                  tileColor: Colors.deepPurpleAccent,
-                  imageUrl:
-                      'https://play-lh.googleusercontent.com/6pVzCQ-zskiVRkDHCfplR_2JNIUgotMHc_5wGG3EsQR9maMJeIoIhWjpkk4qyR_-UZ5a=w480-h960-rw',
-                  title: 'HabitO - Habit Tracker',
-                  subtitle:
-                      'Track your daily habits on beautiful colorful heatmap.',
-                  context: context,
-                  isFirst: true,
                   isLast: true,
                 ),
               ],
             ),
           ),
-          const Text(
-            'MADE WITH ❤️ IN 🇮🇳',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              letterSpacing: 1.5,
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
+          Container(
+            width: double.infinity,
+            color: Theme.of(context).colorScheme.surface,
+            child: const Text(
+              'MADE WITH ❤️ IN 🇮🇳',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                letterSpacing: 1.5,
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -355,7 +423,7 @@ class DashboardScreen extends StatelessWidget {
         title,
         style: subtitle != null
             ? TextStyle(
-                color: title.contains('Geeta') ? Colors.black : Colors.white,
+                color: Colors.black,
                 fontWeight: FontWeight.bold,
               )
             : null,
@@ -363,8 +431,7 @@ class DashboardScreen extends StatelessWidget {
       subtitle: subtitle != null
           ? Text(
               subtitle,
-              style: TextStyle(
-                  color: title.contains('Geeta') ? Colors.black : Colors.white),
+              style: TextStyle(color: Colors.black),
             )
           : null,
       trailing: subtitle == null
