@@ -16,7 +16,7 @@ import '../../providers/settings_provider.dart';
 import '../../widgets/chart_bar.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
-import '../dashboard_screen.dart';
+import '../dashboard/dashboard_screen.dart';
 import 'notes_screen.dart';
 import 'add_attendance_screen.dart';
 
@@ -30,6 +30,7 @@ class AttendanceScreen extends StatefulWidget {
 class _AttendanceScreenState extends State<AttendanceScreen>
     with SingleTickerProviderStateMixin {
   // bool _migrationChecked = false;
+  double _targetPercentage = 75;
   int _expandedIndex = -1;
 
   final _subjectController = TextEditingController();
@@ -56,6 +57,115 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     });
   }
 
+  double _calculateOverallAttendance(List<Attendance> attendances) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    if (settings.showOverallAttendance) {
+      int totalPresent = 0;
+      int totalAbsent = 0;
+      for (var att in attendances) {
+        totalPresent += att.present;
+        totalAbsent += att.absent;
+      }
+      final total = totalPresent + totalAbsent;
+      if (total == 0) return 0;
+      return (totalPresent * 100) / total;
+    }
+    return 0;
+  }
+
+  Future<void> _loadTargetPercentage() async {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    if (settings.showOverallAttendance) {
+      setState(() {
+        _targetPercentage = prefs.getDouble('targetPercentage') ?? 75;
+      });
+    }
+  }
+
+  Future<void> _saveTargetPercentage(double value) async {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    if (settings.showOverallAttendance) {
+      await prefs.setDouble('targetPercentage', value);
+      setState(() {
+        _targetPercentage = value;
+      });
+    }
+  }
+
+  void _showTargetPercentageSheet() {
+    double tempValue = _targetPercentage;
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 20,
+                right: 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Set Target Attendance %',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Slider(
+                          min: 50,
+                          max: 100,
+                          divisions: 10,
+                          value: tempValue,
+                          activeColor: Theme.of(context).colorScheme.secondary,
+                          inactiveColor: Theme.of(context).colorScheme.surface,
+                          label: '${tempValue.toInt()}%',
+                          onChanged: (value) {
+                            setModalState(() {
+                              tempValue = value;
+                            });
+                          },
+                        ),
+                      ),
+                      Text('${tempValue.toInt()}%'),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () async {
+                      await _saveTargetPercentage(tempValue);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.save_rounded),
+                    label: const Text('Save'),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   // Future<void> _migrateAttendancesIfNeeded(Box<Attendance> box) async {
   //   final prefs = await SharedPreferences.getInstance();
   //   final migrated = prefs.getBool('attendance_migrated') ?? false;
@@ -79,6 +189,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   void initState() {
     super.initState();
     _checkForUpdate();
+    _loadTargetPercentage();
   }
 
   @override
@@ -106,6 +217,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             }
           }
           attendances.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          final overallPercentage = _calculateOverallAttendance(attendances);
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
@@ -184,6 +296,95 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                               ),
                             ],
                           ),
+                          if (context
+                              .watch<SettingsProvider>()
+                              .showOverallAttendance)
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(top: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 20),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: overallPercentage >= _targetPercentage
+                                    ? Colors.green.withOpacity(.1)
+                                    : overallPercentage >= 50
+                                        ? Colors.amber.withOpacity(.1)
+                                        : Colors.red.withOpacity(.1),
+                                border: Border.all(
+                                    color:
+                                        overallPercentage >= _targetPercentage
+                                            ? Colors.lightGreen
+                                            : overallPercentage >= 50
+                                                ? Colors.amber
+                                                : Colors.red),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        'Overall Attendance %',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: _showTargetPercentageSheet,
+                                        tooltip: 'Set Target Attendance %',
+                                        icon: const Icon(
+                                          CupertinoIcons.gear_solid,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  TweenAnimationBuilder<double>(
+                                    tween: Tween(
+                                        begin: 0, end: overallPercentage / 100),
+                                    duration: const Duration(milliseconds: 800),
+                                    builder: (context, value, child) => Column(
+                                      children: [
+                                        LinearProgressIndicator(
+                                          value: value.isNaN
+                                              ? 0.0
+                                              : value.clamp(0.0, 1.0),
+                                          minHeight: 10,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: overallPercentage >=
+                                                  _targetPercentage
+                                              ? Colors.lightGreen
+                                              : overallPercentage >= 50
+                                                  ? Colors.amber
+                                                  : Colors.red,
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .surface,
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          '${overallPercentage.toStringAsFixed(1)}%',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: overallPercentage >=
+                                                    _targetPercentage
+                                                ? Colors.lightGreen
+                                                : overallPercentage >= 50
+                                                    ? Colors.amber
+                                                    : Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           Container(
                             height: 30,
                             margin: const EdgeInsets.only(top: 5),
@@ -242,25 +443,27 @@ class _AttendanceScreenState extends State<AttendanceScreen>
 
   Widget _emptyWidget() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset('assets/images/books.png', width: 150),
-          const Text(
-            'Your presence matters more\nthan you think!',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/books.png', width: 150),
+            const Text(
+              'Your presence matters more\nthan you think!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          CustomElevatedButton(
-            onPressed: () => AdManager().navigateWithAd(
-                context, const AddAttendanceScreen(attendance: null)),
-            title: 'Get started',
-          ),
-        ],
+            const SizedBox(height: 10),
+            CustomElevatedButton(
+              onPressed: () => AdManager().navigateWithAd(
+                  context, const AddAttendanceScreen(attendance: null)),
+              title: 'Get started',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -386,8 +589,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                         children: [
                           settingsProvider.showCircularIndicator && total != 0
                               ? SizedBox(
-                                  width: mq.width * .14,
-                                  height: mq.width * .14,
+                                  width: 54,
+                                  height: 54,
                                   child: CircularProgressIndicator(
                                     value: (value.isNaN || value.isInfinite)
                                         ? 0.0
@@ -404,8 +607,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                   ),
                                 )
                               : SizedBox(
-                                  width: mq.width * .14,
-                                  height: mq.width * .14,
+                                  width: 54,
+                                  height: 54,
                                   child: CircularProgressIndicator(
                                     value: 1,
                                     strokeWidth: .5,
@@ -559,9 +762,11 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                               text: TextSpan(
                                 text: 'Last updated: ',
                                 style: const TextStyle(
-                                    letterSpacing: .25,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue),
+                                  letterSpacing: .25,
+                                  color: Colors.blue,
+                                  fontFamily: 'Fredoka',
+                                  fontWeight: FontWeight.bold,
+                                ),
                                 children: [
                                   TextSpan(
                                     text: '$time, $date',
