@@ -2,40 +2,104 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+// import 'package:collection/collection.dart'; // Ensure you have this for firstWhereOrNull if not included in your project already, otherwise use standard iterable methods or add the package.
 
 import '../../utils/dialogs.dart';
 import '../../providers/revenue_cat_provider.dart';
 
-// --- UPDATED: Single feature list for PRO ---
+// --- Features Lists ---
 const List<String> _proFeatures = [
   "Remove Ads",
   "Full Settings Access",
+  "One Project Tracker",
+];
+
+const List<String> _ultimateFeatures = [
+  "Everything in Pro",
+  "Unlimited Projects Tracker",
+  "Unlock Mini-Games",
   "All Upcoming Features",
 ];
-// ---------------------------------
+// ----------------------
 
-class SubscriptionsScreen extends StatelessWidget {
-  const SubscriptionsScreen({super.key});
+class SubscriptionsScreen extends StatefulWidget {
+  final int initialIndex;
 
-  // --- REMOVED: Single _proColor. Colors are now specific. ---
+  const SubscriptionsScreen({super.key, this.initialIndex = 0});
+
+  @override
+  State<SubscriptionsScreen> createState() => _SubscriptionsScreenState();
+}
+
+class _SubscriptionsScreenState extends State<SubscriptionsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize TabController with 2 tabs
+    _tabController = TabController(
+      length: 2,
+      initialIndex: widget.initialIndex,
+      vsync: this,
+    );
+
+    // Add listener to rebuild UI (and change colors) when tab changes
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Determine the color based on the current tab index
+    // Index 0 = Pro (Pink), Index 1 = Ultimate (DeepPurpleAccent)
+    final Color activeColor =
+        _tabController.index == 0 ? Colors.pink : Colors.deepPurpleAccent;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
             onPressed: () => Navigator.pop(context),
             tooltip: 'Back',
             icon: const Icon(CupertinoIcons.chevron_back)),
-        title: const Text("Go Pro"),
-        elevation: 2.0,
+        title: const Text("Subscriptions"),
+        elevation: 0,
+        bottom: TabBar(
+          controller: _tabController,
+          dividerHeight: 0,
+          indicatorWeight: 3,
+          // Use the dynamic activeColor
+          indicatorColor: activeColor,
+          labelColor: activeColor,
+          unselectedLabelColor: Colors.grey,
+          labelStyle: const TextStyle(
+            fontSize: 16,
+            fontFamily: 'Fredoka',
+            fontWeight: FontWeight.bold,
+          ),
+          onTap: (index) {
+            setState(() {}); // Ensure color updates immediately on tap
+          },
+          tabs: const [
+            Tab(text: "PRO"),
+            Tab(text: "ULTIMATE"),
+          ],
+        ),
       ),
       body: Consumer<RevenueCatProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
-            // --- UPDATED: Use a specific color for the loader ---
-            return const Center(
-                child: CircularProgressIndicator(color: Colors.blue));
+            return Center(child: CircularProgressIndicator(color: activeColor));
           }
 
           if (provider.offerings == null) {
@@ -51,26 +115,53 @@ class SubscriptionsScreen extends StatelessWidget {
             );
           }
 
-          // --- Filter packages based on your new IDs ---
           final packages = offering.availablePackages;
+
+          // --- PRO Packages ---
           final Package? proMonthly =
-              packages.firstWhereOrNull((p) => p.identifier == 'pro_monthly');
+              packages.where((p) => p.identifier == 'pro_monthly').firstOrNull;
           final Package? proYearly =
-              packages.firstWhereOrNull((p) => p.identifier == 'pro_yearly');
-          // ------------------------
+              packages.where((p) => p.identifier == 'pro_yearly').firstOrNull;
+
+          // --- ULTIMATE Packages ---
+          final Package? ultimateMonthly = packages
+              .where((p) => p.identifier == 'ultimate_monthly')
+              .firstOrNull;
+          final Package? ultimateYearly = packages
+              .where((p) => p.identifier == 'ultimate_yearly')
+              .firstOrNull;
 
           return Stack(
             children: [
-              _buildPlanPage(
-                context: context,
-                provider: provider,
-                title: "PRO",
-                slogan: "Unlock all features.",
-                features: _proFeatures,
-                monthlyPackage: proMonthly,
-                yearlyPackage: proYearly,
-                // --- REMOVED: Single color property ---
-                hasActiveEntitlement: provider.isPro,
+              TabBarView(
+                controller: _tabController,
+                children: [
+                  // --- PRO TAB (Pink) ---
+                  _buildPlanPage(
+                    context: context,
+                    provider: provider,
+                    title: "PRO",
+                    slogan: "Upgrade your workflow without ads.",
+                    features: _proFeatures,
+                    monthlyPackage: proMonthly,
+                    yearlyPackage: proYearly,
+                    isActiveTier: provider.isPro,
+                    themeColor: Colors.pink,
+                  ),
+
+                  // --- ULTIMATE TAB (DeepPurpleAccent) ---
+                  _buildPlanPage(
+                    context: context,
+                    provider: provider,
+                    title: "ULTIMATE",
+                    slogan: "Maximize your potential with no limits.",
+                    features: _ultimateFeatures,
+                    monthlyPackage: ultimateMonthly,
+                    yearlyPackage: ultimateYearly,
+                    isActiveTier: provider.isUltimate,
+                    themeColor: Colors.deepPurpleAccent,
+                  ),
+                ],
               ),
               if (provider.isPurchasing)
                 Container(
@@ -100,27 +191,27 @@ class SubscriptionsScreen extends StatelessWidget {
   }
 
   Widget _buildPlanPage({
-    required BuildContext context, // Needs context
+    required BuildContext context,
     required RevenueCatProvider provider,
     required String title,
     required String slogan,
     required List<String> features,
     required Package? monthlyPackage,
     required Package? yearlyPackage,
-    required bool hasActiveEntitlement,
-    // --- REMOVED: Single color property ---
+    required bool isActiveTier,
+    required Color themeColor,
   }) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
+              color: themeColor,
             ),
           ),
           Text(
@@ -138,42 +229,60 @@ class SubscriptionsScreen extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 16),
-          ...features.map((feature) => _buildFeatureListItem(
-              context, feature, Colors.blue // <-- UPDATED: Color changed
-              )),
-          const SizedBox(height: 50),
+          ...features.map(
+              (feature) => _buildFeatureListItem(context, feature, themeColor)),
+          const SizedBox(height: 30),
+
           if (monthlyPackage != null)
             _buildSubscriptionCard(
               context,
               provider: provider,
               package: monthlyPackage,
-              color: Colors.pink, // <-- UPDATED: Color changed
+              color: themeColor,
               isBestValue: false,
             ),
           const SizedBox(height: 16),
+
           if (yearlyPackage != null)
             _buildSubscriptionCard(
               context,
               provider: provider,
               package: yearlyPackage,
-              color: Colors.deepPurpleAccent, // <-- UPDATED: Color changed
+              color: themeColor,
               isBestValue: true,
             ),
+
           const SizedBox(height: 16),
-          if (hasActiveEntitlement)
+
+          if (isActiveTier)
             Center(
-              child: Text(
-                "This is your current plan.",
-                style: TextStyle(
-                    color: Colors.green, // <-- UPDATED: Color changed
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green),
+                    SizedBox(width: 8),
+                    Text(
+                      "You are currently on this plan.",
+                      style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
             ),
 
-          // --- Show restore button if user is not already premium ---
-          if (!provider.isPro) ...[
-            const SizedBox(height: 5),
+          // --- Show restore button if user is not premium at all ---
+          if (!provider.isPremium) ...[
+            const SizedBox(height: 20),
             Center(child: _restorePurchaseButton(context, provider)),
             const SizedBox(height: 20),
           ],
@@ -190,7 +299,7 @@ class SubscriptionsScreen extends StatelessWidget {
         children: [
           Icon(
             CupertinoIcons.check_mark_circled_solid,
-            color: color, // <-- This will now be green
+            color: color,
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -209,7 +318,7 @@ class SubscriptionsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color, // <-- This will be pink or purple
+        color: color,
         borderRadius: const BorderRadius.only(
           topRight: Radius.circular(16),
           bottomLeft: Radius.circular(16),
@@ -230,7 +339,7 @@ class SubscriptionsScreen extends StatelessWidget {
     BuildContext context, {
     required RevenueCatProvider provider,
     required Package package,
-    required Color color, // <-- This will be pink or purple
+    required Color color,
     required bool isBestValue,
   }) {
     final product = package.storeProduct;
@@ -250,8 +359,8 @@ class SubscriptionsScreen extends StatelessWidget {
       tileColor:
           isThisPackageActive ? color.withOpacity(0.05) : Colors.transparent,
       title: Text(
-        // This is your custom title logic, it remains unchanged
-        '${product.title.split('(').first}(${product.subscriptionPeriod == 'P1M' ? 'Monthly' : 'Yearly'})',
+        // Parsing title safely
+        '${product.title.split(' (').first} (${product.subscriptionPeriod == 'P1M' ? 'Monthly' : 'Yearly'})',
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -260,7 +369,7 @@ class SubscriptionsScreen extends StatelessWidget {
       subtitle: Text(
         product.priceString,
         style: TextStyle(
-          fontSize: 20, // Kept your font size change
+          fontSize: 20,
           fontWeight: FontWeight.w600,
           color: color,
         ),
@@ -286,8 +395,16 @@ class SubscriptionsScreen extends StatelessWidget {
           : () async {
               final success = await provider.purchasePackage(package);
               if (success && context.mounted) {
+                // Determine which tier was bought for the message
+                String planName = "Subscription";
+                if (package.identifier.contains('pro')) planName = "Pro";
+                if (package.identifier.contains('ultimate')) {
+                  planName = "Ultimate";
+                }
+
                 Navigator.of(context).pop();
-                Dialogs.showSnackBar(context, "Purchase Successful!");
+                Dialogs.showSnackBar(
+                    context, "$planName Plan Activated Successfully!");
               } else if (context.mounted && !provider.isPurchasing) {
                 if (provider.lastPurchaseCancelled) {
                   Dialogs.showSnackBar(context, "Purchase cancelled.");
@@ -318,7 +435,6 @@ class SubscriptionsScreen extends StatelessWidget {
 
   Widget _restorePurchaseButton(
       BuildContext context, RevenueCatProvider provider) {
-    // This button remains blue as requested
     return OutlinedButton.icon(
       icon: const Icon(Icons.restore_rounded),
       label: const Text(
@@ -327,16 +443,16 @@ class SubscriptionsScreen extends StatelessWidget {
       ),
       style: OutlinedButton.styleFrom(
         foregroundColor: Colors.blue,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         side: BorderSide(width: 2, color: Colors.blue.withOpacity(0.5)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       ),
       onPressed: () async {
         final bool success = await provider.restorePurchases();
 
         if (!context.mounted) return;
         if (success) {
-          if (provider.isPro) {
+          if (provider.isPremium) {
             Dialogs.showSnackBar(context, "Purchases Restored Successfully!");
             Navigator.of(context).pop();
           } else {
@@ -358,5 +474,12 @@ class SubscriptionsScreen extends StatelessWidget {
         }
       },
     );
+  }
+}
+
+// Simple extension to replicate firstWhereOrNull without extra package imports
+extension IterableExtension<T> on Iterable<T> {
+  T? get firstOrNull {
+    return isEmpty ? null : first;
   }
 }
