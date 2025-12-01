@@ -94,9 +94,9 @@ flutter {
 }
 
 dependencies {
-    implementation 'com.android.billingclient:billing:8.0.0'
-    implementation 'com.google.android.gms:play-services-ads:24.7.0'
-    implementation 'com.google.ads.mediation:facebook:6.20.0.2'
+    implementation 'com.android.billingclient:billing:8.1.0'
+    implementation 'com.google.android.gms:play-services-ads:24.8.0'
+    implementation 'com.google.ads.mediation:facebook:6.21.0.0'
     implementation 'com.facebook.infer.annotation:infer-annotation:0.18.0'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 }
