@@ -6,11 +6,11 @@ import 'package:provider/provider.dart';
 import '../../main.dart';
 import '../../models/task.dart';
 import '../../utils/dialogs.dart';
-import '../../services/ad_manager.dart';
+import '../../providers/settings_provider.dart';
+import '../../providers/navigation_provider.dart';
 import '../../widgets/task_widget.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
-import '../../providers/settings_provider.dart';
 import '../dashboard/dashboard_screen.dart';
 import 'add_task_screen.dart';
 
@@ -35,8 +35,13 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
-                onPressed: () => AdManager()
-                    .navigateWithAd(context, const DashboardScreen()),
+                onPressed: () {
+                  context.read<NavigationProvider>().increment();
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) => const DashboardScreen()));
+                },
                 tooltip: 'Dashboard',
                 icon: const Icon(CupertinoIcons.square_grid_2x2),
               ),
@@ -44,8 +49,14 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
               actions: [
                 if (!settingsProvider.isFloatingActionButton)
                   IconButton(
-                    onPressed: () => AdManager().navigateWithAd(
-                        context, const AddTaskScreen(task: null)),
+                    onPressed: () {
+                      context.read<NavigationProvider>().increment();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) =>
+                                  const AddTaskScreen(task: null)));
+                    },
                     tooltip: 'Add task',
                     icon: const Icon(Icons.add_circle_outline_rounded),
                   )
@@ -54,8 +65,14 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
             bottomNavigationBar: const CustomBannerAd(),
             floatingActionButton: settingsProvider.isFloatingActionButton
                 ? FloatingActionButton(
-                    onPressed: () => AdManager().navigateWithAd(
-                        context, const AddTaskScreen(task: null)),
+                    onPressed: () {
+                      context.read<NavigationProvider>().increment();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) =>
+                                  const AddTaskScreen(task: null)));
+                    },
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue,
                     tooltip: 'Add task',
@@ -79,8 +96,14 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                           ),
                           const SizedBox(height: 10),
                           CustomElevatedButton(
-                            onPressed: () => AdManager().navigateWithAd(
-                                context, const AddTaskScreen(task: null)),
+                            onPressed: () {
+                              context.read<NavigationProvider>().increment();
+                              Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                      builder: (context) =>
+                                          const AddTaskScreen(task: null)));
+                            },
                             title: 'Get started',
                           )
                         ],
@@ -155,9 +178,16 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
                               ),
                             ),
                             child: GestureDetector(
-                                onTap: () => AdManager().navigateWithAd(
-                                    context, AddTaskScreen(task: task)),
-                                child: TaskWidget(task: task)));
+                              onTap: () {
+                                context.read<NavigationProvider>().increment();
+                                Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                        builder: (context) =>
+                                            AddTaskScreen(task: task)));
+                              },
+                              child: TaskWidget(task: task),
+                            ));
                       },
                     ),
                   ),

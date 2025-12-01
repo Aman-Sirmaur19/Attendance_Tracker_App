@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -10,8 +11,8 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../main.dart';
 import '../../utils/dialogs.dart';
 import '../../models/routine.dart';
-import '../../services/ad_manager.dart';
 import '../../data/hive_data_store.dart';
+import '../../providers/navigation_provider.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_text_form_field.dart';
 import '../dashboard/dashboard_screen.dart';
@@ -286,8 +287,13 @@ class _RoutineScreenState extends State<RoutineScreen>
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () =>
-              AdManager().navigateWithAd(context, const DashboardScreen()),
+          onPressed: () {
+            context.read<NavigationProvider>().increment();
+            Navigator.push(
+                context,
+                CupertinoPageRoute(
+                    builder: (context) => const DashboardScreen()));
+          },
           tooltip: 'Dashboard',
           icon: const Icon(CupertinoIcons.square_grid_2x2),
         ),

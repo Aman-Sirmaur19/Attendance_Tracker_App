@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:feedback/feedback.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,8 +12,8 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 
 import '../../main.dart';
 import '../../utils/dialogs.dart';
-import '../../services/ad_manager.dart';
 import '../../widgets/custom_banner_ad.dart';
+import '../../providers/navigation_provider.dart';
 import 'settings_screen.dart';
 import 'help_centre_screen.dart';
 import 'subscriptions_screen.dart';
@@ -52,7 +53,7 @@ class DashboardScreen extends StatelessWidget {
       body: Column(
         children: [
           const Text(
-            'Version: 1.2.6',
+            'Version: 1.2.8',
             textAlign: TextAlign.center,
             style: TextStyle(
               letterSpacing: 1.5,
@@ -68,8 +69,13 @@ class DashboardScreen extends StatelessWidget {
                   tileColor: Theme.of(context).colorScheme.primary,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)),
-                  onTap: () => AdManager()
-                      .navigateWithAd(context, const SubscriptionsScreen()),
+                  onTap: () {
+                    context.read<NavigationProvider>().increment();
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) => const SubscriptionsScreen()));
+                  },
                   leading:
                       const Icon(Icons.star_rate_rounded, color: Colors.amber),
                   title: RichText(
@@ -112,16 +118,26 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 _customListTile(
-                  onTap: () => AdManager()
-                      .navigateWithAd(context, const SettingsScreen()),
+                  onTap: () {
+                    context.read<NavigationProvider>().increment();
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) => const SettingsScreen()));
+                  },
                   icon: CupertinoIcons.settings,
                   title: 'Settings',
                   isFirst: true,
                   context: context,
                 ),
                 _customListTile(
-                  onTap: () => AdManager()
-                      .navigateWithAd(context, const HelpCentreScreen()),
+                  onTap: () {
+                    context.read<NavigationProvider>().increment();
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) => const HelpCentreScreen()));
+                  },
                   icon: CupertinoIcons.question_circle,
                   title: 'FAQs',
                   isLast: true,

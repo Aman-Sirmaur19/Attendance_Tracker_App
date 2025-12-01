@@ -23,8 +23,8 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final isPro = context.watch<RevenueCatProvider>().isPro;
-    if (!adsInitialized && !isPro) {
+    final isPremium = context.watch<RevenueCatProvider>().isPremium;
+    if (!adsInitialized && !isPremium) {
       adsInitialized = true;
       _initializeBannerAd();
     }
@@ -82,9 +82,9 @@ class _CustomBannerAdState extends State<CustomBannerAd> {
 
   @override
   Widget build(BuildContext context) {
-    final isPro = context.watch<RevenueCatProvider>().isPro;
+    final isPremium = context.watch<RevenueCatProvider>().isPremium;
 
-    if (isPro) return const SizedBox();
+    if (isPremium) return const SizedBox();
 
     return isBannerAdLoaded
         ? SizedBox(height: 50, child: AdWidget(ad: bannerAd!))

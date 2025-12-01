@@ -7,9 +7,9 @@ import '../../utils/dialogs.dart';
 import '../../widgets/custom_text.dart';
 import '../../widgets/pro_container.dart';
 import '../../widgets/custom_banner_ad.dart';
-import '../../services/ad_manager.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/navigation_provider.dart';
 import '../../providers/revenue_cat_provider.dart';
 import 'subscriptions_screen.dart';
 
@@ -100,9 +100,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             onTap: () {
-              if (!subscriptionProvider.isPro) {
-                AdManager()
-                    .navigateWithAd(context, const SubscriptionsScreen());
+              if (!subscriptionProvider.isPremium) {
+                context.read<NavigationProvider>().increment();
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => const SubscriptionsScreen()));
               } else {
                 showModalBottomSheet(
                   context: context,
@@ -315,9 +318,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             value: settingsProvider.isFloatingActionButton,
             onChanged: (newValue) {
-              if (!subscriptionProvider.isPro) {
-                AdManager()
-                    .navigateWithAd(context, const SubscriptionsScreen());
+              if (!subscriptionProvider.isPremium) {
+                context.read<NavigationProvider>().increment();
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => const SubscriptionsScreen()));
               } else {
                 settingsProvider.setFloatingButton(newValue, prefs);
               }
@@ -350,9 +356,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 10),
           ListTile(
             onTap: () {
-              if (!subscriptionProvider.isPro) {
-                AdManager()
-                    .navigateWithAd(context, const SubscriptionsScreen());
+              if (!subscriptionProvider.isPremium) {
+                context.read<NavigationProvider>().increment();
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => const SubscriptionsScreen()));
               } else {
                 settingsProvider.toggleGraphStyle(prefs);
               }
@@ -400,8 +409,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         GestureDetector(
           onTap: () {
             if (!Provider.of<RevenueCatProvider>(context, listen: false)
-                .isPro) {
-              AdManager().navigateWithAd(context, const SubscriptionsScreen());
+                .isPremium) {
+              context.read<NavigationProvider>().increment();
+              Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                      builder: (context) => const SubscriptionsScreen()));
             } else {
               setState(() {
                 _isDropdownOpen = !_isDropdownOpen;

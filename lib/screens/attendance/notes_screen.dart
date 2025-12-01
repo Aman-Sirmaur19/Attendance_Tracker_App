@@ -7,9 +7,9 @@ import 'package:hive_flutter/adapters.dart';
 
 import '../../utils/dialogs.dart';
 import '../../models/attendance.dart';
-import '../../services/ad_manager.dart';
 import '../../data/hive_data_store.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/navigation_provider.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
 import 'add_notes_screen.dart';
@@ -57,8 +57,14 @@ class _NotesScreenState extends State<NotesScreen> {
               actions: [
                 if (!settingsProvider.isFloatingActionButton)
                   IconButton(
-                    onPressed: () => AdManager().navigateWithAd(
-                        context, AddNotesScreen(attendance: widget.attendance)),
+                    onPressed: () {
+                      context.read<NavigationProvider>().increment();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => AddNotesScreen(
+                                  attendance: widget.attendance)));
+                    },
                     tooltip: 'Add note',
                     icon: const Icon(Icons.add_circle_outline_rounded),
                   )
@@ -67,8 +73,14 @@ class _NotesScreenState extends State<NotesScreen> {
             bottomNavigationBar: const CustomBannerAd(),
             floatingActionButton: settingsProvider.isFloatingActionButton
                 ? FloatingActionButton(
-                    onPressed: () => AdManager().navigateWithAd(
-                        context, AddNotesScreen(attendance: widget.attendance)),
+                    onPressed: () {
+                      context.read<NavigationProvider>().increment();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => AddNotesScreen(
+                                  attendance: widget.attendance)));
+                    },
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue,
                     tooltip: 'Add task',
@@ -92,8 +104,14 @@ class _NotesScreenState extends State<NotesScreen> {
                           ),
                           const SizedBox(height: 10),
                           CustomElevatedButton(
-                            onPressed: () => AdManager().navigateWithAd(context,
-                                AddNotesScreen(attendance: widget.attendance)),
+                            onPressed: () {
+                              context.read<NavigationProvider>().increment();
+                              Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                      builder: (context) => AddNotesScreen(
+                                          attendance: widget.attendance)));
+                            },
                             title: 'Get started',
                           )
                         ],
@@ -112,12 +130,16 @@ class _NotesScreenState extends State<NotesScreen> {
                       final Color randomColor =
                           _colors[Random().nextInt(_colors.length)];
                       return GestureDetector(
-                        onTap: () => AdManager().navigateWithAd(
-                            context,
-                            AddNotesScreen(
-                              attendance: widget.attendance,
-                              note: notes[index],
-                            )),
+                        onTap: () {
+                          context.read<NavigationProvider>().increment();
+                          Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => AddNotesScreen(
+                                        attendance: widget.attendance,
+                                        note: notes[index],
+                                      )));
+                        },
                         child: Container(
                           margin: const EdgeInsets.symmetric(horizontal: 15),
                           decoration: BoxDecoration(

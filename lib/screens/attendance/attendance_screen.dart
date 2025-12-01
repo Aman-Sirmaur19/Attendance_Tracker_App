@@ -10,9 +10,9 @@ import 'package:in_app_update/in_app_update.dart';
 import '../../main.dart';
 import '../../utils/dialogs.dart';
 import '../../models/attendance.dart';
-import '../../services/ad_manager.dart';
 import '../../services/notification_service.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/navigation_provider.dart';
 import '../../widgets/chart_bar.dart';
 import '../../widgets/custom_banner_ad.dart';
 import '../../widgets/custom_elevated_button.dart';
@@ -221,8 +221,13 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
-                onPressed: () => AdManager()
-                    .navigateWithAd(context, const DashboardScreen()),
+                onPressed: () {
+                  context.read<NavigationProvider>().increment();
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) => const DashboardScreen()));
+                },
                 tooltip: 'Dashboard',
                 icon: const Icon(CupertinoIcons.square_grid_2x2),
               ),
@@ -230,8 +235,14 @@ class _AttendanceScreenState extends State<AttendanceScreen>
               actions: [
                 if (!settingsProvider.isFloatingActionButton)
                   IconButton(
-                    onPressed: () => AdManager().navigateWithAd(
-                        context, const AddAttendanceScreen(attendance: null)),
+                    onPressed: () {
+                      context.read<NavigationProvider>().increment();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) =>
+                                  const AddAttendanceScreen(attendance: null)));
+                    },
                     tooltip: 'Add subject',
                     icon: const Icon(Icons.add_circle_outline_rounded),
                   )
@@ -240,8 +251,14 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             bottomNavigationBar: const CustomBannerAd(),
             floatingActionButton: settingsProvider.isFloatingActionButton
                 ? FloatingActionButton(
-                    onPressed: () => AdManager().navigateWithAd(
-                        context, const AddAttendanceScreen(attendance: null)),
+                    onPressed: () {
+                      context.read<NavigationProvider>().increment();
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) =>
+                                  const AddAttendanceScreen(attendance: null)));
+                    },
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue,
                     tooltip: 'Add subject',
@@ -458,8 +475,14 @@ class _AttendanceScreenState extends State<AttendanceScreen>
             ),
             const SizedBox(height: 10),
             CustomElevatedButton(
-              onPressed: () => AdManager().navigateWithAd(
-                  context, const AddAttendanceScreen(attendance: null)),
+              onPressed: () {
+                context.read<NavigationProvider>().increment();
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) =>
+                            const AddAttendanceScreen(attendance: null)));
+              },
               title: 'Get started',
             ),
           ],
@@ -657,8 +680,14 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                   fontWeight: FontWeight.bold)),
                         ),
                         IconButton(
-                          onPressed: () => AdManager().navigateWithAd(context,
-                              NotesScreen(attendance: attendances[index])),
+                          onPressed: () {
+                            context.read<NavigationProvider>().increment();
+                            Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (context) => NotesScreen(
+                                        attendance: attendances[index])));
+                          },
                           tooltip: 'Sticky Notes',
                           icon: Image.asset(
                             'assets/images/sticky-notes.png',
@@ -666,10 +695,14 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                           ),
                         ),
                         IconButton(
-                          onPressed: () => AdManager().navigateWithAd(
-                              context,
-                              AddAttendanceScreen(
-                                  attendance: attendances[index])),
+                          onPressed: () {
+                            context.read<NavigationProvider>().increment();
+                            Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (context) => AddAttendanceScreen(
+                                        attendance: attendances[index])));
+                          },
                           tooltip: 'Edit',
                           icon: const Icon(
                             CupertinoIcons.pencil_ellipsis_rectangle,
