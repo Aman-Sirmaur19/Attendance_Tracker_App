@@ -1,34 +1,35 @@
-import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:feedback/feedback.dart';
+import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tzz;
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:timezone/data/latest.dart' as tzz;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'secrets.dart';
 import 'utils/theme.dart';
 import 'models/task.dart';
+import 'models/project.dart';
 import 'models/routine.dart';
 import 'models/attendance.dart';
 import 'screens/tab_screen.dart';
 import 'data/hive_data_store.dart';
-import 'providers/theme_provider.dart';
-import 'providers/settings_provider.dart';
-import 'providers/revenue_cat_provider.dart';
-import 'services/ad_manager.dart';
 import 'services/feedback_service.dart';
 import 'services/notification_service.dart';
+import 'providers/theme_provider.dart';
+import 'providers/project_provider.dart';
+import 'providers/settings_provider.dart';
+import 'providers/navigation_provider.dart';
+import 'providers/revenue_cat_provider.dart';
 
 late Size mq;
 late SharedPreferences prefs;
 
 Future<void> _initializeMobileAds() async {
   await MobileAds.instance.initialize();
-  AdManager().initialize();
 }
 
 Future<void> main() async {
@@ -48,12 +49,21 @@ Future<void> main() async {
   Hive.registerAdapter<Attendance>(AttendanceAdapter());
   Hive.registerAdapter(RoutineAdapter());
   Hive.registerAdapter<Task>(TaskAdapter());
+  // Register generated Project adapters
+  Hive.registerAdapter(ProjectAdapter());
+  Hive.registerAdapter(ProjectSubjectAdapter());
+  Hive.registerAdapter(ProjectChapterAdapter());
+  Hive.registerAdapter(ProjectTopicAdapter());
+  Hive.registerAdapter(ProjectSubTopicAdapter());
 
   // Open all the boxes
   await Hive.openBox<Attendance>(HiveDataStore.attendanceBoxName);
   await Hive.openBox<Routine>(HiveDataStore.routineBoxName);
   await Hive.openBox<Uint8List>('routineImageBox');
   await Hive.openBox<Task>(HiveDataStore.taskBoxName);
+
+  // Open the NEW project box
+  await Hive.openBox<Project>(HiveDataStore.projectBoxName);
 
   // Load settings from SharedPreferences into provider
   final settingsProvider = await SettingsProvider.loadFromPrefs(prefs);
@@ -74,6 +84,21 @@ Future<void> main() async {
           ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
           ChangeNotifierProvider<SettingsProvider>.value(
               value: settingsProvider),
+          // Add ProjectProvider
+          ChangeNotifierProvider<ProjectProvider>(
+              create: (_) => ProjectProvider()),
+          ChangeNotifierProxyProvider<RevenueCatProvider, NavigationProvider>(
+            create: (context) => NavigationProvider(
+              context.read<RevenueCatProvider>(),
+            ),
+            update: (context, revenueCat, navigationProvider) {
+              if (navigationProvider == null) {
+                throw Exception("NavigationProvider is null");
+              }
+              navigationProvider.updateRevenueCat(revenueCat);
+              return navigationProvider;
+            },
+          ),
         ],
         child: BaseWidget(child: const MyApp()),
       ),
@@ -81,9 +106,7 @@ Future<void> main() async {
   );
 }
 
-// This inherited widget provides us with a convenient way to pass data between
-// widgets. While developing an app we will need some data from parent's widgets
-// or grant parent widgets or maybe beyond that.
+// ... rest of your main.dart code (BaseWidget, MyApp class) stays exactly the same
 class BaseWidget extends InheritedWidget {
   BaseWidget({super.key, required this.child}) : super(child: child);
 
@@ -110,8 +133,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     mq = MediaQuery.of(context).size;
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final isPro = context.watch<RevenueCatProvider>().isPro;
-    AdManager().updateAdStatus(isPro);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Attendance Tracker',
@@ -122,3 +143,11 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+/*
+remove print from revenue cat provider
+FAQs for project
+
+cricket
+hit the hammer
+ */

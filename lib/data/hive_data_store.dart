@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '../models/attendance.dart';
 import '../models/task.dart';
+import '../models/project.dart';
 import '../models/routine.dart';
+import '../models/attendance.dart';
 
 /// All the [CRUD] operation method for Hive DB
 class HiveDataStore {
   // -------------------- TASK --------------------
-
   static const taskBoxName = 'taskBox';
   final Box<Task> box = Hive.box<Task>(taskBoxName);
 
@@ -31,7 +31,6 @@ class HiveDataStore {
   ValueListenable<Box<Task>> listenToTask() => box.listenable();
 
   // -------------------- ATTENDANCE --------------------
-
   static const attendanceBoxName = 'attendanceBox';
   final Box<Attendance> attendanceBox = Hive.box<Attendance>(attendanceBoxName);
 
@@ -55,7 +54,6 @@ class HiveDataStore {
       attendanceBox.listenable();
 
   // -------------------- ROUTINE --------------------
-
   static const routineBoxName = 'routineBox';
   final Box<Routine> routineBox = Hive.box<Routine>(routineBoxName);
 
@@ -75,7 +73,6 @@ class HiveDataStore {
     await routine.delete();
   }
 
-  /// Find routine entry by day + timeSlot
   Routine? getRoutineByDayAndTime(String day, String timeSlot) {
     try {
       return routineBox.values.firstWhere(
@@ -86,11 +83,29 @@ class HiveDataStore {
     }
   }
 
-  /// Reset all routines (clear timetable)
   Future<void> clearAllRoutines() async {
     await routineBox.clear();
   }
 
-  /// Listen for UI updates
   ValueListenable<Box<Routine>> listenToRoutine() => routineBox.listenable();
+
+  // -------------------- PROJECT PROGRESS (UPDATED) --------------------
+
+  // Renamed box to 'mainProjectBox' to avoid conflict with old data structure
+  static const projectBoxName = 'projectBox';
+  final Box<Project> projectBox = Hive.box<Project>(projectBoxName);
+
+  Future<void> addProject({required Project project}) async {
+    await projectBox.put(project.id, project);
+  }
+
+  Future<void> updateProject({required Project project}) async {
+    await project.save();
+  }
+
+  Future<void> deleteProject({required Project project}) async {
+    await project.delete();
+  }
+
+  ValueListenable<Box<Project>> listenToProjects() => projectBox.listenable();
 }
